@@ -1,31 +1,44 @@
-* Initial release of Org Everywhere
+* Welcome to Org Everywhere
 
-  AFTER YOU INSTALL FOR THE FIRST TIME: LET IT RUN FOR ABOUT 60 SECONDS AND RESTART SUBLIME.
-  WE INSTALL SOME DEPENDENCIES AND ARE NOT VERY GOOD ABOUT LETTING YOU KNOW THAT YOU
-  NEED TO RESTART SUBLIME!
+  Org Everywhere is a fork of [[https://github.com/ihdavids/orgextended][OrgExtended]] that uses the
+  [[https://github.com/ihdavids/orgs][orgs]] server for everything that spans more than one file:
+  the agenda, clocking, capture, refile and archive, ids and backlinks, search
+  and exporting. Editing a buffer (folding, todo cycling, tables, lists, source
+  blocks...) happens in Sublime, as before.
 
-  Setup instructions can be found here:
-  https://github.com/ihdavids/orgextended_docs/blob/master/start.org
+  Because orgs is shared, Sublime, VSCode, the orgs command line and worg (the
+  web front end orgs serves) all see the same notes at the same time.
 
-  Org Mode in Emacs is an extensive lifestyle plugin.
-  This plugin couldn't hope to duplicate the full expanse of
-  Emacs org mode. That said, this plugin attempts to provide
-  some of the amazing functionality found in Emacs org mode
-  right here in sublime text!
+** OrgExtended and Org Everywhere cannot both be enabled
+   They handle the same files and commands and will fight over them. If
+   OrgExtended is installed, Org Everywhere offers to disable it when Sublime
+   starts. You can also do it yourself: *Package Control: Disable Package*,
+   then pick OrgExtended.
 
-  Org Mode IS: https://orgmode.org 
+** Getting started
+   1. Restart Sublime once Package Control has finished installing the
+      dependencies (pyyaml, dateutil, requests, regex, six).
+   2. Run *Org: Set Up a Local orgs Server*. It downloads orgs, runs it on
+      this machine reading a folder of org files you pick, and logs you in
+      to it. No server to install and no password to type.
+   3. Or point Org Everywhere at an orgs server you already run with
+      *Org: Set orgs server url* (it looks at http://localhost:8010 and
+      https://localhost:443 by default).
+   4. *Org: orgs connection status* shows what is going on, and the status
+      bar of an org file shows the connection.
 
-  - A document interchange format
-  - A personal wiki
-  - A task and project management toolset
-  - An agenda
-  - A means of building living documents known as literate programming
-  - The backend for blogs, webpages, and an outliner for authors.
-  - A tool for authoring presentations.
-  - A time tracking tool
-  - A spreadsheet and data management tool
-  - And much much more. 
+   Without a server, editing still works; features that need the server say
+   that it is not connected.
 
-  This plugin is written selfishly as a means of helping
-  me stay organized. It comes with no warranty whatsoever.
-  It is my hope that you still find it useful.
+** Requirements
+   Sublime Text build 4205 or later: Org Everywhere runs on the Python 3.14
+   plugin host.
+
+** More
+   - The manual: https://github.com/ihdavids/orgextended_docs
+   - orgs, its command line and worg: https://github.com/ihdavids/orgs
+   - Issues: https://github.com/ihdavids/orgeverywhere/issues
+
+  This plugin is written selfishly as a means of helping me stay organized.
+  It comes with no warranty whatsoever. It is my hope that you still find it
+  useful.

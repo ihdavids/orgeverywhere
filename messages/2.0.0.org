@@ -86,3 +86,9 @@
    Set =orgsEnabled= to false, or simply do not run one. Editing works as
    before; features that need the database say the server is not connected
    rather than showing nothing.
+
+** Also in 2.0
+   - Org Everywhere is now its own package, a fork of OrgExtended. The two
+     cannot both be enabled; at startup Org Everywhere offers to disable
+     OrgExtended if it finds it.
+   - Runs on Sublime's Python 3.14 plugin host (build 4205 or later).

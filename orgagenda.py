@@ -446,7 +446,7 @@ class AgendaBaseView:
         if "datefilter" not in kwargs:
             return
 
-        DATE_PATTERN = "([><=]+)(\d+)"
+        DATE_PATTERN = r"([><=]+)(\d+)"
         datefilter = kwargs["datefilter"].split(" ")
         for cond in datefilter:
             match = re.search(DATE_PATTERN, cond)

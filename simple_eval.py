@@ -274,8 +274,6 @@ class SimpleEval(object):  # pylint: disable=too-few-public-methods
             ast.Assign: self._eval_assign,
             ast.AugAssign: self._eval_aug_assign,
             ast.Import: self._eval_import,
-            ast.Num: self._eval_num,
-            ast.Str: self._eval_str,
             ast.Name: self._eval_name,
             ast.UnaryOp: self._eval_unaryop,
             ast.BinOp: self._eval_binop,
@@ -289,6 +287,12 @@ class SimpleEval(object):  # pylint: disable=too-few-public-methods
             ast.Index: self._eval_index,
             ast.Slice: self._eval_slice,
         }
+
+        # ast.Num and ast.Str were removed in python 3.14 (ast.Constant covers them)
+        if hasattr(ast, 'Num'):
+            self.nodes[ast.Num] = self._eval_num
+        if hasattr(ast, 'Str'):
+            self.nodes[ast.Str] = self._eval_str
 
         # py3k stuff:
         if hasattr(ast, 'NameConstant'):

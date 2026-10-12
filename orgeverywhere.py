@@ -35,6 +35,8 @@ def InstallIfNeeded(pkg, name):
 
 # Lets get our windows in sync now that we are loaded.
 def sync_up_on_loaded():
+    # Dialogs belong on the main thread.
+    sublime.set_timeout(pkgcon.CheckForOrgExtended, 0)
     window = sublime.active_window()
     window.run_command("org_on_load_sync_up", {})
     notice.Setup()

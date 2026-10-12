@@ -1,7 +1,109 @@
 # Org Everywhere
 
-  Org Everywhere is [OrgExtended](https://github.com/ihdavids/orgextended) rewritten to use
-  the [orgs](https://github.com/ihdavids/orgs) server for all cross file operations.
+  Emacs [Org mode](https://orgmode.org) for Sublime Text, backed by the
+  [orgs](https://github.com/ihdavids/orgs) server.
+
+  > **This is a fork.** Org Everywhere is a fork of
+  > [OrgExtended](https://github.com/ihdavids/orgextended). Editing an org file
+  > works the way it always did, but everything that spans more than one file
+  > (the agenda, clocking, capture, refile and archive, ids and backlinks,
+  > search, exporting) is now done by the orgs server. OrgExtended and Org
+  > Everywhere cannot both be enabled: if Org Everywhere finds OrgExtended at
+  > startup it offers to disable it.
+
+# How it works
+
+  orgs is a small server that watches a directory of org files and keeps a
+  database of them: which files are org files, every heading, its tags, ids,
+  dates, clocks and links. Org Everywhere talks to it, and so do the other
+  orgs clients:
+
+```
+   Sublime Text          VSCode             orgs command line      worg (web)
+  (Org Everywhere)  (vscode-org-everywhere)   orgs agenda / tui    any browser
+         \                   |                      |                 /
+          \------------------+----------+-----------+----------------/
+                                        |
+                                   orgs server
+                                        |
+                              your folder of org files
+```
+
+  - **In Sublime**: folding, todo cycling, tables, lists, links, source blocks
+    and the rest of editing a buffer happen locally, in the plugin.
+  - **On the server**: what lands on each day of the agenda, the running
+    clock, capture templates, refile targets, id and link resolution,
+    backlinks, the query language, habits, exporting, running code, tangling
+    and more.
+  - **Shared**: every client sees the same notes and the same clock. Clock in
+    from Sublime and the clock is running in worg and at the command line; tick
+    a task off on your phone in worg and the Sublime agenda shows it done.
+
+  Without a server, editing still works; features that need the server say it
+  is not connected rather than showing nothing.
+
+## Getting started
+
+  1. Install Org Everywhere with Package Control, let it install its
+     dependencies, and restart Sublime. It needs Sublime Text build 4205 or
+     later (it runs on the Python 3.14 plugin host).
+  2. Run **Org: Set Up a Local orgs Server**. It downloads orgs, runs it on
+     this machine reading a folder of org files you pick, and logs you in to
+     it. Updates, its config, its log and its users are under
+     **Org: Local orgs Server**.
+  3. Or run a server yourself (`orgs serve` beside its `orgs.yaml`) and point
+     Org Everywhere at it with **Org: Set orgs server url**. It looks at
+     `http://localhost:8010` and `https://localhost:443` by default.
+  4. **Org: orgs connection status** shows what is going on, and the status bar
+     of an org file shows the connection.
+
+## worg: the same notes in a browser
+
+  `orgs serve` hands out worg, a web front end, at `/` - any browser that can
+  reach the server, a phone included, has it. **Org: orgs Open Web UI** opens
+  it from Sublime.
+
+  The agenda: habits at the top, the day as a planner, and the tasks still to
+  place down the side. Drag a task onto an hour to schedule it.
+
+  ![worg's agenda: habits, the day as a planner, and the tasks still to place](https://raw.githubusercontent.com/ihdavids/orgs/main/docs/images/worg-agenda.png)
+
+  Kanban boards built from a saved query, one column per keyword. Dragging a
+  card to another column changes the heading in its file.
+
+  ![worg's kanban board](https://raw.githubusercontent.com/ihdavids/orgs/main/docs/images/worg-kanban.png)
+
+  A saved query as a gantt chart: `EFFORT` sizes the bars, `AFTER` and
+  `ORDERED` chain them.
+
+  ![worg's gantt chart](https://raw.githubusercontent.com/ihdavids/orgs/main/docs/images/worg-gantt.png)
+
+  More in [worg, in pictures](https://github.com/ihdavids/orgs/blob/main/docs/worg.org).
+
+## The orgs command line
+
+  The `orgs` command talks to the same server, so what you change at a prompt
+  is in Sublime a second later, and the other way round. With a local server
+  set up from Sublime, **Org: Use the Local orgs Server from a Terminal**
+  gives you a shell alias for its `orgs`, which needs no login. Every command
+  also takes `-json`, so a script can read what is drawn here for a person.
+
+  `orgs agenda`: three months of calendar, today's entries and the week.
+
+  ![orgs agenda in a terminal](https://raw.githubusercontent.com/ihdavids/orgs/main/docs/images/cli-agenda.png)
+
+  `orgs tui`: a query's results in a list, with keys to filter, change the
+  query, change a keyword or open the heading in your editor.
+
+  ![orgs tui in a terminal](https://raw.githubusercontent.com/ihdavids/orgs/main/docs/images/cli-tui.png)
+
+  `orgs kanban`: worg's boards, editable from the terminal.
+
+  ![orgs kanban in a terminal](https://raw.githubusercontent.com/ihdavids/orgs/main/docs/images/cli-kanban.png)
+
+  More in [the command line, in pictures](https://github.com/ihdavids/orgs/blob/main/docs/cli.org).
+
+# Org mode
 
   ![Org](https://orgmode.org/resources/img/org-mode-unicorn.svg)
 
@@ -11,8 +113,6 @@
 
   ![Start](https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/orgstart.gif)
 
-  NOTE: To get setup, please jump down the Setup link below.
-  
   When people show off org, they often just show off some folding
   and the ability to tab cycle a headings tree. This often leads people
   to compare org with Markdown. Org IS a markup and document interchange
@@ -100,6 +200,7 @@
 # Thank You
   I have shamelessly built this plugin on the backs of some excellent plugins and libraries.
 
+  - [OrgExtended](https://github.com/ihdavids/orgextended) - Org Everywhere is a fork of it, and still owes it most of its editing.
   - The original orgmode plugin - This work was exceptional, OrgEverywhere is a tribute to that work and consumes some of it.
   - sublime_ZK - The inline image preview is entirely due to the Markdown ZK plugin. 
     [ZK](https://github.com/renerocksai/sublime_zk) Thank you renerocksai for pointing out that phantoms can be used for image preview.

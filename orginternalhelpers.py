@@ -19,7 +19,7 @@ import glob
 varre = re.compile(r'var\((?P<name>[^)]+)\)')
 colorre = re.compile(r'#(?P<r>[A-Fa-f0-9][A-Fa-f0-9])(?P<g>[A-Fa-f0-9][A-Fa-f0-9])(?P<b>[A-Fa-f0-9][A-Fa-f0-9])(?P<a>[A-Fa-f0-9][A-Fa-f0-9])?')
 
-template = """
+template = r"""
     - match: '{{{{beginsrc}}}}(({match})\s*)'
       captures:
         1: constant.other orgmode.fence.sourceblock

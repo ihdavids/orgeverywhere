@@ -11,7 +11,6 @@ import OrgEverywhere.asettings as sets
 import OrgEverywhere.orgextension as ext
 from collections import defaultdict
 import struct
-import imghdr
 import urllib.request
 import urllib.parse
 import yaml
@@ -524,16 +523,16 @@ class ImageHandler:
                     return width, height, ttype
                 if len(head) != 24:
                     return
-                if imghdr.what(img) == 'png':
+                if head.startswith(b'\x89PNG\r\n\x1a\n'):
                     ttype = "png"
                     check = struct.unpack('>i', head[4:8])[0]
                     if check != 0x0d0a1a0a:
                         return
                     width, height = struct.unpack('>ii', head[16:24])
-                elif imghdr.what(img) == 'gif':
+                elif head[:6] in (b'GIF87a', b'GIF89a'):
                     ttype = "gif"
                     width, height = struct.unpack('<HH', head[6:10])
-                elif imghdr.what(img) == 'jpeg':
+                elif head.startswith(b'\xff\xd8'):
                     ttype = "jpeg"
                     try:
                         f.seek(0)  # Read 0xff next
