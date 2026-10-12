@@ -212,8 +212,8 @@
     <URL>::#<ID>
    #+END_EXAMPLE
 
-  - [[file:C:\Users\ihdav\AppData\Roaming\Sublime Text\Packages\OrgEverywhere\testfile.org::#33da3712-51b7-485c-b69d-f54dd266543f][ID Creation]] 
-  - [[file:C:\Users\ihdav\AppData\Roaming\Sublime Text\Packages\OrgEverywhere\testfile.org::#My-Custom-Id][Custom Id]] 
+  - [[file:C:\Users\me\AppData\Roaming\Sublime Text\Packages\OrgEverywhere\testfile.org::#33da3712-51b7-485c-b69d-f54dd266543f][ID Creation]] 
+  - [[file:C:\Users\me\AppData\Roaming\Sublime Text\Packages\OrgEverywhere\testfile.org::#My-Custom-Id][Custom Id]] 
 
 *** Anchors or Internal Targets
 

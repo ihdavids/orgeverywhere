@@ -228,7 +228,7 @@ class OrgTimesheet(ag.TodoView):
         # if sys.platform == 'darwin':
         #    mmdc = "./node_modules/.bin/mmdc"
         # elif sys.platform == 'win32':
-        #    mmdc = "C:\\Users\\ihdav\\node_modules\\.bin\\mmdc.ps1"
+        #    mmdc = "C:\\Users\\me\\node_modules\\.bin\\mmdc.ps1"
         print("Trying to render: " + filename)
         execs = sets.Get("mermaidPath", None)
         tpath = sets.Get("timesheetPath", None)

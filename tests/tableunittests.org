@@ -333,7 +333,7 @@
    #+TBLFM:$1=@#::@2$2..@100$3=rand();%.2f
 
    #+RESULTS:
-   [[file:C:/Users/ihdav/AppData/Roaming/Sublime Text/Packages/OrgEverywhere/out.png]]
+   [[file:C:/Users/me/AppData/Roaming/Sublime Text/Packages/OrgEverywhere/out.png]]
 
 * Full Relative Test
   This was found to be broken in 1.2.32!

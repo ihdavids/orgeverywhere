@@ -5,7 +5,7 @@
   You should now specify mmdc.ps1 on windows:
 
   #+BEGIN_SRC js
-    "mermaid": "C:\Users\ihdav\node_modules\.bin\mmdc.ps1", 
+    "mermaid": "C:\Users\me\node_modules\.bin\mmdc.ps1", 
   #+END_SRC
 
   On windows this will allow the following to run properly

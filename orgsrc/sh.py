@@ -152,8 +152,8 @@ r"""
     - =ditaa= :: none. The ditaa jar.
     - =java= :: =java=. The java used for ditaa (plantuml always runs
       =java= from the PATH).
-    - =mermaid= :: the settings file ships a sample path
-      (=C:/Users/ihdav/node_modules/.bin/mmdc=); set it to your =mmdc=.
+    - =mermaid= :: =mmdc=, found on the PATH. Set it to the full path of
+      your =mmdc= when it is not on the PATH.
     - =beancountPath= :: read by the unfinished beancount handler only.
 EDOC */
 """

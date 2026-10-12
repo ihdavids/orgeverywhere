@@ -2,7 +2,7 @@
 ** Configuration
     - Added directory globbing support to orgDirs
     #+BEGIN_EXAMPLE
-       "c:\\Users\\ihdav\\notes\\**\\test\\"
+       "c:\\Users\\me\\notes\\**\\test\\"
     #+END_EXAMPLE
 
     This will find valid org extensions in all test sub folders of the path.
@@ -37,7 +37,7 @@
     #+TBLFM:$4=$3+2.0
 
    #+RESULTS:
-   [[file:C:/Users/ihdav/AppData/Roaming/Sublime Text/Packages/OrgEverywhere/messages/plot.png]]
+   [[file:C:/Users/me/AppData/Roaming/Sublime Text/Packages/OrgEverywhere/messages/plot.png]]
 
 
 ** Source Blocks

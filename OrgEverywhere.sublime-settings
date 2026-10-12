@@ -455,7 +455,7 @@
     // For the plantuml source blocks, where is planuml found?
     "plantuml": "D:\\Build\\.imacs\\plantuml.jar",
 
-    "mermaid":      "C:/Users/ihdav/node_modules/.bin/mmdc",
+    "mermaid":      "mmdc",
     // These source block handlers are built in to org mode. If you want to replace them with your own
     // version:
     // 1. write a handler in Packages/User/orgsrc folder

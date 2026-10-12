@@ -15,7 +15,7 @@ def Extension(cmd):
 
 # Actually do the work, return an array of output.
 def Execute(cmd,sets):
-	mmdc = sets.Get("mermaid",'C:\\Users\\ihdav\\node_modules\\.bin\\mmdc.ps1')
+	mmdc = sets.Get("mermaid",'mmdc')
 	if(mmdc == None):
 		print("ERROR: cannot find mmdc file. Please setup the mermaid key in your settings file")
 		return ["ERROR - missing mermaid file"]
