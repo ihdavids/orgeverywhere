@@ -39,9 +39,12 @@
     // with your org directories in its orgs.yaml (server: orgDirs:).
     //
     // Start it with:  orgs serve
+    // Or let OrgEverywhere download and run one for you:
+    //           Org: Set Up a Local orgs Server
     //
-    // Commands: Org: Connect to orgs server, Org: Log in to orgs,
-    //           Org: Log out of orgs, Org: orgs connection status
+    // Commands: Org: orgs (everything in one menu), Org: Connect to orgs
+    //           server, Org: Log in to orgs, Org: Log out of orgs,
+    //           Org: orgs connection status, Org: Local orgs Server
 
     // Set to false to run without the server. Cross file features
     // (agenda, refile, id links, backlinks, capture to other files...)
@@ -70,6 +73,14 @@
     // "orgsCredentialStore": "file" forces that file.
     "orgsRememberLogin": true,
     "orgsCredentialStore": "auto",
+
+    // The local orgs server (Org: Set Up a Local orgs Server): start it
+    // when Sublime starts, log in to it as sublimetext with the password
+    // kept in your keychain (false: ask for a login like any server), and
+    // once a day look for a newer orgs release and offer it.
+    "orgsServerAutoStart": true,
+    "orgsServerAutoLogin": true,
+    "orgsServerCheckForUpdates": true,
     // The user name offered at the login prompt.
     //"orgsUser": "admin",
     // Ask for a login at startup when the server wants one (otherwise you

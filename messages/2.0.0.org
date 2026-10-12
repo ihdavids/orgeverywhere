@@ -15,6 +15,14 @@
   source blocks...) stays local and works as before.
 
 ** Getting started
+   The quick way: *Org: Set Up a Local orgs Server*. It downloads orgs,
+   runs it on this machine reading a folder of org files you pick, and
+   (if you like) logs you in to it automatically - no server to install,
+   no password to type. Updates, its config, its log and its users are in
+   *Org: Local orgs Server*. See *A Local orgs Server* in the manual.
+
+   Or run a server yourself:
+
    1. Install and run the server: =orgs serve= (orgDirs go in its orgs.yaml).
    2. OrgEverywhere looks for it at http://localhost:8010 and
       https://localhost:443. Set =orgsUrl= if yours lives elsewhere, or run

@@ -36,6 +36,7 @@ from . import client as C
 from . import creds
 from . import discovery
 from . import events
+from . import localserver
 from .paths import PathMap
 
 log = logging.getLogger(__name__)
@@ -145,6 +146,45 @@ def _setting(name, default=None):
 def _store():
     prefer = _setting("orgsCredentialStore", "auto")
     return creds.best_store(os.path.join(sublime.cache_path(), "OrgEverywhere"), prefer)
+
+
+# ----------------------------------------------------------------------
+# The local server (orgsserver.py sets it up and runs it)
+
+_local = localserver.LocalServer()
+
+
+def local_server():
+    return _local
+
+
+def _cafile(url):
+    """The certificate to trust for url: the local server's own for it,
+    and only for it; orgsCaFile for anything else."""
+    if url and _local.is_managed(url):
+        return _local.cafile()
+    return _setting("orgsCaFile", None) or None
+
+
+def local_login(cl):
+    """(worker) Log in to the local server with the password kept for it,
+    without asking anybody. False when cl is not the local server,
+    orgsServerAutoLogin is off, or there is no password kept."""
+    if not _setting("orgsServerAutoLogin", True) or not _local.is_managed(cl.url):
+        return False
+    try:
+        d = _store().get(localserver.PASSWORD_KEY) or {}
+    except Exception as e:
+        log.warning("orgs: could not read the local server's password: %s", e)
+        return False
+    if not d.get("password"):
+        return False
+    try:
+        cl.login(d.get("user") or localserver.ORGS_USER, d["password"])
+        return True
+    except C.OrgsError as e:
+        log.warning("orgs: logging in to the local server failed: %s", e)
+        return False
 
 
 # ----------------------------------------------------------------------
@@ -478,7 +518,11 @@ def prompt_login(window=None, on_done=None, reason=None):
 def _auth_needed(cl, reason):
     """OrgsClient.on_auth_needed. Never waits on the prompt: it shows it and
     lets the call fail, so no thread (and no lock) is held while the user
-    types. A remembered login has already been tried by the client."""
+    types. A remembered login has already been tried by the client; the
+    local server's own is tried here, before anybody is asked."""
+    if local_login(cl):
+        _set_state(CONNECTED)
+        return True
     _set_state(LOGIN, reason)
     _main(prompt_login, None, None, reason)
     return False
@@ -521,7 +565,7 @@ def _make_client(url):
     _client = C.OrgsClient(
         url,
         verify=not _setting("orgsNoVerify", False),
-        cafile=_setting("orgsCaFile", None) or None,
+        cafile=_cafile(url),
         timeout=float(_setting("orgsTimeout", 15)),
         store=_store(),
         remember=bool(_setting("orgsRememberLogin", True)),
@@ -562,7 +606,7 @@ def connect(interactive=True, on_done=None):
         _set_state(SEARCHING)
         url = (_setting("orgsUrl", None) or "").strip()
         verify = not _setting("orgsNoVerify", False)
-        cafile = _setting("orgsCaFile", None) or None
+        cafile = _cafile(url)
         if url:
             r = discovery.probe(url, verify, cafile, timeout=float(_setting("orgsTimeout", 15)))
             results = [r]
@@ -596,6 +640,8 @@ def connect(interactive=True, on_done=None):
                     st = "ok"
                 except C.OrgsError as e:
                     log.info("orgs: remembered login refused: %s", e)
+        if st == "login" and local_login(cl):
+            st = "ok"
         if st == "ok":
             _set_state(CONNECTED)
             _start_listener()

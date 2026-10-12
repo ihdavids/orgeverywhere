@@ -9,5 +9,6 @@
 #   creds.py     - OS keychain / credential manager / secret-tool storage
 #   discovery.py - finding a running server
 #   events.py    - the /events server sent event stream
+#   localserver.py - downloading, setting up and running a local orgs server
 #   paths.py     - mapping server paths to local paths
 #   session.py   - the sublime side: settings, login prompts, the singleton

@@ -1,6 +1,6 @@
 #+TITLE: Keys
 #+DOC_SECTION: Getting Started
-#+DOC_ORDER: 3
+#+DOC_ORDER: 4
 
 * Where the keys come from
   Sublime loads a package's key bindings from =Default.sublime-keymap= and

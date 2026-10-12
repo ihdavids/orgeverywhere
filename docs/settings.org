@@ -1,6 +1,6 @@
 #+TITLE: Settings
 #+DOC_SECTION: Getting Started
-#+DOC_ORDER: 4
+#+DOC_ORDER: 5
 
 * Where settings live
   OrgEverywhere's settings are in =OrgEverywhere.sublime-settings=. Sublime

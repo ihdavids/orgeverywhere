@@ -590,6 +590,19 @@ class OrgsClient:
     def reload_config(self):
         return self.post("/reloadconfig")
 
+    def add_user(self, body):
+        """POST /users/add with a localserver.add_user_body. Needs an
+        administrator's login; takes effect at once."""
+        return check_ok(self.post("/users/add", body), "add user")
+
+    def login_ticket(self):
+        """A one-use link that logs a browser in as us: the path to open on
+        the server, e.g. /login/ticket/<ticket> (add ?app=Agenda)."""
+        res = check(self.post("/login/ticket"), "login link")
+        if not isinstance(res, dict) or not res.get("url"):
+            raise OrgsError("the server did not hand out a login link")
+        return res["url"]
+
     def addresses(self):
         return self.get("/addresses")
 

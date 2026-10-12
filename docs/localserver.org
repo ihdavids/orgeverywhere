@@ -1,0 +1,90 @@
+#+TITLE: A Local orgs Server
+#+DOC_SECTION: Getting Started
+#+DOC_ORDER: 2
+
+* The quick way
+  OrgEverywhere needs an orgs server for everything that looks across your
+  files. If you do not have one, let OrgEverywhere set one up on this
+  machine: run *Org: Set Up a Local orgs Server*. When Sublime starts and
+  finds no server it offers this once by itself.
+
+  1. It looks up the latest orgs release on github and asks before
+     downloading it.
+  2. You pick the folder of org files orgs should read: one of the
+     project's folders, or any other.
+  3. You pick how Sublime logs in:
+     - *Log me in automatically*. Sublime makes the user =sublimetext=
+       with a random password, keeps the password in your OS keychain
+       (without one, in a file only you can read), and logs in with it.
+       You are never asked.
+     - *Ask me to log in*. You choose a user name and password of your
+       own. Sublime asks for them when it needs a login, like any other
+       server's (and with =orgsRememberLogin=, only once).
+  4. It downloads orgs, checks it against the release's =checksums.txt=,
+     writes its config, starts it, and points =orgsUrl= at it.
+
+  That is all. The agenda, capture, refile and the rest work from then on.
+
+* What it sets up
+  Everything is in one folder of your user data, not in Packages (which
+  people sync, and which would carry the server's keys with it):
+
+  | macOS   | =~/Library/Application Support/OrgEverywhere/orgs= |
+  | Windows | =%LOCALAPPDATA%\OrgEverywhere\orgs=                |
+  | Linux   | =~/.local/share/OrgEverywhere/orgs=                |
+
+  - =orgs= (=orgs.exe=): the server and command line, one binary.
+  - =orgs.yaml=: its config. Yours to edit.
+  - =keystore.yaml=: who may log in.
+  - =server.crt=, =server.key=: a self-signed certificate (=orgs cert=).
+  - =server.log=: what the server printed since Sublime last started it.
+
+  The server serves https and nothing else, answers this machine only, and
+  does not run code blocks unless you turn that on in its config. Sublime
+  trusts its certificate, and only for it; you do not need =orgsNoVerify=
+  or =orgsCaFile= for it. It runs in the background, outlives Sublime, and
+  every window shares it. When Sublime starts and it is not running,
+  Sublime starts it (=orgsServerAutoStart=).
+
+* The local server's menu
+  *Org: Local orgs Server* (or *Org: orgs*, which has the login and
+  connection too) has everything else:
+
+  - *Start*, *Stop*, *Restart*.
+  - *Check for an update*. Sublime also looks once a day by itself
+    (=orgsServerCheckForUpdates=) and offers a newer release: update, read
+    the release notes, skip that version, or not now.
+  - *Edit its config*. Saving =orgs.yaml= reloads the server at once; when
+    a change needs a restart (the port, orgDirs, the keystore) Sublime says
+    so and offers it.
+  - *Show its log*.
+  - *Open worg in the browser*, logged in for you.
+  - *Trust its certificate in browsers*, so they stop warning about it.
+  - *Use it from a terminal*. The =orgs= beside the server reads its
+    =orgs.yaml=, keys and all, so it needs no login: copy an alias for it.
+  - *Users and passwords* (*Org: Manage orgs Users*): add a login of your
+    own for worg or the command line, change a password, remove a user.
+  - *Copy its password*: =sublimetext='s, to log in by hand.
+
+* Users
+  =sublimetext= is Sublime's own login and is left alone. To use worg in a
+  browser or =orgs login= from somewhere else, add yourself a user with
+  *Org: Manage orgs Users*:
+
+  - Adding a user goes to the running server (=POST /users/add=) and works
+    at once. The password does not travel: a salted hash of it does, as
+    with a login.
+  - Changing a password or removing a user edits the keystore with the
+    =orgs user= command line, so the server stops for the moment it takes
+    and starts again.
+
+  To stop logging in automatically, set =orgsServerAutoLogin= to =false=
+  and log in as a user of your own (*Org: Log out of orgs*, then *Org: Log
+  in to orgs*).
+
+* The same server in VS Code
+  The vscode plugin (Org Everywhere for VS Code) sets up a server the same
+  way, with a login of its own (=vscode=). Each keeps its own copy. To
+  share one, point the other at it: set =orgsUrl= here (or
+  =org.orgsConnection= in VS Code) to its address and log in as a user of
+  your own on it.

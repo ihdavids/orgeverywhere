@@ -1,6 +1,6 @@
 #+TITLE: Connecting to orgs
 #+DOC_SECTION: Getting Started
-#+DOC_ORDER: 2
+#+DOC_ORDER: 3
 
 * Why a server
   OrgEverywhere edits the org file in front of you by itself. Everything that
@@ -14,8 +14,10 @@
   not part of the agenda until you save it.
 
 * Running a server
-  Install orgs (see its README), then tell it where your org files are in
-  its =orgs.yaml=:
+  The quickest way is to let OrgEverywhere do it: *Org: Set Up a Local
+  orgs Server* downloads orgs, sets it up and runs it (see *A Local orgs
+  Server*). To run one yourself, install orgs (see its README), then tell
+  it where your org files are in its =orgs.yaml=:
 
   #+BEGIN_SRC yaml
   server:

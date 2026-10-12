@@ -409,9 +409,11 @@ r"""
     View, Clock Report, Tables, Files, Links, Mind Map, Collections,
     Contacts, Code, Flashcards, Diff & History, Presentation, Voice Notes,
     Starmap); =app= (e.g. ="Kanban"=) skips it. The url is =orgsWebUrl=, or
-    the server url when that is empty. worg asks for its own login; no
-    token is put on the url. Enabled when a server is known or
-    =orgsWebUrl= is set.
+    the server url when that is empty. When you are logged in (and
+    =orgsWebUrl= is not set) it opens a one-use login link the server hands
+    out (=POST /login/ticket=), so the browser is logged in too; it is good
+    once, for a minute, and no token is put on the url. Otherwise worg asks
+    for its own login. Enabled when a server is known or =orgsWebUrl= is set.
 EDOC */
 """
 
@@ -430,8 +432,24 @@ class OrgOrgsOpenWebCommand(sublime_plugin.WindowCommand):
         if not url:
             sublime.status_message("orgs: no server url (set orgsUrl or orgsWebUrl)")
             return
-        webbrowser.open(url)
-        sublime.status_message("orgs: opened " + url)
+        cl = orgs.Get()
+        if cl is None or sets.Get("orgsWebUrl", None) or cl.auth_disabled:
+            webbrowser.open(url)
+            sublime.status_message("orgs: opened " + url)
+            return
+
+        # Logged in: a one-use link logs the browser in as us too.
+        def ticket(c):
+            return c.url + c.login_ticket() + ("?app=" + urllib.parse.quote(app) if app else "")
+
+        def opened(u):
+            webbrowser.open(u)
+            sublime.status_message("orgs: opened worg, logged in")
+
+        def plain(e):
+            webbrowser.open(url)
+            sublime.status_message("orgs: opened " + url)
+        orgs.run(ticket, opened, on_error=plain)
 
     def is_enabled(self, **kw):
         return bool(orgs.client() is not None or sets.Get("orgsWebUrl", None))

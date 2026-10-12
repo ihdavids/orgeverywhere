@@ -77,7 +77,8 @@
   2. Type a heading (=* Hello=), put the cursor on it and press =tab=: the
      heading folds and unfolds.
   3. The status bar shows the orgs connection (=orgs: http://localhost:8010 (you)=,
-     =orgs: offline=...). Without a server, see *Connecting to orgs*.
+     =orgs: offline=...). Without a server, run *Org: Set Up a Local orgs
+     Server* (see *A Local orgs Server*) or see *Connecting to orgs*.
 
   Several other syntaxes come with the package: =orgagenda=,
   =orgdatepicker=, =orgdateeditor=, =orginput= and =OrgBeancount=. They are
