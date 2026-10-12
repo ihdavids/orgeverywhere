@@ -1,0 +1,168 @@
+#+TITLE: Diagrams
+#+DOC_SECTION: Source Blocks
+#+DOC_ORDER: 2
+
+* Pictures from text
+  A source block does not have to be a program. Blocks in a diagram
+  language describe a picture; running the block (=alt+o c c=, or *Org
+  Exec Source Block*) hands the text to the tool, writes the picture to
+  the =:file= you name and links it under the block:
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN_SRC graphviz :file images/graph.png
+      digraph G { a -> b; a -> c; c -> d }
+    #+END_SRC
+
+    #+RESULTS:
+    [[file:images/graph.png]]
+  #+END_EXAMPLE
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/creating_diagrams.gif]]
+
+  - =:file= is relative to the org file. Always give one: without it the
+    picture is written to =diagram.png= next to the org file and no link
+    is made. plantuml and graphviz create a missing folder; for the other
+    tools make the folder first.
+  - The org file must be saved (it is saved for you before the block
+    runs).
+  - Afterwards the images of the file are shown inline. *Org Show Images*
+    / *Org Hide Images* turn that on and off for the whole file, *Org Show
+    Image* / *Org Hide Image* for the link under the cursor.
+
+    [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/diagrams_image_links.gif]]
+
+  The tools are not part of OrgEverywhere. Install the ones you want and
+  give their paths in =OrgEverywhere.sublime-settings=. Restart Sublime
+  after installing java or node, so that it sees the new =PATH=.
+
+  When a file is exported to html the picture is shown and the diagram
+  source is left out for the languages in =htmlDefaultSkipSrc=
+  (=plantuml=, =graphviz=, =ditaa=, =gnuplot= by default); =:exports=
+  on the block overrides that.
+
+* PlantUML
+  [[https://plantuml.com/][PlantUML]] draws sequence, class, state, activity and many more UML
+  diagrams. It needs java on the =PATH= and =plantuml.jar=
+  (=brew install plantuml= on macOS installs both).
+
+  #+BEGIN_SRC js
+    "plantuml": "/usr/local/Cellar/plantuml/1.2021.7/libexec/plantuml.jar",
+  #+END_SRC
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN_SRC plantuml :file images/plantuml1.png
+      title Authentication Sequence
+
+      Alice->Bob: Hello Request
+      note right of Bob: Bob thinks about it
+      Bob->Alice: Authentication Response
+    #+END_SRC
+  #+END_EXAMPLE
+
+  OrgEverywhere adds the =@startuml= and =@enduml= lines itself: leave them
+  out of the block.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/plantuml1.png]]
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/diagrams_plantuml.gif]]
+
+* Graphviz
+  [[https://graphviz.org/][Graphviz]] lays out graphs and networks (=brew install graphviz=, or the
+  [[https://graphviz.org/download/][download page]]). Point the setting at the =dot= program:
+
+  #+BEGIN_SRC js
+    "graphviz": "/usr/local/bin/dot",
+  #+END_SRC
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN_SRC graphviz :file images/graphviz.png
+      digraph G {
+        a -> b;
+        a -> c;
+        c -> d
+      }
+    #+END_SRC
+  #+END_EXAMPLE
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/graphviz.png]]
+
+  | Argument      | Meaning                                                            |
+  |---------------+--------------------------------------------------------------------|
+  | =:engine NAME= | another graphviz layout program (=neato=, =circo=, =fdp=, =twopi=...), found next to =dot= |
+  | =:fmt FORMAT= | the output format given to =-T= (=png= by default; =svg=, =pdf=, =jpg=...) |
+
+  Keep the extension of =:file= the same as =:fmt=.
+
+* Ditaa
+  [[https://github.com/stathissideris/ditaa][Ditaa]] turns ascii art boxes and arrows into a picture. It is a java
+  program: set the path to =ditaa.jar= (and =java= if java is not on the
+  =PATH=).
+
+  #+BEGIN_SRC js
+    "ditaa": "/opt/ditaa/ditaa.jar",
+    "java":  "/usr/bin/java",
+  #+END_SRC
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN_SRC ditaa :file images/ditaa.png
+      +--------+       +----------+
+      | Hello  | ----> | Hello2   |
+      +--------+       +----------+
+    #+END_SRC
+  #+END_EXAMPLE
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/ditaa.png]]
+
+  Ditaa always makes a png.
+
+* Mermaid
+  [[https://mermaid.js.org/][Mermaid]] draws flowcharts, sequence diagrams, gantt charts and more from
+  a markdown like text. Install the command line tool with node
+  (=npm install -g @mermaid-js/mermaid-cli=) and point the setting at
+  =mmdc= (on Windows at =mmdc.ps1=, which is run through PowerShell):
+
+  #+BEGIN_SRC js
+    "mermaid": "/usr/local/bin/mmdc",
+  #+END_SRC
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN_SRC mermaid :file images/flow.png
+      graph TD
+        A[Start] --> B{Is it working?}
+        B -- Yes --> C[Ship it]
+        B -- No --> D[Debug] --> B
+    #+END_SRC
+  #+END_EXAMPLE
+
+  =mermaid= is not in =htmlDefaultSkipSrc=, so an html export shows its
+  source as well as the picture unless the block says =:exports results=.
+
+* gnuplot
+  [[http://www.gnuplot.info/][gnuplot]] blocks are plots written in gnuplot's own language:
+
+  #+BEGIN_SRC js
+    "gnuplot": "/usr/local/bin/gnuplot",
+  #+END_SRC
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN_SRC gnuplot :file images/sine.png
+      set title "sin(x)"
+      plot sin(x) with lines
+    #+END_SRC
+  #+END_EXAMPLE
+
+  The extension of =:file= picks gnuplot's terminal (=png=, =jpg=, =gif=,
+  =svg=, =ps=, =html= for a canvas, =txt= for ascii art) and the
+  matching =set term= / =set output= lines are added for you.
+
+  A table given with =:var DATA=table-name= is meant to arrive as a
+  gnuplot data block (=$DATA=) for =plot "$DATA" using 1:2=. In this
+  release the table is not passed through to gnuplot blocks; to plot a
+  table use *Org Plot Table* and a =#+PLOT:= line (see Tables), or put the
+  data into the block.
+
+* The orgs server
+  The orgs server's babel (*Org: orgs Execute Source Block*) can run
+  diagram blocks too when it has the tools, and among its exporters
+  (*Org: orgs Export File*) are =mermaid= and =gantt=, which turn a whole
+  org file into a diagram. See the orgs Server section.

@@ -1,0 +1,84 @@
+* 1.2.6
+  Core Idea: Inline Babel Blocks
+             #+header: comments
+
+  With this release we are focusing on some fringe pieces
+  of the core babel feature set that we need to be complete.
+
+  Inline babel blocks allow you to call a babel function within
+  some other text providing even more dynamic living breathing documents.
+
+  Header blocks extend the core babel features providing more real estate to add
+  parameters to a source block.
+
+** Links
+	- Bugfix thanks to Anti-Distinctlyminty - on windows uses os.startfile() to launch a file link
+	  providing better support for out of sublime file links. Also some improved error notation
+	  in the contols when a link cannot resolve.
+** Agenda Hover
+	- Sometimes this would assert when the agenda was not active.
+
+** Settings orgDirs
+	- If someone sets their orgDirs to a string vs a list we would treat each character as an orgDir
+		which was just plain wrong. I have augmented the db to detect that and just "do the right thing"
+
+** Input
+	- Additional guards against asserts in popups for the input box:
+	  [[https://github.com/ihdavids/orgextended/issues/28][Errors in Sublime Console]]
+
+	  Thanks to OlegBc for finding this one.
+
+** Inline Blocks
+
+	Basic inline source block syntax highlighting now works. 
+	Org has a somewhat odd inline syntax:
+
+	src_python[:var x=5]{print("hello" + str(x))} {{{results(=hello5=)}}}       
+
+	Simple execution seems to be working:
+
+	src_powershell{Write-Host "Hello World"} {{{results(=Hello World=)}}} 
+
+** PList Enhancements
+	- Plists now have propper exclusion properties so :results output value will only have the last value
+		since the options are considered mutually exclusive.
+	- The unit tests have been enhanced to cover exclusivity.
+	- Source blocks now have a global setting allowing you to control their default behaviour globally.
+	  this is inline with what you can do in emacs with: org-babel-default-header-args
+
+	
+		#+BEGIN_EXAMPLE
+				"orgBabelDefaultHeaderArgs": ":var x=5"
+		#+END_EXAMPLE	
+
+** HEADER comments
+
+	Added support for the more generic HEADER comment blocks as seen below.
+
+	#+HEADER: :var y=10
+	#+BEGIN_SRC python :var x=5
+	  print(str(y) + " x " + str(x))
+	#+END_SRC
+
+   #+RESULTS:
+   : 10 x 5
+
+** Buffer Swap Respects Startup Comment
+
+	I find that as I move around the buffer I tend to unfold a lot of "things"
+	When I have a buffer set to "content" mode I like it to clean up the open folds when it can.
+	
+	This new setting will allow sublime to aggressively cleanup the folds to just your active subtree
+	of the file if you turn this on.
+
+	What I really want is org-narrow-to-subtree which is the ability to restrict a view to a narrowing of the buffer
+	but in the absence of that capability this helps keep me focused on the
+	things that matter in my file.
+
+	- This is controlled by a setting:
+
+	#+BEGIN_EXAMPLE
+	  "onFocusRespectStartupFolds": true,
+	#+END_EXAMPLE
+
+

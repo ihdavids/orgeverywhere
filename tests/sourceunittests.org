@@ -1,0 +1,298 @@
+* Introduction
+  These are unit tests for the babel or source block functionality of org everywhere.
+  To run these you will need:
+
+  - The Java Runtime installed (to execute ditaa and plantuml diagrams)
+  - [[https://plantuml.com/download][PlantUML]] and [[http://ditaa.sourceforge.net/][Ditaa]] jar files in your config file.
+  - [[https://graphviz.org/][Graphviz]] installed and in your settings path.
+
+  Execution of these is done by evaluating the table in the result check section below.
+  ALL results are chained off those tables.
+
+
+* Result Checks
+  :PROPERTIES:
+    :NoTableHighlight: True
+  :END:
+  |      Name      |           R1          |  Result  |   Ok   |
+  |----------------+-----------------------+----------+--------|
+  | Row Sums       |                       | [15, 40] | PASSED |
+  | List Sums      |                       | [6]      | PASSED |
+  | Many Vars Test |                       | 15       | PASSED |
+  | NumList Sums   |                       | 10       | PASSED |
+  | PlantUML       | [[file:plantuml.png]] | True     | PASSED |
+  | GraphViz       | [[file:graphviz.png]] | True     | PASSED |
+  | Dataa          | [[file:ditaa.png]]    | True     | PASSED |
+  #+TBLFM:@2$4=passed(sbe('row-sums')[0] == 15 and sbe('row-sums')[1] == 40)::@3$4=passed(sbe('list-sums')[0] == 6)::@2$3=sbe('row-sums')::@3$3=sbe('list-sums')::@6$2=sbe('plantuml-test')::@6$3=sbe('file-exists',filename=filename($-1).replace('\\','\\\\'))::@6$4=passed($-1)::@7$2=sbe('graphviz-test')::@7$3=sbe('file-exists',filename=filename($-1).replace('\\','\\\\'))::@7$4=passed($-1)::@8$2=sbe('ditaa-test')::@8$3=sbe('file-exists',filename=filename($-1).replace('\\','\\\\'))::@8$4=passed($-1)::@4$3=sbe('many-vars')::@4$4=passed($-1==15)::@5$3=sbe('numlist-sums')::@5$4=passed($-1==10)
+
+* Simple Table Test
+
+  #+NAME: table-data
+  | a | b | c | d | e  |
+  | 1 | 2 | 3 | 4 | 5  |
+  | 6 | 7 | 8 | 9 | 10 |
+
+
+  #+NAME: row-sums
+  #+BEGIN_SRC python :results table :var DATA=table-data
+   rowSums = []
+   for i in range(1,len(DATA)):
+      row = DATA[i]
+      rowSum = 0
+      for j in range(0,len(row)):
+          rowSum += row[j]
+      rowSums.append(rowSum)
+   print(str(rowSums))
+  #+END_SRC
+
+  #+RESULTS:
+  | 15 |
+  | 40 |
+
+* Simple List Test
+
+    #+NAME: list-data
+    - 1
+    - 2
+      - 5
+        - 10
+    - 3
+
+    #+NAME: list-sums
+    #+BEGIN_SRC python :results table :var DATA=list-data
+      sum = 0
+      for i in DATA:
+        sum += int(i)
+      print("[{}]".format(sum))
+    #+END_SRC
+
+  #+RESULTS:
+  | 6 |
+
+* Simple Numbered List Test
+
+  #+NAME: numlist-data
+  1. 2
+  2. 3
+  3. 4
+     1. 5
+  4. 1
+
+  #+NAME: numlist-sums
+  #+BEGIN_SRC python :var DATA=numlist-data
+    sum = 0
+    for i in DATA:
+      sum += int(i)
+    print("{}".format(sum))
+  #+END_SRC
+
+  #+RESULTS:
+  : 10
+
+* Simple PlantUML Diagram
+
+  #+NAME: plantuml-test
+  #+BEGIN_SRC plantuml :file plantuml.png
+    a -> b
+    b -> c
+    c -> d
+  #+END_SRC
+
+  #+RESULTS:
+  [[file:plantuml.png]]
+
+* Simple Ditaa Diagram
+
+  #+NAME: ditaa-test
+  #+BEGIN_SRC ditaa :file ditaa.png
+    +--------+        +----------+
+    | Ditaa  | -----> | Sublime  |
+    +--------+        +----------+
+  #+END_SRC
+
+  #+RESULTS:
+  [[file:ditaa.png]]
+
+* Simple Graphviz Diagram
+
+  #+NAME: graphviz-test
+  #+BEGIN_SRC graphviz :file graphviz.png
+   digraph G {
+    a -> b;
+    b -> c;
+    a -> c;
+   } 
+  #+END_SRC
+
+  #+RESULTS:
+  [[file:graphviz.png]]
+
+* Input Tests
+  This test is all about testing the various ways variables can enter a source block
+
+  :PROPERTIES:
+    :header-args:python: :var z=3
+  :END:
+
+  #+PROPERTY: header-args: :var v=5
+
+  #+NAME: many-vars 
+  #+HEADER: :var w=4
+  #+BEGIN_SRC python :var x=1 :var y=2
+   newlist = [v,w,z,y,x]
+   sum = 0
+   for i in newlist:
+       sum += i
+   print(str(sum)) 
+  #+END_SRC
+
+  #+RESULTS:
+  : 15
+
+
+  #+NAME: single-var
+  #+BEGIN_SRC python :var x=5
+    print(x)
+  #+END_SRC
+
+  #+RESULTS:
+  : 5
+
+* Handlers
+  Handlers re-interpret the data in various ways. This could be a table, a list or just adding a text adornment.
+
+** Table Output
+   Table output will try to format the output as a table
+
+  #+NAME: table-output
+  #+BEGIN_SRC python :results table
+    print(['a','b','c'])
+  #+END_SRC
+
+  #+RESULTS:
+  | a |
+  | b |
+  | c |
+
+** List Output
+   List output will try to interpret the data as a list of some sort.
+
+  #+NAME: list-output
+  #+BEGIN_SRC python :results list
+    print(['a','b','c'])
+  #+END_SRC
+
+  #+RESULTS:
+  - a
+  - b
+  - c
+
+** Raw Output
+   Raw output does 0 decoration
+
+  #+NAME: raw-output
+  #+BEGIN_SRC python :results raw
+    print(['a','b','c'])
+  #+END_SRC
+
+   #+RESULTS:
+   ['a', 'b', 'c']
+
+** Text Output
+  Text output gets a : at the start of each line
+
+  #+NAME: text-output
+  #+BEGIN_SRC python
+    print(['a','b','c'])
+  #+END_SRC
+
+   #+RESULTS:
+   : ['a', 'b', 'c']
+
+* Formatters
+  Formatters wrap the output from the handler in some kind of wrapping. A drawer, a source block, etc.
+
+** Drawer
+   The drawer formatter wraps the output in a drawer
+
+  #+NAME: table-output
+  #+BEGIN_SRC python :results table drawer
+    print(['a','b','c'])
+  #+END_SRC
+
+   #+RESULTS:
+   :results:
+   | a |
+   | b |
+   | c |
+   :end:
+
+** Org
+  Source block in orgmode format
+
+  #+NAME: org-output
+  #+BEGIN_SRC python :results table org
+    print(['a','b','c'])
+  #+END_SRC
+
+   #+RESULTS:
+   #+begin_src org
+   | a |
+   | b |
+   | c |
+   #+end_src
+
+** Code
+  Source that outputs source code
+
+  #+NAME: code-output
+  #+BEGIN_SRC python :results raw code
+    print("print(['a','b','c'])")
+  #+END_SRC
+
+   #+RESULTS:
+   #+begin_src python
+   print(['a','b','c'])
+   #+end_src
+
+** Html
+
+  #+NAME: html-output
+  #+BEGIN_SRC python :results html
+    print("<a>hello</a>")
+  #+END_SRC
+
+   #+RESULTS:
+   #+begin_src html
+   <a>hello</a>
+   #+end_src
+
+* Call and Inline
+
+** Call Other Functions
+
+  #+call: html-output()
+
+   #+RESULTS:
+   #+begin_src html
+   <a>hello</a>
+   #+end_src
+
+  #+call: single-var(x=20)
+
+  #+RESULTS:
+  : 20
+
+** Inline Blocks
+
+  Inline block can be anywhere src_python{print("hello world")} {{{results(=hello world=)}}} a good exporter should just include the resuls here
+
+* Tools
+
+  #+NAME: file-exists
+  #+BEGIN_SRC python :var filename="filetotest" :results value
+    import os 
+    return os.path.exists(filename)
+  #+END_SRC
+  #+RESULTS:
+  : False

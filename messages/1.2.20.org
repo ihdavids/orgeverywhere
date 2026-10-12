@@ -1,0 +1,39 @@
+* 1.2.20
+** Html Exporter
+	Continuing the Babel adventure we add support for :exports [code,results,both,none]
+
+	NOTE: this means that the default parameters for babel header args are now more important
+	      Before we would default to exporting both code and results, now, due to the defaults set in our settings
+	      we only export code. This is in complaince with org mode defaults. If you would like to change that
+	      add the key to your settings file and set the defaults as you need:
+
+	#+BEGIN_SRC python :exports both
+	 print("hi") 
+	#+END_SRC
+
+   #+RESULTS:
+   : hi
+
+
+	#+BEGIN_EXAMPLE
+      "orgBabelDefaultHeaderArgs": ":session none :results replace :exports code :cache no :noweb no",
+	#+END_EXAMPLE
+
+*** Skip Source 
+
+	Some source formats it is handy to always skip the source and only include results.
+	We have added a list of formats where this overrides the defaults (listed above) for convenience:
+
+	#+BEGIN_EXAMPLE
+    "htmlDefaultSkipSrc": ["plantuml","graphviz","ditaa","gnuplot"], 
+	#+END_EXAMPLE
+
+	Remove this list if you would like to always have explicit control with the exports keyword.
+
+*** Source Block Execution on Export
+
+	This is now turned on by default. If you would like to disable it:
+
+	#+BEGIN_EXAMPLE
+      "htmlExecuteSourceOnExport": false,
+	#+END_EXAMPLE

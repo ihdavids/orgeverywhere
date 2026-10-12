@@ -1,0 +1,62 @@
+* Introduction
+  [[https://orgmode.org/resources/img/org-mode-unicorn.svg]]
+
+  OrgEverywhere brings Org mode to Sublime Text: the outline, todo states,
+  dates, tables with formulas, source blocks, links and exporting of the
+  org file you are editing, plus the agenda, capture, refile, clocking and
+  everything else that works across all of your org files.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/orgstart.gif]]
+
+  Org is two things that are easy to mistake for one:
+
+  1. *Org files*: a plain text markup, like markdown, for notes, lists,
+     tables, code and documents.
+  2. *Org mode*: the tools that work over a collection of those files - a
+     todo list built from every file, an agenda of what is due, capturing a
+     thought from anywhere into the right place, time tracking, exporting.
+
+  Org can be a personal wiki, a notebook, a task manager, a time sheet, a
+  literate programming notebook or a way of writing books. You do not need
+  all of it to use any of it: start with headings and todo states and add
+  the rest when you need it.
+
+** OrgEverywhere and the orgs server
+   Since 2.0 OrgEverywhere does the second half - everything that works
+   across files - through the [[https://github.com/ihdavids/orgs][orgs]] server.
+
+   orgs is a small server that keeps your org files parsed and answers
+   questions about them: which files are org files, what is on the agenda
+   today, where the heading with this id is, what links here, where a
+   capture goes. Sublime, VSCode, the orgs command line, the worg web page
+   and your phone all ask the same server, so they all see the same thing
+   at the same moment. A clock started in Sublime is running in the browser.
+
+   The file you are editing is still Sublime's: folding, todo cycling,
+   tables, source blocks and the rest work on the buffer as you type,
+   unsaved changes and all. Only questions about your other files go to
+   the server, and the server reads what is saved.
+
+   Without a server the editing half works as before; the agenda, refile,
+   id links and the other cross file features say that the server is not
+   connected.
+
+   See *Getting Started* to install OrgEverywhere and connect it to orgs.
+
+** How this manual is organised
+   - *Getting Started*: installing, connecting to orgs, the keys.
+   - *Editing*: headings, folding, navigation, lists, properties, dates.
+   - *Planning*: todo states, the agenda, capture, refile, clocking, day pages.
+   - *Links*: links, ids, backlinks and images.
+   - *Tables*: tables, formulas, plots, the column view, dynamic blocks.
+   - *Source Blocks*: running code, diagrams and tangling.
+   - *Exporting*: html, latex, pandoc, reveal.js and the server's exporters.
+   - *orgs Server*: what the server adds - query search and the query
+     language, habits, clock reports, full text search and more.
+   - *Reference*: every command and every setting, written beside the code
+     that implements it.
+
+** Further reading
+   - [[https://orgmode.org][orgmode.org]] and [[https://orgmode.org/manual/][the Org manual]]: the source of truth for the format.
+   - [[https://orgmode.org/worg/org-tutorials/org4beginners.html][Org mode for beginners]].
+   - [[http://doc.norang.ca/org-mode.html][Org Mode - Organize Your Life In Plain Text!]]: one person's whole system.

@@ -1,0 +1,119 @@
+#+TITLE: Lists and Checkboxes
+#+DOC_SECTION: Editing
+#+DOC_ORDER: 4
+
+* Kinds of list
+  #+BEGIN_EXAMPLE
+  - a plain list item
+  - another
+    - a sub item, indented under its parent
+
+  + plus works the same as minus
+
+  1. numbered items
+  2. end in a dot
+  3) or a parenthesis
+
+  - term :: a description list item
+  #+END_EXAMPLE
+
+  Items nest by indentation: an item belongs to the nearest less indented
+  item above it. Numbered lists use digits only; Emacs' lettered lists
+  (=a.=, =b.=) are not recognised.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/learning_todo_lists.gif]]
+
+* Adding items
+  On a list item:
+
+  - =ctrl+enter= adds an item after this one (after its sub items, if it
+    has any), with the same bullet and indentation. On a checkbox item the
+    new item gets an empty checkbox; in a numbered list it gets the next
+    number and the items after it are renumbered.
+  - =ctrl+shift+enter= adds the item at the end of the list instead.
+
+  On a heading the same keys add a sibling or child heading (see
+  *Headings and Text*).
+
+* Indenting items
+  *Org Change Indent* (=alt+o right=) indents the item at the cursor by two
+  spaces, and *Org Change DeIndent* (=alt+o left=) outdents it. Its sub
+  items move with it.
+
+* Numbered lists
+  Keeping numbers in order by hand is tedious, so:
+
+  - *Org Update Numbered List* renumbers the list at the cursor: 1, 2, 3...
+    at each level of indentation, keeping each item's =.= or =)=.
+  - *Org Append Numbered List* adds the next item after the cursor, like
+    =ctrl+enter=.
+  - =alt+o c c= (*Org Recalc*, which recalculates whatever is at the
+    cursor) renumbers the list too.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/numberedlists.gif]]
+
+* Checkboxes
+  A list item that starts with =[ ]= is a checkbox, a small todo:
+
+  #+BEGIN_EXAMPLE
+  * Packing [1/3]
+    - [X] passport
+    - [-] clothes [1/2]
+      - [X] shirts
+      - [ ] socks
+    - [ ] tickets
+  #+END_EXAMPLE
+
+  | Box   | Means                                  |
+  |-------+----------------------------------------|
+  | =[ ]= | not done                               |
+  | =[X]= | done (=[x]= works too)                 |
+  | =[-]= | some of its sub items are done         |
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/orgcheckboxes.gif]]
+
+  - =alt+o t= (or *Org Checkbox Toggle*) toggles the checkbox at the
+    cursor. Its sub items follow it, and the boxes and summaries of the
+    items and heading above it are updated: a parent whose children are all
+    done is checked, one with some done gets =[-]=.
+  - =tab= on a checkbox that has sub items folds them away.
+
+** Summaries
+   A =[/]= or =[%]= cookie on a parent item or a heading shows how many of
+   the checkboxes below it are done: =[2/5]= or =[40%]=.
+
+   - *Org Add Checkbox Summary* (=alt+o c s=) adds a =[/]= cookie to the line
+     at the cursor and fills it in.
+   - Toggling a checkbox updates the cookies above it.
+   - *Org Recalc Checkbox* recalculates the cookie at the cursor;
+     *Org Recalc All Checkbox* recalculates every cookie in the file, as does
+     =alt+o c c= outside a table or block.
+
+   A cookie counts the checkboxes directly under it. To count the sub items
+   of sub items too, set =checkboxSummaryRecursive= to true, or for one
+   heading set its =COOKIE_DATA= property to =recursive= (or
+   =notrecursive= to override the setting):
+
+   #+BEGIN_EXAMPLE
+   * Packing [3/5]
+     :PROPERTIES:
+     :COOKIE_DATA: recursive
+     :END:
+   #+END_EXAMPLE
+
+* Sorting a list
+  *Org Sort List* sorts the list the cursor is in alphabetically by the
+  text of its items (after the bullet, number or checkbox). Each item keeps
+  its sub items. A numbered list is renumbered afterwards.
+
+  #+BEGIN_EXAMPLE
+  - pears                - apples
+  - apples         =>    - oranges
+  - oranges              - pears
+  #+END_EXAMPLE
+
+  It sorts =-=, =+= and numbered lists, A to Z only, and compares
+  characters as they are, so capitals come before lower case letters. It
+  has no default key.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/sortlist.gif]]

@@ -1,0 +1,108 @@
+#+TITLE: Exporting Overview
+#+DOC_SECTION: Exporting
+#+DOC_ORDER: 1
+
+* From org to everything else
+  Org is a document format as much as a planning tool: an org file can
+  become a web page, a pdf, a slide deck or a word document. OrgEverywhere
+  can export in two ways:
+
+  - *Built in exporters* that run inside Sublime on the buffer: html,
+    LaTeX / pdf and reveal.js slides, plus pandoc for everything pandoc
+    can write.
+  - *The orgs server's exporters*: html with themes, LaTeX and pdf,
+    markdown, reveal.js and other slide formats, mermaid, gantt charts and
+    whatever else the server is configured with. They need the server.
+
+  | Command                          | Writes                     | Guide            |
+  |----------------------------------+----------------------------+------------------|
+  | *Org Export File As Html*        | =file.html=                | Html Exporter    |
+  | *Org Export Subtree As Html*     | =file_subtree.html=        | Html Exporter    |
+  | *Org Export File As Latex*       | =file.tex=                 | LaTeX Exporter   |
+  | *Org Export File As Pdf*         | =file.tex= and =file.pdf=  | LaTeX Exporter   |
+  | *Org Export File As Reveal Js*   | =file.html= (slides)       | Reveal.js        |
+  | *Org Pandoc File To Html*        | =file.html=                | Pandoc           |
+  | *Org Pandoc Subtree To Html*     | =file.html=                | Pandoc           |
+  | *Org: orgs Export File*          | depends on the exporter    | below            |
+  | *Org: orgs Export File as PDF*   | =file.pdf=                 | below            |
+
+  The output goes next to the org file, with its name. Several built in
+  exporters write =file.html=, so a reveal.js export replaces an html
+  export of the same file and the other way round.
+
+* What the built in exporters read
+  The html, LaTeX and reveal.js exporters share one reader. A few things
+  to know:
+
+  - The document is the headings and their text. Text above the first
+    heading is not exported; the keywords there (=#+TITLE:=,
+    =#+AUTHOR:=, =#+DATE:=, =#+EMAIL:=, =#+LANGUAGE:=, =#+HTML_STYLE:=,
+    =#+LATEX_CLASS:=, =#+REVEAL_THEME:=...) are read as the file's
+    options.
+  - Keywords that act where they stand (=#+SETUPFILE:=, =#+LATEX_HEADER:=,
+    =#+HTML:=, =#+CAPTION:=, =#+ATTR_HTML:=, =#+ATTR_LATEX:=) work inside a
+    heading.
+  - Write keywords in upper case.
+  - Most file options have a setting of the same meaning, used when the
+    file does not say: =#+HTML_STYLE:= and =HtmlStyle=, =#+LATEX_CLASS:=
+    and =latexClass=, =#+REVEAL_THEME:= and =RevealTheme=.
+  - =#+SETUPFILE: path= reads the lines of another file in its place: a
+    way to share a header between documents.
+  - Drawers, planning lines (=SCHEDULED:=, =DEADLINE:=, =CLOCK:=),
+    =#+TBLFM:= and other org bookkeeping lines are left out.
+
+** Source blocks and results
+   =:exports= on a source block decides what an export shows: =code= (the
+   default), =results=, =both= or =none=. The diagram languages in
+   =htmlDefaultSkipSrc= (=plantuml=, =graphviz=, =ditaa=, =gnuplot=) show
+   only their results unless the block says otherwise. See Running Source
+   Blocks.
+
+   An export can run the file's source blocks first, so results are
+   fresh:
+
+   | Exporter  | Setting                       | Default |
+   |-----------+-------------------------------+---------|
+   | html      | =htmlExecuteSourceOnExport=   | true    |
+   | LaTeX     | =latexExecuteSourceOnExport=  | false   |
+   | reveal.js | =revealExecuteSourceOnExport= | false   |
+
+   Blocks marked =:eval query-export= ask first.
+
+** Images
+   A link to a =.png=, =.jpg=, =.gif= or =.svg= file becomes a picture. The
+   file is looked for
+
+   1. at the path in the link (absolute, or relative to the org file),
+   2. in the folders of the =imageSearchPath= setting,
+   3. in an =images= folder in each of your =orgDirs= (used for this only;
+      the server decides which files are org files).
+
+* The orgs server's exporters
+  *Org: orgs Export File* (=org_orgs_export=) lists the exporters the
+  server has (=server.exporters= in its =orgs.yaml=), and for html and
+  slide exporters the themes it has; pick one and the result is written
+  next to the org file. *Org: orgs Export File as PDF* goes straight to a
+  pdf (the server needs LaTeX).
+
+  - The buffer is saved and the server reads that before exporting.
+  - Slide decks are written as =file.revealjs.html= (and so on), so they do
+    not replace an html export.
+  - =orgsExportOpen= says what happens afterwards: ="ask"= (default),
+    ="always"= opens the result (html and pdf in the browser, the rest in
+    Sublime), ="never"=.
+
+  The server's exporters understand more of org than the built in ones
+  (=#+INCLUDE=, footnotes, export settings) and give the same result as the
+  orgs command line and the web ui. See the orgs Server section for the
+  exporters and their themes.
+
+* Which one to use
+  - Quick html of your notes, styled your way: the built in html
+    exporter.
+  - A pdf: *Org: orgs Export File as PDF*, or the built in LaTeX exporter
+    if you have LaTeX locally and want to tweak the =.tex=.
+  - Slides: the built in reveal.js exporter, or the server's reveal.js,
+    impress.js and other slide exporters.
+  - Word, epub, markdown and the rest: pandoc, or the server's markdown
+    exporter.

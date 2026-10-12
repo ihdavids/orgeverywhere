@@ -1,0 +1,48 @@
+#+TITLE: Markers and Today
+#+DOC_SECTION: Planning
+#+DOC_ORDER: 6
+
+* Markers
+  A marker is a tag that only one heading carries at a time. Putting it
+  on a heading takes it off whichever heading had it before. The orgs
+  server keeps markers, so every client finds the same heading.
+
+  | Command             | What it does                                              |
+  |---------------------+-----------------------------------------------------------|
+  | Org Set Today       | put the today marker on the heading at the cursor         |
+  | Org: Set Marker     | pick a marker from =orgsMarkers= and put it here          |
+  | Org: Jump To Marker | pick a marker and open the heading that carries it        |
+  | Org Jump To Today   | open the heading that carries the today marker            |
+  | Org Link To Today   | link this heading from today's heading and schedule it    |
+
+  #+BEGIN_SRC js
+    "orgsTodayMarker": "TODAY",
+    "orgsMarkers": ["TODAY", "FOCUS"],
+  #+END_SRC
+
+  =orgsMarkers= lists the markers the commands offer (the today marker is
+  always among them); with only one there is nothing to pick.
+
+* Today
+  "Today" is the heading carrying the =orgsTodayMarker= marker (=TODAY=).
+  It is meant for a work log: each morning start a heading for the day
+  (or open your day page) and *Org Set Today* on it. From then on:
+
+  - *Org Jump To Today* takes you back to it from anywhere.
+  - *Org Link To Today* on a task schedules the task for now (so it is on
+    today's agenda), then adds a child heading under today with a link
+    back to the task. Your log lists what you meant to do; the agenda
+    tracks it.
+
+  #+BEGIN_SRC org
+  * 2026-10-11 Sunday                                            :TODAY:
+  ** Write the report
+     [[file:~/notes/work.org::*Write the report][Write the report]]
+  #+END_SRC
+
+  Before markers, today was the heading with =:CUSTOM_ID: TODAY=. When no
+  heading carries the marker that heading is still found.
+
+  Moving the marker edits two files (the old holder loses the tag, the new
+  one gets it). The server makes those edits, saving open buffers with
+  changes first.

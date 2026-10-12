@@ -1,0 +1,103 @@
+#+TITLE: Properties and Drawers
+#+DOC_SECTION: Editing
+#+DOC_ORDER: 5
+
+* Drawers
+  A drawer is a named block of lines under a heading, between =:NAME:= and
+  =:END:=. It holds things you want with the heading but out of sight:
+  metadata, logs, notes to yourself. Drawers are not exported.
+
+  #+BEGIN_EXAMPLE
+  * Chapter 3
+    :NOTES:
+    Remember to foreshadow the storm.
+    :END:
+    The chapter's text...
+  #+END_EXAMPLE
+
+  Drawers are folded when a file opens; =tab= on a drawer line opens and
+  closes it (see *Folding*).
+
+  *Org Insert Drawer* asks for a name and adds an empty drawer to the
+  heading at the cursor, after its planning lines and property drawer. A
+  heading only gets one drawer of each name: if it already has one,
+  nothing happens.
+
+* Properties
+  The =PROPERTIES= drawer holds key value pairs. It comes right after the
+  heading (and its =SCHEDULED:= / =DEADLINE:= lines):
+
+  #+BEGIN_EXAMPLE
+  * Kind of Blue
+    :PROPERTIES:
+    :ARTIST:   Miles Davis
+    :YEAR:     1959
+    :CUSTOM_ID: kindofblue
+    :END:
+  #+END_EXAMPLE
+
+  Properties turn headings into records: the column view, tables, the
+  agenda and the orgs query language can all read them. Some names mean
+  something to org itself: =ID= and =CUSTOM_ID= identify a heading, =Effort=
+  is an estimate, =COOKIE_DATA= changes checkbox counting, =LAST_REPEAT= is
+  written when a repeating task is done.
+
+  - *Org Insert Property Drawer* adds an empty =PROPERTIES= drawer.
+  - *Org Insert Property* asks for a name and then a value, and sets that
+    property on the heading at the cursor. A property that is already
+    there gets the new value; otherwise it is added, along with the drawer
+    if there is none. Names are matched without regard to case.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/insert_property.gif]]
+
+** Properties with their own commands
+   | Command                          | Sets                                                              |
+   |----------------------------------+-------------------------------------------------------------------|
+   | *Org Insert CustomId* (=alt+o i i=) | =CUSTOM_ID=, from a name you type (spaces become =-=); offers the ids already in use |
+   | *Org Create Heading Id*          | =ID=, a new uuid, unless the heading already has one              |
+   | *Org Insert Effort*              | =Effort=, an estimate such as =2h=, =1d 4h= or =30min=; a bare number gets the unit in =defaultEffortEstimateUnit= (=d=) |
+   | *Org Insert Created Property*    | =Created=, now as an inactive timestamp                           |
+
+   =ID= and =CUSTOM_ID= are what =id:= and =#custom-id= links point at, and
+   what the orgs server uses to find a heading again after it has moved.
+   See *Links* and *Moving Around*.
+
+* The logbook
+  The =LOGBOOK= drawer is where org writes history: clock lines when you
+  clock in and out, and state changes, for example when a repeating task is
+  marked done:
+
+  #+BEGIN_EXAMPLE
+  ** TODO Water the plants
+     SCHEDULED: <2026-10-14 Wed +1w>
+     :PROPERTIES:
+     :LAST_REPEAT: [2026-10-07 Wed 09:12]
+     :END:
+     :LOGBOOK:
+     - State "DONE"       from "TODO"       [2026-10-07 Wed 09:12]
+     CLOCK: [2026-10-07 Wed 08:40]--[2026-10-07 Wed 09:10] =>  0:30
+     :END:
+  #+END_EXAMPLE
+
+  You rarely write it yourself. Clocking and repeating tasks are covered
+  under *Planning*; see also *Dates and Times*.
+
+* In buffer settings
+  Lines starting with =#+= set things for the whole file, the way properties
+  do for a heading:
+
+  #+BEGIN_EXAMPLE
+  #+TITLE: My Novel
+  #+STARTUP: overview
+  #+PRIORITIES: A B C
+  #+FILETAGS: :writing:
+  #+END_EXAMPLE
+
+  Exporting reads many more (=#+OPTIONS:=, =#+ATTR_HTML:=, =#+LATEX_HEADER:=...),
+  see *Exporting*. The org manual's
+  [[https://orgmode.org/manual/In_002dbuffer-Settings.html][In-buffer settings]]
+  lists them all; OrgEverywhere supports a subset.
+
+* Further reading
+  - [[https://orgmode.org/manual/Drawers.html][Drawers]] in the org manual
+  - [[https://orgmode.org/manual/Property-Syntax.html][Property syntax]]

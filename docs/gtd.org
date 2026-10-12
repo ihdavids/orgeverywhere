@@ -1,0 +1,137 @@
+#+TITLE: A GTD Workflow
+#+DOC_SECTION: Planning
+#+DOC_ORDER: 7
+
+* Getting Things Done in org
+  Org lets you organise yourself however you like; one popular way is
+  David Allen's /Getting Things Done/. GTD needs a handful of tools, and
+  each has an org equivalent in OrgEverywhere:
+
+  | GTD                         | In OrgEverywhere                                           |
+  |-----------------------------+----------------------------------------------------------|
+  | the inbox                   | a capture template into =inbox.org=                      |
+  | the calendar                | scheduled items, deadlines and timestamps on the agenda  |
+  | projects                    | todos with todo children (=agendaProjectIs=)             |
+  | next actions                | the =NEXT= keyword, the Next Tasks view                  |
+  | waiting for                 | the =WAITING= keyword, a =statefilter= view              |
+  | someday / maybe             | a =someday.org= file, or a =SOMEDAY= tag                 |
+  | contexts                    | tags (=@home=, =@phone=) and tag groups                  |
+  | reference                   | plain headings, links and ids, full text search          |
+  | daily and weekly review     | the agenda, refile, archive, Blocked Projects            |
+
+  This is one way of doing it; take what helps.
+
+* Capture everything
+  The first rule is to get things out of your head into a place you trust,
+  fast enough that you never put it off. Put a capture template on a key
+  and send everything to one inbox:
+
+  #+BEGIN_SRC yaml
+  server:
+    captureTemplates:
+      - name: "Inbox"
+        type: "entry"
+        target:
+          type: "file"
+          filename: "inbox.org"
+        template: |-
+          TODO {{What}}
+          :PROPERTIES:
+            :CREATED: {{now}}
+          :END:
+          {{CONTENT}}
+  #+END_SRC
+
+  Because it is a server template, the same capture works from worg on
+  your phone and from the command line. =ctrl+shift+x=, pick
+  =orgs: Inbox=, type, move on. See *Capture, Refile and Archive*.
+
+  Context comes from tags: =:@work:=, =:@home:=, =:@phone:=. Put a tag on
+  a whole file with =#+FILETAGS:= (=#+FILETAGS: :work:= at the top of
+  =work.org=) and everything in it inherits it.
+
+* The daily review
+  Each morning, empty the inbox:
+
+  1. Open =inbox.org= and go through it from the top.
+  2. Two minutes or less? Do it, mark it =DONE=.
+  3. Otherwise *Org Refile* (=alt+o R=) it to the project it belongs to,
+     or to =someday.org=, or *Org Archive Subtree* it if it needs nothing.
+  4. Give actions a =NEXT= keyword when they are the next thing to do on
+     their project, a =SCHEDULED= date if they belong to a day, a
+     =DEADLINE= if they have one.
+
+  Then plan the day: open the agenda (=alt+o o a=). The day view shows
+  what is fixed today, what is overdue ("Sched. 3x"), and deadlines
+  coming up. With a "today" heading (see *Markers and Today*) or a day
+  page (see *Day Pages*) you can list the tasks you mean to do and keep
+  notes as you go.
+
+* Projects and next actions
+  In GTD a project is anything that takes more than one action. With the
+  default =agendaProjectIs= of =nested_todo=, a todo with todo children is
+  a project:
+
+  #+BEGIN_SRC org
+  * TODO Move house                                             :@home:
+  ** DONE Get three quotes from movers
+  ** NEXT Book the movers
+  ** TODO Change the address at the bank
+  #+END_SRC
+
+  A project with a =NEXT= child is moving; one without is *stuck*. The
+  agenda's views split them:
+
+  - *Next Tasks* lists the moving projects with their =NEXT= actions:
+    this is your list of what to do now.
+  - *Blocked Projects* lists the stuck ones: each needs a next action.
+  - *Loose Tasks* lists the todos that belong to no project, where things
+    get lost.
+
+  The default agenda shows all three under the calendar, week and day.
+
+* Deciding what to do
+  1. The agenda's day: what has to happen today.
+  2. Then the next actions for the context you are in. A custom view per
+     context:
+
+     #+BEGIN_SRC js
+     "AgendaCustomViews":
+     {
+         "Default": ["Calendar", "Week", "Day", "Blocked Projects", "Next Tasks", "Loose Tasks"],
+         "@work":   ["Day : tagfilter +@work", "Todos : statefilter +NEXT : tagfilter +@work"],
+         "@home":   ["Todos : statefilter +NEXT : tagfilter +@home"],
+         "Waiting": ["Todos : statefilter +WAITING : showassigned : showdate 15.15"],
+     },
+     #+END_SRC
+
+  Or with the server's query language, which can also use tag groups
+  (=tagGroups= in =orgs.yaml=, so =HOME= can mean =@home= and =@garden=):
+
+  #+BEGIN_SRC js
+     "Work next": ["OrgsQuery : query IsNextTask() && !InTagGroup(\"HOME\") : title Work next"],
+  #+END_SRC
+
+  The server ships filters for these questions (=NextTasks=,
+  =StuckProjects=, =LooseTasks=, =WorkTasks=, =HomeTasks=...): *Org:
+  Agenda Query (orgs)* lists them.
+
+* The weekly review
+  Once a week, look at everything:
+
+  - *Blocked Projects*: give every stuck project a next action.
+  - The =Waiting= view: chase what you are waiting for.
+  - =someday.org=: promote anything whose time has come.
+  - *Org Archive All Done* in each project file to put finished work away.
+  - *Org: orgs Habits* to see how your routines are going.
+  - *Org: orgs Clock Report* for last week, if you clock.
+
+  worg has Inbox and Weekly Review tabs built on the server's =review:=
+  settings (*Org: orgs Open Web UI*).
+
+* Everywhere
+  A trusted system has to be with you. The orgs server is what makes the
+  same files available everywhere: worg in a browser (and on a phone),
+  VSCode, the =orgs= command line and Sublime all see the same agenda,
+  clock and inbox. Keep the org directory in git as well: *Org: orgs File
+  History* then shows how any file looked at any commit.

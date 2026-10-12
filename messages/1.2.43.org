@@ -1,0 +1,34 @@
+* 1.2.43
+** Agenda Flexible Project Definition
+   New options for defining what a project is.
+
+   #+BEGIN_SRC js
+    // nested_todo TODO with sub TODO's.
+    // tag         Heading with a :PROJECT: tag
+    // property    Heading with a :PROJECT: True property
+    "agendaProjectIs": "nested_todo",
+   #+END_SRC 
+
+   nested_todo is a todo under a todo:
+
+   * TODO My Project
+   ** TODO Task
+
+   tag defines a project as a heading with a project tag:
+
+   * My Project                      :PROJECT:
+   ** TODO Task
+
+   property defines a project as a heading with a PROJECT property:
+
+   * My Project
+   :PROPERTIES:
+     :PROJECT:
+   :END:
+   ** TODO Task
+
+** Agenda Projects
+	2 new agenda views:
+	- Not Blocked Projects - Shows projects that are not in the blocked state (have a NEXT task)
+	- Projects             - Shows all projects
+

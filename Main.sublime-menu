@@ -1,0 +1,64 @@
+[
+    {
+        "mnemonic": "n", 
+        "caption": "Preferences", 
+        "id": "preferences", 
+        "children": [
+            {
+                "mnemonic": "P", 
+                "caption": "Package Settings", 
+                "id": "package-settings", 
+                "children": [
+                    {
+                        "caption": "Org Everywhere", 
+                        "children": [
+                            {
+                                "caption": "Docs", 
+                                "args": {
+                                    "url": "https://github.com/ihdavids/orgextended_docs/blob/master/start.org"
+                                }, 
+                                "command": "open_url"
+                            }, 
+                            {
+                                "caption": "-"
+                            },
+                            {
+                                "caption": "Setup MouseMap", 
+                                "command": "org_setup_mouse_map"
+                            }, 
+                            {
+                                "caption": "Open MouseMap", 
+                                "args": {
+                                    "file": "${packages}/User/Default.sublime-mousemap"
+                                }, 
+                                "command": "open_file"
+                            }, 
+                            {
+                                "caption": "-"
+                            },
+                            {
+                                "caption": "Settings",
+                                "command": "edit_settings", "args":
+                                {
+                                    "base_file": "${packages}/OrgEverywhere/OrgEverywhere.sublime-settings",
+                                    "default": "// OrgEverywhere Settings - User\n{\n\t$0\n}\n"
+                                }
+                            },
+                            {
+                                "caption": "Key Bindings",
+                                "command": "edit_settings", "args":
+                                {
+                                    "base_file": "${packages}/OrgEverywhere/Default.sublime-keymap",
+                                    "user_file": "${packages}/User/Default ($platform).sublime-keymap"
+                                }
+                            },
+                            {
+                                "caption": "-"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]

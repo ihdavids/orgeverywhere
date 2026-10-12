@@ -1,0 +1,13 @@
+{
+	"*": {
+		"*": [
+			"pathlib",
+			"pyyaml",
+			"dateutil",
+			"requests",
+			"regex",
+			"websocket",
+			"six"
+		]
+	}
+}

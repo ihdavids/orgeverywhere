@@ -1,0 +1,327 @@
+#+TITLE: Running Source Blocks
+#+DOC_SECTION: Source Blocks
+#+DOC_ORDER: 1
+
+* Source blocks as live code
+  A source block is code in an org file. In org mode (where the feature
+  is called /babel/) a block can also be run, and what it prints is
+  written back into the file under it. Notes, the code that produced a
+  number and the number itself stay together: a lab notebook, a runbook,
+  a report that refreshes itself.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/babel_hello_world.gif]]
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN_SRC python :var x=5
+      print(str(x * 2))
+    #+END_SRC
+
+    #+RESULTS:
+    : 10
+  #+END_EXAMPLE
+
+  Put the cursor anywhere in the block and press =alt+o c c=
+  (=org_recalc=, the do what I mean key; =space c c= with NeoVintageous)
+  or run *Org Exec Source Block* (=org_execute_source_block=). The block's
+  output replaces its =#+RESULTS:=, which is created if there is none.
+
+  - *Org Exec All Source Blocks* runs every block in the file, from the
+    bottom up.
+  - The file has to exist on disk: an unsaved buffer is saved before a
+    block runs. =:file= paths are relative to the org file.
+  - Blocks run locally, in Sublime. The orgs server can run them instead;
+    see the end of this page.
+
+  See [[https://orgmode.org/worg/org-contrib/babel/][Babel: active code in org mode]] for the org side of the story.
+
+* Languages
+  | Language                 | Runs with                                         | Setting      |
+  |--------------------------+---------------------------------------------------+--------------|
+  | =python=                 | Sublime's own python, inside the editor           |              |
+  | =javascript=, =js=       | node                                              | =nodejsPath= |
+  | =sh=, =bash=             | bash (=/bin/bash=; =wsl.exe= on Windows)          | =bashPath=   |
+  | =powershell=             | Windows PowerShell (Windows only)                 |              |
+  | =cmd=, =bat=             | =cmd.exe= (Windows only)                          |              |
+  | =perl=                   | perl                                              | =perlPath=   |
+  | =csharp=                 | dotnet (experimental)                             | =dotnetPath= |
+  | =gnuplot=                | gnuplot                                           | =gnuplot=    |
+  | =plantuml=, =graphviz=, =ditaa=, =mermaid= | the diagram tools; see Diagrams | (see there) |
+
+  The paths are settings in =OrgEverywhere.sublime-settings=:
+
+  #+BEGIN_SRC js
+    "nodejsPath": "/usr/local/bin/node",
+    "bashPath":   "/bin/bash",
+    "perlPath":   "/usr/bin/perl",
+  #+END_SRC
+
+  - *python* blocks run in Sublime's plugin host (python 3.8): no separate
+    python is needed, only Sublime's modules can be imported, and the
+    block can use =view= and =window= to script the editor. A block that
+    loops forever freezes Sublime.
+  - The other languages are written to a temporary file and run as a
+    separate program. Their working directory is Sublime's =Packages/User=
+    folder, not the org file's folder: use absolute paths in scripts.
+  - =builtinSourceBlockHandlers= lists the languages that are loaded and
+    =builtinSourceBlockAliases= maps other names onto them (=bash= to
+    =sh=, =js= to =javascript=, =bat= to =cmd=).
+
+* Header arguments
+  Everything after the language on the =#+BEGIN_SRC= line is header
+  arguments, =:name value= pairs. They can also be set for more than one
+  block. From weakest to strongest:
+
+  1. =orgBabelDefaultHeaderArgs= in the settings, the defaults for every
+     block (=:session none :results replace :exports default :cache no
+     :noweb no=).
+  2. =babel-args= and =babel-args-LANGUAGE= in the settings, as strings of
+     header arguments.
+  3. =#+PROPERTY:= lines in the section the block is in:
+
+     #+BEGIN_SRC org
+       #+PROPERTY: header-args: :var y=11
+       #+PROPERTY: header-args:python: :var z=12
+     #+END_SRC
+
+     Note the colon after =header-args= and after the language.
+  4. The heading's property drawer:
+
+     #+BEGIN_SRC org
+       :PROPERTIES:
+       :header-args: :var g=global
+       :header-args:python: :var x=5
+       :var: v=10
+       :END:
+     #+END_SRC
+
+  5. A =#+HEADER:= line right above the block.
+  6. The =#+BEGIN_SRC= line itself.
+
+* Variables and inputs
+  =:var name=value= hands a value to the block. The value can be
+
+  - a number or a string,
+  - the =#+NAME:= of a table: the block gets the rows (a list of lists in
+    python, an array in javascript, ...),
+  - the =#+NAME:= of a list,
+  - the =#+NAME:= of another source block: that block runs first and its
+    result is the value (chaining).
+
+  #+BEGIN_EXAMPLE
+    #+NAME: my-table
+    | name  | value |
+    | Hello | 25    |
+    | World | 42    |
+
+    #+BEGIN_SRC python :var DATA=my-table
+      print(DATA)
+    #+END_SRC
+
+    #+RESULTS:
+    : [['name', 'value'], ['Hello', 25], ['World', 42]]
+  #+END_EXAMPLE
+
+  Chaining lets each step use the language that suits it: pull data with
+  a shell script, reshape it in python, plot it with gnuplot.
+
+  #+BEGIN_EXAMPLE
+    #+NAME: greeting
+    #+BEGIN_SRC python
+      print("hi")
+    #+END_SRC
+
+    #+BEGIN_SRC python :var x=greeting
+      print(x + " there")
+    #+END_SRC
+  #+END_EXAMPLE
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/babel_chained_functions.gif]]
+
+* Results
+  =:results= takes up to one word from each group:
+
+  | Group          | Words                                    | Default   |
+  |----------------+------------------------------------------+-----------|
+  | What is kept   | =output=, =value=                        | =output=  |
+  | What it is     | =verbatim=, =scalar=, =table=, =vector=, =list=, =file= | =verbatim= |
+  | How it is wrapped | =raw=, =drawer=, =code=, =org=, =html=, =latex= | (none) |
+  | Where it goes  | =replace=, =append=, =prepend=, =silent= | =replace= |
+
+  - =output= is what the block prints. =value= is what it returns: the
+    body is wrapped in a function, so python and javascript use =return=;
+    for =sh= the value is the exit status.
+  - =verbatim= puts each line behind =: =. =table= turns the output into an
+    org table (a printed python list of lists, or comma, tab or space
+    separated lines). =list= makes an org list. =raw= inserts the text as
+    is.
+  - =drawer= wraps the results in =:results:= / =:end:=; =code=, =org=,
+    =html= and =latex= wrap them in a source block of that kind.
+  - =silent= writes nothing into the file (the output goes to the
+    console); =append= and =prepend= add to the existing results.
+  - =:file NAME= writes the output into that file (relative to the org
+    file) and puts a link to it into the results. Diagram languages make
+    their picture there.
+
+  #+BEGIN_EXAMPLE
+    #+NAME: in-table
+    | a | b | c |
+    | 1 | 2 | 3 |
+
+    #+BEGIN_SRC python :var DATA=in-table :results value table
+      return [[c * 10 for c in r] for r in DATA[1:]]
+    #+END_SRC
+
+    #+RESULTS:
+    | 10 | 20 | 30 |
+  #+END_EXAMPLE
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/babel_simple_eval.gif]]
+
+* Caching
+  With =:cache yes= the results line carries a hash of the code
+  (=#+RESULTS[3f2a...]:=). If the code has not changed since, the block
+  is not run again and the stored results are used. Careful with blocks
+  that have side effects or read changing data.
+
+* Safety
+  - =:eval never= or =:eval no= - the block never runs.
+  - =:eval query= - you are asked each time.
+  - =:eval query-export= - you are asked when the block runs as part of an
+    export.
+
+  Put =:eval query= into =orgBabelDefaultHeaderArgs= to be asked before
+  any block runs.
+
+* Calling a block
+** The #+CALL line
+   A named block is a function. =#+CALL:= runs it with other arguments
+   and puts the results under the call:
+
+   #+BEGIN_EXAMPLE
+     #+NAME: double
+     #+BEGIN_SRC python :var x=1
+       print(x * 2)
+     #+END_SRC
+
+       #+CALL: double(x=21)
+   #+END_EXAMPLE
+
+   Run it with =alt+o c c= on the call line. The call line has to be
+   indented, as it is in the body of a heading.
+
+** Inline blocks
+   A one liner inside a paragraph:
+
+   #+BEGIN_EXAMPLE
+     The answer is src_python[:var x=21]{print(x*2)} {{{results(=42=)}}}
+   #+END_EXAMPLE
+
+   =alt+o c c= on it, or *Org Exec Inline Source Block*, writes or
+   replaces the =results= macro after it.
+
+** From a table
+   =sbe(name, var=value)= in a table formula runs a named block (here the
+   =double= block above) and puts its result into the cell: tables feed
+   blocks, and blocks feed tables.
+
+   #+BEGIN_SRC org
+     | from python |
+     | 42          |
+     #+TBLFM:@2$1=sbe('double',x=21)
+   #+END_SRC
+
+   *Org Show Source Tests* opens the source block unit tests, which use
+   =sbe= to check every language and diagram tool (you need those tools
+   installed for their tests to pass).
+
+* Noweb
+  With =:noweb yes= a line =<<name>>= in a block is replaced by the code
+  of the blocks named =name= (blocks with =:noweb-ref name=, or the block
+  with =#+NAME: name=) before the block runs: literate programming's
+  way of assembling a program from pieces.
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN_SRC python :noweb-ref print-it
+      print("Hello World")
+    #+END_SRC
+
+    #+BEGIN_SRC python :noweb yes
+      <<print-it>>
+    #+END_SRC
+  #+END_EXAMPLE
+
+  =<<name(x=20)>>= runs the named block with those arguments instead and
+  pastes its *output*:
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN_SRC python :var x=10 :noweb-ref evalsource :results raw
+      print("print('hi " + str(x) + "')")
+    #+END_SRC
+
+    #+BEGIN_SRC python :noweb yes
+      <<evalsource(x=20)>>
+    #+END_SRC
+
+    #+RESULTS:
+    : hi 20
+  #+END_EXAMPLE
+
+  The =<<...>>= has to be on a line of its own. See [[https://orgmode.org/manual/Noweb-Reference-Syntax.html][Noweb reference syntax]].
+
+* Tangling
+  Tangling writes the code of a file's blocks out as plain source files.
+  *Org Tangle File* (=org_tangle_file=) takes every block with
+  =:tangle yes= and writes it to a file next to the org file, named after
+  it, with the language's extension: the python blocks of =notes.org= go
+  to =notes.py=. Each file starts with a comment saying where it came
+  from, and each block is preceded by a comment with its line number.
+
+  The local tangler only knows =:tangle yes=: a file name as the value is
+  not honoured. The orgs server's tangler follows org's rules: *Org: orgs
+  Tangle File* writes each block to its =:tangle= file and understands
+  =:mkdirp=, =:shebang=, =:padline=, =:tangle-mode=, =:comments= and
+  noweb references.
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN_SRC python :tangle tools/report.py :mkdirp yes :shebang #!/usr/bin/env python3
+      print("report")
+    #+END_SRC
+  #+END_EXAMPLE
+
+* Exporting
+  =:exports= says what an export shows: =code=, =results=, =both= or
+  =none=. =default= shows the code, except for the languages in
+  =htmlDefaultSkipSrc= (=plantuml=, =graphviz=, =ditaa=, =gnuplot=), which
+  show only their picture. The html exporter runs the file's blocks first
+  (=htmlExecuteSourceOnExport=). See Exporting.
+
+* Running blocks on the server
+  The orgs server has its own babel. *Org: orgs Execute Source Block* runs
+  the block (or =#+CALL:=) at the cursor there, *Org: orgs Execute All
+  Source Blocks* every block of the file. The buffer is saved first and
+  the server writes the results into the file, which comes back into the
+  buffer. The server only runs code when =babel.enable= is set in its
+  =orgs.yaml=; it has its own list of languages and sessions. See the
+  orgs Server section.
+
+* Adding a language
+  A language is a python file. Put =LANG.py= in =Packages/User/orgsrc/=
+  and blocks of that language run through it; a file with the name of a
+  built in language replaces it. The built in handlers in the package's
+  =orgsrc= folder (=sh.py=, =perl.py=, =powershell.py=) are short and
+  make good templates.
+
+  | Function                   | Required | Does                                                         |
+  |----------------------------+----------+--------------------------------------------------------------|
+  | =Execute(cmd, sets)=       | yes      | runs the code, returns the output as a list of lines         |
+  | =Extension(cmd)=           |          | the file extension: the code is written to a temporary file =cmd.filename= |
+  | =PreProcessSourceFile(cmd)= |         | rewrites =cmd.source= first, typically to declare the =:var= values |
+  | =WrapStart(cmd)=, =WrapEnd(cmd)= |    | text put before / after the code                             |
+  | =LineCommentPrefix()=      |          | the comment marker, used when tangling                        |
+  | =PostExecute(cmd)=         |          | runs after the results are in the buffer                      |
+  | =GeneratesImages(cmd)=     |          | true to show the images in the file afterwards                |
+
+  =cmd.source= is the code, =cmd.params= the header arguments
+  (=cmd.params.Get('var', None)=), =cmd.sourcefile= the org file and
+  =sets.Get(name, default)= reads a setting. Shared handlers are welcome
+  upstream.

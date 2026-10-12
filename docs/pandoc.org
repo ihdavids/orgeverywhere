@@ -1,0 +1,70 @@
+#+TITLE: Pandoc
+#+DOC_SECTION: Exporting
+#+DOC_ORDER: 4
+
+* Installing pandoc
+  [[https://pandoc.org/][Pandoc]] converts between document formats and reads org files. It is
+  the way to Word, OpenDocument, EPUB, reStructuredText, MediaWiki and
+  the many other formats OrgEverywhere has no exporter for.
+
+  Install it from [[https://pandoc.org/installing.html][pandoc.org]] (=brew install pandoc=, =apt install
+  pandoc=, or the Windows installer) and give its path:
+
+  #+BEGIN_SRC js
+    "PandocPath": "/usr/local/bin/pandoc",
+  #+END_SRC
+
+* Html through pandoc
+  *Org Pandoc File To Html* (=org_export_file_as_html=) runs
+
+  #+BEGIN_EXAMPLE
+    pandoc -s -c <style>.css [-H <style>_inheader.html] -o file.html file.org
+  #+END_EXAMPLE
+
+  on the saved org file (save first: unsaved changes are not seen) and
+  writes =file.html= next to it.
+
+  The style is chosen by the =PandocStyle= setting (=blocky= by default);
+  its =.css= and =_inheader.html= are taken from the =pandoc= folder of
+  the OrgEverywhere package. The css is linked, not copied into the page,
+  so the page only looks right on the machine that made it. For a page
+  to share, prefer the built in html exporter (Html Exporter), which
+  inlines its style.
+
+  *Org Pandoc Subtree To Html* is meant to do the same for the heading
+  under the cursor; in this release it fails before running pandoc, so
+  export the subtree with the built in *Org Export Subtree As Html*
+  instead.
+
+* Other formats
+  For anything else run pandoc yourself, from a terminal or a build
+  system:
+
+  #+BEGIN_EXAMPLE
+    pandoc notes.org -o notes.docx
+    pandoc notes.org -o notes.epub
+    pandoc notes.org -t rst -o notes.rst
+  #+END_EXAMPLE
+
+  A pdf goes through LaTeX. A few useful options:
+
+  #+BEGIN_EXAMPLE
+    pandoc --pdf-engine=xelatex notes.org -o notes.pdf
+    pandoc --pdf-engine=xelatex -V CJKmainfont="KaiTi" notes.org -o notes.pdf
+    pandoc --pdf-engine=xelatex --highlight-style zenburn notes.org -o notes.pdf
+    pandoc --pdf-engine=xelatex --toc -N notes.org -o notes.pdf
+  #+END_EXAMPLE
+
+  - ~-V CJKmainfont=...~ picks a font with Chinese, Japanese and Korean
+    characters.
+  - =--highlight-style= colours code (=pandoc --list-highlight-styles=
+    lists them).
+  - =--toc -N= adds a numbered table of contents.
+
+  See [[https://jdhao.github.io/2019/05/30/markdown2pdf_pandoc/][Markdown to pdf with pandoc]] for more.
+
+* Pandoc on the server
+  The orgs server can run pandoc too: with its =pandoc= exporter
+  configured (and pandoc installed where the server runs), *Org: orgs
+  Export File* offers it and writes the format the server is set up to
+  produce. See the orgs Server section.

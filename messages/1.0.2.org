@@ -1,0 +1,34 @@
+* 1.2.0
+	- Documentation moved out of the repository to its own repository
+	  this was done to shrink the size of the package.
+	- Turned off logger that was accidentally left on.
+	- Added "openas": "direct" to capture definitions. This will
+	  open the capture directly in the file at the target location.
+	- Added  "agendaFirstDay" and "agendaWeekViewNumDays" to settings to allow
+	  users to start the week view from monday rather than sunday and limit the
+	  week view to just a 5 day view rather than 7 days if desired.
+	  - Actually agendaFirstDay got renamed to firstDayOfWeek as 
+	    the date picker now respects the firstDayOfWeek as well
+	    rather than just the agenda
+	- Cleaned up a bunch of old debugging output.
+	- Working on named targets for blocks in the parser, this is to facilitate
+	  eventual chainging of inputs in the bable execution. 
+  - Fixed archive notation to work without the colon separator.
+  - added <q and <v quote and verse snippets
+  - Added these release notes
+  - Improved settings to use the new settings ui.
+  - Changed docs link in settings to open the docs repo rather than
+    opening the docs in sublime.
+  - Fixed global tab cycling on first line of file.
+  - agendaFirstDay can now be the english name of a day of the week OR an integer.
+  - Month view in the agenda now respects agendaFirstDay
+  - PRIORITIES comment is now respected in change priority command
+  - STARTUP comment now recurses
+  - WARNING: orgeverywhere.sublime-syntax renamed to OrgEverywhere. This is so the
+  	title appears as OrgEverywhere in the syntax list on the bottom right of sublime.
+  	This can caust errors when loading sublime with an old settings file.
+  	Please carefully rename your settings file and close all org tabs.
+  - Fixed a number of issues when loading as a zipped package. Export should
+    work from a package again. 
+  - agendaDayStart and End renamed to agendaDayStartTime and agendaDayEndTime
+  	for more clarity

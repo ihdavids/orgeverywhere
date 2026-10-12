@@ -1,0 +1,78 @@
+* 1.2.32
+** Insert Sibling Heading
+   - If the next line has spaces the inserted heading could have spaces which is not a good idea.
+     This is now stripped properly.
+
+** Agenda
+   - Done - a new view that lists done tasks
+    WATCH OUT this can be massive! Use this with other filters.
+   - durationfilter added -2w filters items 2 weeks ago from right now. 
+     a negative duration value will filter against CLOSED values while a positive will filter
+     against SCHEDULED and DEADLINE values.
+   - datefilter allows you to filter by absolute date range >=20210501 <=20210531
+   - hasclose and other attributes were not handled properly as filter keywords, this has been fixed.
+
+** Reveal Exporter
+   - Tables are now actually supported
+
+** Exporting
+   - Tables had a bug if tabs were present in front of the table.
+
+** Editing
+   - New override setting: logDone - forces CLOSED entries to be inserted even if logdone
+     is not in your #+STARTUP: tags or global "startup": "..." settings.
+   #+BEGIN_EXAMPLE
+     "logDone": true,
+   #+END_EXAMPLE
+
+** Tables
+   Found a bug with complete relative syntax.
+   They were always evaluating to 1,1 in the table.
+
+   This has been fixed.
+
+   #+BEGIN_EXAMPLE
+     @-1$+1 
+   #+END_EXAMPLE
+
+   Known issue:
+   ------------
+   Complex expansions are not working:
+
+   @int($-1)$1
+   This would look up the row from the neighboring cell
+
+   There is a workaround for now till I can improve the parser
+
+   getcell(int($-1), 1, 1, 0)
+            |        |  |  not relative
+            |        |  column 1
+            |        relative offset
+            grab value 1 cell to the left, ensure it is an int
+
+*** New Table Commands
+   
+    The following will pull the active formula for the current cell into the current cell.
+    Facilitating editing.
+
+    #+BEGIN_EXAMPLE
+      Org Edit Table Formula
+    #+END_EXAMPLE
+
+    The following will clear the current cell
+
+    #+BEGIN_EXAMPLE
+      Org Clear Table Cell
+    #+END_EXAMPLE
+
+    The following will run a temporary formula on the cells on and below the cursor
+    which can be handy when fixing up a table.
+
+    #+BEGIN_EXAMPLE
+      Org Table Exec Below
+    #+END_EXAMPLE
+
+*** Babel Preview
+    - Improved results block discovery previously results might confuse a source block
+      as being part of the results.
+

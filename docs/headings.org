@@ -1,0 +1,157 @@
+#+TITLE: Headings and Text
+#+DOC_SECTION: Editing
+#+DOC_ORDER: 1
+
+* The outline
+  An org file is an outline. A line starting with stars is a heading, and
+  the number of stars is its level. Everything up to the next heading of
+  the same or a higher level belongs to it: its text, and its children.
+
+  #+BEGIN_EXAMPLE
+  * Project                                                     :work:
+    Some notes about the project.
+  ** TODO [#A] Write the proposal
+     SCHEDULED: <2026-10-12 Mon>
+  ** Meeting notes
+  * Home
+  #+END_EXAMPLE
+
+  A heading line can carry a todo state (=TODO=), a priority (=[#A]=, see
+  *Priorities*) and tags (=:work:=) as well as its title. Below it come
+  planning lines (=SCHEDULED:=, =DEADLINE:=, see *Dates and Times*), drawers
+  (see *Properties and Drawers*) and then any text.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/headings.gif]]
+
+  Two words this manual uses:
+
+  - A *subtree* is a heading with everything under it, children included.
+  - An *entity* is a heading with only its own text, up to its first child.
+
+* Text formatting
+  | You write          | You get       |
+  |--------------------+---------------|
+  | =*bold*=           | *bold*        |
+  | =/italic/=         | /italic/      |
+  | =_underline_=      | _underline_   |
+  | =+strikethrough+=  | +strikethrough+ |
+  | =~code~=           | ~code~        |
+  | ==verbatim==       | =verbatim=    |
+
+  Sublime highlights them as you type; they matter most when you export
+  (see *Exporting*).
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/basic_formatting.gif]]
+
+* Adding headings
+  - *Org Insert Heading Sibling* (=alt+o i h=) adds a heading at the same
+    level after the current subtree and puts the cursor on its title.
+  - *Org Insert Heading Child* (=alt+o i c=) adds a heading one level
+    deeper at the end of the current subtree, after any children it
+    already has.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/quick_insertion.gif]]
+
+  =ctrl+enter= does what you most likely mean at the cursor: a new list
+  item in a list, a new checkbox after a checkbox, the next number in a
+  numbered list, and a sibling heading anywhere else in a heading.
+  =ctrl+shift+enter= is its twin: the new item goes at the end of the list,
+  and on a heading it adds a child instead of a sibling.
+
+  =enter= on a heading line starts a new line indented to the heading's
+  text, so the body lines up under the title.
+
+  The heading snippets do the same from the keyboard: type =h=, =hh=, =hhh=,
+  =hhhh= or =hhhhh= and press =tab= for a heading of that level.
+
+* Changing a heading's level
+  - *Org Change Indent* (=alt+o right=) demotes the heading: one more star,
+    and its text and all its children move with it.
+  - *Org Change DeIndent* (=alt+o left=) promotes it.
+
+  On a list item the same keys indent or outdent the item and its sub
+  items (see *Lists and Checkboxes*).
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/quick_heading_change.gif]]
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/quick_heading_change2.gif]]
+
+* Moving headings
+  *Org Move Heading Up* (=alt+o up=) and *Org Move Heading Down*
+  (=alt+o down=) swap the subtree at the cursor with its previous or next
+  sibling. A heading only moves among its siblings: it does not leave its
+  parent. To move a subtree somewhere else, in this file or another, refile
+  it (=alt+o R=, see *Planning*).
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/moving_headings1.gif]]
+
+* Selecting and copying
+  | Keys       | Command              | Selects or copies                          |
+  |------------+----------------------+--------------------------------------------|
+  | =alt+o m s= | Org Select Subtree  | the heading and everything under it        |
+  | =alt+o m e= | Org Select Entity   | the heading and its text, without children |
+  | =alt+o y s= | Org Copy Subtree    | the subtree, to the clipboard              |
+  | =alt+o y e= | Org Copy Entity     | the entity, to the clipboard               |
+
+  With NeoVintageous the copies also go into its unnamed register, so =p=
+  pastes them.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/select_subtree.gif]]
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/select_entity.gif]]
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/copy_subtree.gif]]
+
+* Tags
+  Tags sit at the end of a heading line between colons, =:work:urgent:=. A
+  heading also has the tags of the headings above it, and of the file's
+  =#+FILETAGS:= line, for searching and the agenda.
+
+  - *Org Insert Tag* asks for a tag and adds it to the heading at the
+    cursor. The input offers the tags already in use: with an orgs server,
+    every tag in every org file; without one, the tags of the files you
+    have open. You can also type a new tag. Adding a tag the heading
+    already has does nothing.
+  - *Org Remove Tag* asks for a tag and removes it.
+  - *Org Remove All Tags* removes them all.
+  - *Org Insert Archive Tag* adds the =ARCHIVE= tag.
+  - *Org Fix Tags* lines up the tags of every heading in the file.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/inserttag.gif]]
+
+  The tags are aligned so they start at column =tagColumn= (default 80,
+  kept between 30 and 150). A heading longer than that gets its tags right
+  after the title.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/taginsert.gif]]
+
+  The tag input has no default key (=alt+o i t= is the timestamp); with
+  NeoVintageous it is =space i m=. See *Keys* to bind one.
+
+* Todo states
+  =alt+o t= on a heading opens a list of todo states to pick from (on a
+  checkbox it toggles the checkbox instead). Todo states, logging when a
+  task is done and repeating tasks are covered under *Planning*.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/todoswitch.gif]]
+
+* Snippets
+  Type the trigger and press =tab=:
+
+  | Trigger  | Inserts                                       |
+  |----------+-----------------------------------------------|
+  | =<s=     | a source block, cursor on the language        |
+  | =<e=     | an example block                              |
+  | =<q=     | a quote block                                 |
+  | =<v=     | a verse block                                 |
+  | =<n=     | a notes block                                 |
+  | =<b=     | a dynamic block (=#+BEGIN:= / =#+END:=)       |
+  | =<l=     | a link =*description*=             |
+  | =h= ... =hhhhh= | a heading of level 1 to 5              |
+  | =t=      | a tag =:TAG:=                                 |
+  | =p=      | a page separator =--- YYYY-MM-DD ---=         |
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/snippets.gif]]
+
+  Your own snippets work too: any =.sublime-snippet= with the scope
+  =text.orgmode= in your =Packages/User= folder.

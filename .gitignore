@@ -1,0 +1,7 @@
+build/
+__pycache__/
+*.pyc
+.DS_Store
+.claude/settings.local.json
+# Reference clone of the original orgextended repository
+OrgExtended/

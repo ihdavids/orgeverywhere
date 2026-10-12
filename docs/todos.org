@@ -1,0 +1,141 @@
+#+TITLE: Todo States and Workflows
+#+DOC_SECTION: Planning
+#+DOC_ORDER: 1
+
+* Todos
+  A todo is a heading whose first word is a todo keyword:
+
+  #+BEGIN_SRC org
+  * TODO Write the release notes
+  * NEXT Call the plumber
+  * DONE Book the flights
+  #+END_SRC
+
+  Todos can sit anywhere: in the middle of meeting notes, in a project
+  file, in your inbox. You do not have to collect them into one list by
+  hand. The agenda and the todo views find them in all of your org files
+  (through the orgs server, see *The Agenda*), so jot an action down where
+  it comes up and let the agenda gather it.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/learning_todo_todos.gif]]
+
+* Keywords and workflows
+  The keywords form a workflow. The words before the vertical bar are
+  *active* (still to do); the words after it are *done*:
+
+  #+BEGIN_SRC js
+    "todoStates": ["TODO","NEXT", "BLOCKED","WAITING","FLAG", "CLEANUP", "IN-PROGRESS", "DOING","|", "CANCELLED","REASSIGNED", "DONE","MEETING","PHONE","NOTE", "FIXED"],
+  #+END_SRC
+
+  That is the =todoStates= setting, used for every file without a workflow
+  of its own. A file can have its own with a =#+TODO:= line at the top:
+
+  #+BEGIN_SRC org
+  #+TODO: REPORT BUG KNOWNCAUSE | FIXED
+  #+END_SRC
+
+  The keyword picker offers that file's keywords and the agenda judges
+  that file's headings by them.
+
+** The server's keywords
+   The agenda, the todo views, query search and everything else that
+   looks across files come from the orgs server, and the server decides
+   what is active and what is done by the file's own =#+TODO:= line, or
+   when there is none by its =defaultTodoStates= setting in =orgs.yaml=:
+
+   #+BEGIN_SRC yaml
+   server:
+     defaultTodoStates: "TODO INPROGRESS IN-PROGRESS NEXT BLOCKED PAUSED WAITING PHONE MEETING BACKLOG | DONE CANCELLED"
+   #+END_SRC
+
+   That is the server's default, and it is not the same list as
+   OrgEverywhere's =todoStates=: OrgEverywhere counts =MEETING= and =PHONE= as
+   done, the server counts them as active, and the server does not know
+   =NOTE= at all. When the two lists disagree the buffer and the agenda
+   disagree. Either give both the same list, or put a =#+TODO:= line in
+   your files (both sides read it).
+
+* Changing the state
+  - *Org Change Todo* (=org_todo_change=) shows the file's keywords and
+    "none" in a quick panel.
+  - =alt+o t= (NeoVintageous: =space t=) is the toggle: on a checkbox it
+    ticks the box, anywhere else it opens the keyword picker.
+  - In the agenda the state is changed on the server (see
+    *The Agenda*).
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/todoswitch.gif]]
+
+** Logging when a task is done
+   With =#+STARTUP: logdone= in the file, moving a heading to a done
+   keyword adds a =CLOSED:= line with the time; moving it back out of done
+   removes it. =#+STARTUP: lognotedone= asks for a closing note as well
+   and writes it to the heading's =:LOGBOOK:=. The =logDone= setting
+   (=true=) turns on =CLOSED:= lines for every file.
+
+   [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/logdone.gif]]
+
+** Repeating tasks
+   A task whose =SCHEDULED=, =DEADLINE= or plain timestamp has a repeater
+   does not stay done. Marking it done keeps its keyword, writes
+   =- State "DONE" from "TODO" [time]= to its logbook, sets its
+   =LAST_REPEAT= property and moves the date on:
+
+   - =+1w= moves it one interval from the old date,
+   - =++1w= moves it by whole intervals until it is in the future,
+   - =.+1w= moves it one interval from today.
+
+   #+BEGIN_SRC org
+   * TODO Water the plants
+     SCHEDULED: <2026-10-12 Mon .+3d>
+   #+END_SRC
+
+   A repeating task with =:STYLE: habit= is a habit: see the habits view
+   in *What the Server Adds*.
+
+* Scheduled and deadline
+  Dates are what put a todo on the agenda:
+
+  - =SCHEDULED:= is when you plan to start. It is on the agenda that day
+    and, until it is done, it is carried to today as an overdue item.
+  - =DEADLINE:= is when it must be finished. It shows on today for a
+    warning period before (14 days unless the stamp says =-3d=) and as
+    overdue after.
+  - A plain active timestamp =<2026-10-12 Mon 10:00>= is an appointment:
+    on its day only.
+
+  *Org Schedule* (=alt+o i s=) and *Org Deadline* (=alt+o i e=) add them
+  with the date picker. The rules for what lands on which day are in
+  *The Agenda*.
+
+* Priorities
+  A priority cookie (=[#A]=) after the keyword says how much a todo
+  matters; *Org Change Priority* (=alt+o p=) sets it. Writing and
+  configuring them is covered in *Priorities*. For planning they order
+  and narrow things:
+
+  #+BEGIN_SRC org
+  ** TODO [#A] Fix the build
+  ** TODO [#C] Tidy the wiki
+  #+END_SRC
+
+  - The agenda's day view sorts entries of the same kind by priority (no
+    priority counts as =B=); the todo lists sort by date, then priority.
+  - A view can keep only some priorities: =Todos : priorityfilter |A |B=
+    (see *The Agenda*), and a query can ask =IsPriority("A")=.
+  - In the agenda =,= changes an entry's priority. It offers the
+    =priorities= setting, not a file's =#+PRIORITIES:=.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/learning_todo_priorities.gif]]
+
+* Tags
+  Tags at the end of a heading give it context, and are inherited by
+  everything below it; =#+FILETAGS:= tags a whole file:
+
+  #+BEGIN_SRC org
+  #+FILETAGS: :work:
+  * TODO Review the budget                                     :finance:
+  #+END_SRC
+
+  The agenda filters by tags (=tagfilter=) and so does the query language
+  (=HasTags("finance")=). A heading tagged =ARCHIVE= is archived: the
+  agenda leaves it and everything under it out.

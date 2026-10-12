@@ -1,0 +1,247 @@
+#+TITLE: Connecting to orgs
+#+DOC_SECTION: Getting Started
+#+DOC_ORDER: 2
+
+* Why a server
+  OrgEverywhere edits the org file in front of you by itself. Everything that
+  needs your other files - the agenda, capture, refile, archiving, clocking,
+  day pages, id and custom id links, backlinks, tag completion, query search
+  - comes from an [[https://github.com/ihdavids/orgs][orgs]] server. The server
+  keeps your org files parsed and answers for Sublime, VSCode, the orgs
+  command line and the worg web page alike, so they all see the same data.
+
+  The server reads what is saved on disk. A buffer with unsaved changes is
+  not part of the agenda until you save it.
+
+* Running a server
+  Install orgs (see its README), then tell it where your org files are in
+  its =orgs.yaml=:
+
+  #+BEGIN_SRC yaml
+  server:
+    orgDirs:
+      - "/Users/me/org"
+    keystore: "orgs_keystore.yaml"
+  #+END_SRC
+
+  Add a user for yourself and start the server:
+
+  #+BEGIN_SRC sh
+  orgs user add me        # asks for a password, twice
+  orgs serve
+  #+END_SRC
+
+  Until a keystore is set the only account is the built in =admin= with
+  password =default=; the server warns about that every time it starts.
+  =orgs serve= listens on http port 8010 and, when https is turned on, on
+  port 443. The orgs documentation covers the rest of its configuration.
+
+  The old OrgEverywhere settings =orgDirs=, =orgFiles=, =orgExcludeDirs= and
+  =orgExcludeFiles= are no longer read for this: the server's orgDirs decide
+  which files are org files.
+
+* How OrgEverywhere finds the server
+  When Sublime starts, OrgEverywhere looks for a server:
+
+  1. If =orgsUrl= is set, it uses that url and nothing else.
+  2. Otherwise it tries each url in =orgsDiscoverUrls= in order, by default
+     =http://localhost:8010= then =https://localhost:443=, and takes the
+     first that answers like an orgs server.
+
+  A url "answers like an orgs server" when =GET /salt= returns a json salt
+  (the one orgs route that needs no login). A web server that happens to
+  be on that port is passed over. Each discovery probe waits up to two
+  seconds; a probe of =orgsUrl= waits =orgsTimeout= seconds (15).
+
+  If nothing answers, the status bar says =orgs: offline= and OrgEverywhere
+  looks again every =orgsRetrySeconds= (60; 0 stops it). Start the server
+  and it connects by itself within a minute, or run
+  *Org: Connect to orgs server* to connect now.
+
+  To point OrgEverywhere at a server somewhere else run
+  *Org: Set orgs server url*. It writes =orgsUrl= into your user settings
+  and connects. Or set it yourself:
+
+  #+BEGIN_SRC js
+  "orgsUrl": "https://myserver.example.com:8443",
+  #+END_SRC
+
+* Logging in
+  Once a server is found OrgEverywhere checks the login it stored last time
+  for that url. If the server still accepts it you are connected without
+  being asked.
+
+  Otherwise it asks, in the input panel at the bottom of the window:
+
+  1. =orgs user for <url>:= - prefilled with the last user name you logged
+     in with on that server, or =orgsUser=.
+  2. =orgs password for <user>@<url>:= - what you type shows as dots.
+
+  The password itself never leaves Sublime. OrgEverywhere asks the server for
+  your salt, sends a salted sha256 hash of the password in its place, and
+  forgets what you typed. The server answers with a session token.
+
+  With =orgsPromptLoginOnStartup= (on by default) the prompt appears as soon
+  as Sublime starts. Turn it off and you are asked the first time a feature
+  needs the server instead. *Org: Log in to orgs* logs in at any time, for
+  example as a different user.
+
+  A server running with =noAuth= needs no login; the status bar shows
+  =(no auth)= in place of a user name.
+
+* What is kept, and where
+  OrgEverywhere keeps your login per server url so a restart does not ask
+  again. It keeps it in the operating system's secret store when there is
+  one:
+
+  | System  | Store                                  | Found under                                   |
+  |---------+----------------------------------------+-----------------------------------------------|
+  | macOS   | Keychain (=/usr/bin/security=)         | service =OrgEverywhere.orgs=, account =orgs:<url>=  |
+  | Windows | Credential Manager                     | generic credential =OrgEverywhere.orgs:orgs:<url>= |
+  | Linux   | Secret Service (=secret-tool=)         | service =OrgEverywhere.orgs=, account =orgs:<url>=  |
+
+  What is stored:
+
+  - *Always*: your user name, the session token and when it expires.
+  - *With =orgsRememberLogin=* (on by default): the salted password hash as
+    well, so that when the session expires OrgEverywhere logs back in by
+    itself instead of asking. Anyone who can read your keychain entry can
+    log in to that server as you with it, so turn the setting off if that
+    matters to you.
+  - *Never*: the password you typed.
+
+  Without a secret store (a Linux machine with no keyring running, for
+  instance) the login goes to a file instead,
+  =<Sublime cache>/OrgEverywhere/orgs_logins.json=, readable only by you
+  (mode 0600, in a 0700 directory). The file holds the token only, never
+  the password hash, so once the session expires you are asked again.
+  =orgsCredentialStore: "file"= uses the file even when a secret store
+  exists.
+
+  *Org: Log out of orgs (forget stored login)* ends the session and deletes
+  everything stored for that server.
+
+* Staying logged in
+  A session token has an expiry date. OrgEverywhere renews it with the server
+  when three quarters of its lifetime has passed, and again whenever a
+  request is made in its last two minutes, so a Sublime that is in use stays
+  logged in.
+
+  When the token has expired anyway (Sublime was closed for a week, the
+  server was restarted with new keys) the next request is refused. Then:
+
+  1. With a remembered login, OrgEverywhere logs in again silently and
+     retries. If the server refuses the stored hash (the password was
+     changed) the hash is dropped.
+  2. Otherwise the login prompt appears and the command that hit the
+     refusal fails with =orgs: log in, then try again=. Log in and run the
+     command again: nothing waits on the prompt, so Sublime never hangs on
+     a login. If you cancel the prompt it does not reappear for 15 seconds.
+
+* https and self signed certificates
+  A server with a certificate from a public authority needs nothing extra.
+  A self signed certificate is not trusted by default, and discovery reports
+  =certificate not trusted (self signed? ...)=. Either trust that
+  certificate:
+
+  #+BEGIN_SRC js
+  "orgsCaFile": "~/dev/orgs/server.crt",
+  #+END_SRC
+
+  or turn verification off, which lets anything on the network pretend to
+  be your server:
+
+  #+BEGIN_SRC js
+  "orgsNoVerify": true,
+  #+END_SRC
+
+* A server on another machine
+  The server reports file names as they are on its own disk. When it runs on
+  another machine, or in a container, those paths mean nothing here. Map
+  the server's path prefixes to where the same files are on this machine
+  (synced with Dropbox, git, syncthing...):
+
+  #+BEGIN_SRC js
+  "orgsPathMap": {
+      "/home/me/org": "~/Dropbox/org",
+      "/data/work":   "D:\\work\\org"
+  },
+  #+END_SRC
+
+  Keys are server paths, values local paths; =~= is expanded. The longest
+  matching prefix wins, and the map is used both ways: server paths are
+  turned into local ones to open files, and local paths into server ones
+  when OrgEverywhere asks about the file you are editing. A server on this
+  machine needs no map.
+
+* Saving before the server writes
+  Refile, archive, agenda actions and the server's capture templates are
+  carried out by the server,
+  which writes the file on disk. If that file is open in Sublime with unsaved
+  changes, the next save would quietly undo what the server wrote. So with
+  =orgsSaveBeforeServerEdits= (on by default) OrgEverywhere saves the buffer
+  first and waits for the server to re-read it. Turn it off and those
+  commands refuse with "save it first" instead.
+
+  The server also tells OrgEverywhere when files change underneath it (an
+  event stream, =orgsEvents=), which keeps ids, backlinks and the agenda
+  current when you edit files outside Sublime.
+
+* The status bar
+  Org files show the connection in the status bar (=orgsShowStatus=):
+
+  | Status bar                     | Meaning                                             |
+  |--------------------------------+-----------------------------------------------------|
+  | =orgs: <url> (<user>)=         | connected and logged in                             |
+  | =orgs: <url> (no auth)=        | connected to a server that needs no login           |
+  | =orgs: login needed (<url>)=   | the server is there, you are not logged in          |
+  | =orgs: connecting...=          | looking for the server                              |
+  | =orgs: offline=                | no server found; looking again every minute         |
+  | (nothing)                      | =orgsEnabled= is false                              |
+
+* Commands
+  | Command                                    | What it does                                                   |
+  |--------------------------------------------+----------------------------------------------------------------|
+  | *Org: Connect to orgs server*              | find the server now and log in; says why when none is found     |
+  | *Org: Log in to orgs*                      | show the login prompt                                           |
+  | *Org: Log out of orgs (forget stored login)* | end the session and delete the stored login                   |
+  | *Org: Set orgs server url*                 | set =orgsUrl= and connect                                       |
+  | *Org: orgs connection status*              | what the connection is doing, and why                           |
+  | *Org: orgs reload server config*           | have the server re-read its yaml (capture templates, filters...) |
+
+* Troubleshooting
+  Start with *Org: orgs connection status*. It shows:
+
+  - *State*: =connected=, =login=, =searching=, =unavailable= or =disabled=.
+  - *Detail*: why, when there is a reason - each url tried and what it
+    answered, =session expired=, =logged out=.
+  - *Server*, *User* and *Session expires*.
+  - *Login stored in*: which store is used (macOS Keychain, Windows Credential
+    Manager, Secret Service, or the file), and *Remembered login*: whether a
+    password hash is kept so expired sessions log back in by themselves.
+  - *Live updates*: whether the server's change events are coming in.
+  - *Files tracked*: how many org files the server knows about.
+  - With no server at all, *Looking at*: the urls being tried.
+
+  | Symptom                                       | Try                                                                     |
+  |-----------------------------------------------+-------------------------------------------------------------------------|
+  | =Could not find an orgs server=               | is =orgs serve= running, on the port in =orgsUrl= / =orgsDiscoverUrls=? |
+  | =connection refused= for every url            | the server is not running, or listens on another port                    |
+  | =answered, but is not an orgs server=         | something else owns that port; set =orgsUrl=                            |
+  | =certificate not trusted=                     | set =orgsCaFile= (or =orgsNoVerify=)                                     |
+  | =orgs: login needed=                          | *Org: Log in to orgs*                                                    |
+  | =login failed: wrong user name or password=   | check the user with =orgs user ls= on the server's machine              |
+  | asked to log in after every restart           | no secret store, so only the token is kept; see above                   |
+  | headings open the wrong file or none          | a remote server needs =orgsPathMap=                                      |
+  | a change is missing from the agenda           | save the file: the server reads what is on disk                         |
+  | =Files tracked: 0=                            | the server's =orgDirs= are wrong or empty                               |
+
+  For more detail set ="enableDebugLogging": true= (or the environment
+  variable =SUBLIME_ORGEVERYWHERE_DEBUG=) and watch the console
+  (*View > Show Console*): connection messages start with =orgs:=.
+
+* Working without a server
+  Set =orgsEnabled= to false, or just do not run one. Editing works as
+  always: folding, todo states, tables, source blocks, links within the
+  file, exporting the file. The features that need your other files say
+  =orgs: not connected= instead of showing nothing.

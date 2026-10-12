@@ -1,0 +1,101 @@
+* 1.2.54
+** 3.8 Upgrade
+   Package upgraded to the 3.8 runtime.
+   TextTable plugin is still running on 3.3 but orgeverywhere itself
+   is now running on 3.8 for greater performance and cleanliness.
+
+   NOTE: YOU WILL NEED TO RESTART SUBLIME TEXT SEVERAL TIMES TO ALLOW 
+         DEPENDENCIES TO INSTALL AND UPGRADE.
+
+   I have run into some problems where the dateutil.rrule package will not update from the 3.3 version
+   to the 3.8 version.
+   
+   The only solution I have found is to reinstall sublime and then reinstall OrgEverywhere.
+   This forces the upgrade and allows things to work again.
+
+** Agenda haschildtask filter 
+   Thanks to tim3z for his contribution to the agenda:
+
+   - I sometimes need to filter for tasks with/without child tasks
+
+   This adds the following keywords for child tasks
+
+   #+BEGIN_QUOTE
+     haschildtasks
+     nochildtasks
+   #+END_QUOTE
+   
+** Extended default binary formats for links
+   Thanks to dyaso for extending the default binary formats list
+   to include pdfs and word documents.
+
+   #+BEGIN_EXAMPLE
+     "file_exclude_patterns": [
+        "*.pdf",
+        "*.doc",
+        "*.docx",
+        "*.docm",
+    ],
+   #+END_EXAMPLE
+
+** FIX Agenda Day View Rendering Bug  
+	Fix for: [[https://github.com/ihdavids/orgextended/issues/85][Agenda does not work in ST4]]	
+
+	In recent builds of sublime text 4 The composite Agenda class was only able to render the first view
+	when the tab is first opened. I am not sure why. I added a recursive command that draws on a second pass
+	to work around the issue. This is not ideal but it at least gets things rendering again.
+
+** FIX Todo View Not Rendering in ST4
+   Fix for: [[https://github.com/ihdavids/orgextended/issues/80][Org Todo View command shows an empty file, despite TODOs existing in tracked files]] 
+   This seems to have been the same issue as the Day View Rendering bug.
+   When the tab pops up the first write attempt to the buffer seems to not be accepted until control 
+   has been returned to ST. I have made the command recursive to fix the issue.
+
+   - The same problem also existed with Org Agenda Custom View which is consumed by Org Choose Custom View
+
+   Overall these are all the same issue and something that has developed in modern versions of Sublime Text. I am not sure 
+   what has caused this but I suspect some of the read only features I am using are perhaps asynchronous events in some fashion and
+   I may be racing with some internal message pump I do not fully understand vs my plugin thread.
+
+** FIX Agenda Week View Lineup With Week
+   Some previous changes to the week view had it a week off from the current day.
+   This has been fixed
+
+** FIX Color Scheme Genereator
+   Fix for: [[https://github.com/ihdavids/orgextended/issues/83][Generated color schemas (partially) use camelCase instead of snake_case]]
+
+   If you follow the [[https://github.com/ihdavids/orgextended_docs/blob/master/setup.org#color-scheme-generator][Color Scheme Generator]] instructions the generator seems to sometimes generate a:
+   lineHighlight global vs line_highlight. This is an odd quirk that seems to manifest itself when parsing some
+   existing color schemes. That camelCase version comes FROM the parsed version of the color scheme and I am not sure why.
+   We now account for this and export a line_highlight variant that matches the lineHighlight version in the globals.
+
+** FIX Agenda View Overlap Sorting
+   Fix for: [[https://github.com/ihdavids/orgextended/issues/86][Overlapping events can appear out of order in the Agenda timeline]] 
+
+   Thanks to r4dian for reporting. 
+
+   This particular issue only seemed to happen if you moved to a previous day in the agenda. The time list was not being sorted properly
+   resulting in times appearing out of order during the day.
+   
+** List Sort Docs
+   There was confusion over the simplistic Org Sort List command.
+   I added some quick docs to help demonstrate how that command works. It currently does not work on headings. 
+   Contributions welcome. 
+
+   [[https://github.com/ihdavids/orgextended_docs/blob/master/lists.org#sorting-lists][Org Sort List]] 
+
+** List Cookie Issues
+   [[https://github.com/ihdavids/orgextended/issues/84][Cookies are wrongly calculated in lists with checkboxes]]
+
+
+   List cookies:
+   #+BEGIN_EXAMPLE
+      - List [1/2]     
+         - [x] A
+         - [ ] B
+      - List2
+         - [ ] This should NOT be included in list 1
+   #+END_EXAMPLE
+
+   had a problem when list types alternated from unordered lists to checked lists.
+   This is not perfect but has been improved and should now no longer be combined.

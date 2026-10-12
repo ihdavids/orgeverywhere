@@ -1,0 +1,44 @@
+* 1.2.7
+	Core Idea: Quality of Life
+
+	This release is about stability, testing and validating the core babel feature set before I move on to noweb and tangle.
+
+** Babel Unit Tests
+	- Having most of the core babel features in place we have started to work towards
+	  validating the core babel feature set and putting a rough stamp of non preview on
+	  the babel feature set.
+
+	- Added "Org Show Table Tests" and "Org Show Source Block Tests" which will create a file with the unit tests
+	  for these features as a means of documentation and exploration for new users.
+
+  - FIXED: Issues with multiple :var statements on the fence line of a babel block.
+  - FIXED: Exception with initial inserts with drawer formatter. 
+
+** SBE
+
+	- FIXED: The Source Block Execute method had a bug that was preventing propper execution due to some
+	  of the features introduced in 1.2.6
+	- FIXED: cell being passed to an sbe function would sometimes not evaluate properly.
+
+** Table Execution
+	- New command: "Org Execute Formula" This will only execute the formula targetting the current cell vs the entire table.
+	  This can help when building a table.
+
+** Table Highlights
+	- Some expressions using SBE can get fairly expensive to compute. When highlighting cells the system executes
+	  formulas in the background to determine which cells the formula touches. To avoid paying that cost when moving
+	  around you can turn this off for a node in the heirarchy as follows:
+
+	  #+BEGIN_EXAMPLE
+      :PROPERTIES:
+        :NoTableHighlight: True
+      :END:
+	  #+END_EXAMPLE
+
+	  I had to do this for the unit tests since our unit tests were generating diagrams as a result of the sbe calls
+	  Although an unrealistic real world case, this was slowing down the highlight to be somewhat unusable so merited
+	  the feature.
+
+** Day Page
+	- olegBc asked for a day page system. The project still has a little definition before we know where we need to take it.
+	  That said, I added a text command to create a day page as a first little step in that direction.

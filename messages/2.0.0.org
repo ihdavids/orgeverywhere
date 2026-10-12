@@ -1,0 +1,80 @@
+* 2.0.0 - OrgEverywhere runs on the orgs server
+  2.0 replaces OrgEverywhere's own org database with the [[https://github.com/ihdavids/orgs][orgs]] server.
+
+  #+BEGIN_QUOTE
+  The orgs server is an attempt to move the org mode capabilities that are beyond just
+  editing an org file into a flexible shareable core that can be used here and outside
+  of sublime to really help the org community to make the most of their org data everywhere.
+  #+END_QUOTE
+
+  orgs keeps the cross file side of org mode: which files are org files,
+  ids and custom ids, tags, backlinks, refile targets, capture, clocking,
+  day pages and the query language. Sublime, VSCode, the orgs command line
+  and the worg web ui all share the one server, so they all see the same
+  data at the same time. Editing a buffer (folding, todo cycling, tables,
+  source blocks...) stays local and works as before.
+
+** Getting started
+   1. Install and run the server: =orgs serve= (orgDirs go in its orgs.yaml).
+   2. OrgEverywhere looks for it at http://localhost:8010 and
+      https://localhost:443. Set =orgsUrl= if yours lives elsewhere, or run
+      *Org: Set orgs server url*.
+   3. Log in when asked. The session is kept in your OS keychain (macOS
+      Keychain, Windows Credential Manager, or the Secret Service on Linux),
+      so restarting Sublime does not ask again. With =orgsRememberLogin= a
+      salted hash of your password is kept there too, so an expired session
+      logs back in by itself. Your password itself is never stored.
+   4. *Org: orgs connection status* shows what is going on.
+
+   The status bar of org files shows the connection. Self signed https:
+   set =orgsCaFile= to the server's certificate (or =orgsNoVerify=).
+   A server on another machine: map its paths with =orgsPathMap=.
+
+** What changed
+   - There is no Python org database any more. =orgDirs=, =orgFiles=,
+     =orgExcludeDirs= and =orgExcludeFiles= are no longer read: the server's
+     orgDirs decide which files are org files, and nothing is parsed at
+     startup. Only the buffers you have open are parsed (for editing).
+   - Agenda: the server works out what lands on each day (=GET /agenda=) -
+     repeaters on every day they come round, deadline warning periods
+     (=-3d=, default 14 days), overdue scheduled items carried to today
+     ("Sched. 3x"), ranges across days - so the agenda, worg, the orgs CLI
+     and VSCode all agree. Archived trees stay out, as in org. Agenda
+     actions (todo state, priority, tags, effort, assign, id, clock in/out)
+     are made on the server. New =OrgsQuery= custom view and *Org: Agenda
+     Query* run orgs query language expressions (=IsTodo() &&
+     InTagGroup("WORK")=, server filters like ={{AllTasks}}=, stored
+     queries).
+   - The agenda shows saved files: a modified buffer is not in it until
+     saved (the agenda says how many are waiting; =agendaSaveBeforeRender=
+     saves them first).
+   - Notifications, the day page's "today's tasks" and timesheets come
+     from the server's agenda too.
+   - Refile, copy, archive and archive all done are done by the server;
+     the target picker lists the server's refile targets.
+   - Capture: the server's capture templates appear as "orgs: Name".
+   - Clocking: the clock lives on the server, so it is shared with every
+     other orgs client; the status bar shows the running clock.
+   - Day pages come from the server's dayPagePath (local day pages remain
+     the fallback when the server has none).
+   - Today is a server marker (*Org: Set Today*, *Org: Set Marker*,
+     *Org: Jump To Marker*).
+   - id:, #custom-id and *heading links resolve through the server, and
+     link types the server knows (linkProtocols, jira...) open through it.
+   - Backlinks, link search, tag and id completion come from the server.
+
+** New (from orgs)
+   - *Org: orgs Query Search*, saved queries, *Org: orgs Full Text Search*
+   - *Org: orgs Habits*, *Org: orgs Clock Report*
+   - *Org: orgs Export File* (every exporter the server has, pdf too)
+   - *Org: orgs File History* (git), *Org: orgs Contacts*, *Org: orgs Upcoming Birthdays*
+   - *Org: orgs Tangle File*, *Org: orgs Update Dynamic Blocks*, *Org: orgs Execute Source Block*
+   - *Org: orgs Encrypt Heading* / *Decrypt Heading*, *Org: orgs Attachments*
+   - *Org: orgs Drill Flashcards*, *Org: orgs New File from Template*
+   - *Org: orgs Update Heading* (jira and other updater plugins)
+   - *Org: orgs Open Web UI* (kanban, gantt, columns, starmap... in worg)
+
+** Without a server
+   Set =orgsEnabled= to false, or simply do not run one. Editing works as
+   before; features that need the database say the server is not connected
+   rather than showing nothing.

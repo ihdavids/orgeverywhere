@@ -1,0 +1,30 @@
+* 1.2.53
+** FIXED Mermaid JS source blocks
+
+  The mermaid source block handler was using an old default command line for mermaid.
+  You should now specify mmdc.ps1 on windows:
+
+  #+BEGIN_SRC js
+    "mermaid": "C:\Users\ihdav\node_modules\.bin\mmdc.ps1", 
+  #+END_SRC
+
+  On windows this will allow the following to run properly
+  
+  #+BEGIN_SRC mermaid :file mermaidout.png
+  flowchart TD
+    Start --> Stop	
+  #+END_SRC
+
+** FIXED Org Capture
+   - If the user had a list as their dayPagePath variable org capture would crash.
+     Improved symbol expansion reliability a little bit.
+   - File creation in directory that does not exists was not working. This should now be fixed
+
+** FIXED Reveal JS Exporter
+   Reveal js had moved on since the last time I used the exporter. Derusting is required to get it
+   functional again.
+
+   - [x] Reveal js exporter was missing Escape method of embedded source blocks
+
+   Please note when using reveal exporter that if slides have to much content they will become jumbled.
+   The layout is somewhat simplistic

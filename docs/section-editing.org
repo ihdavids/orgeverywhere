@@ -1,0 +1,4 @@
+#+TITLE: Editing
+#+DOC_ORDER: 2
+
+Working in an org file: headings, folding, moving around, lists, properties, priorities and dates. All of this works on the buffer as you type, with or without a server.

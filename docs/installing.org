@@ -1,0 +1,110 @@
+#+TITLE: Installing OrgEverywhere
+#+DOC_SECTION: Getting Started
+#+DOC_ORDER: 1
+
+* What you need
+  - *Sublime Text 4.* OrgEverywhere runs on Sublime's python 3.8 plugin host
+    (the package carries a =.python-version= file that asks for it), which
+    Sublime Text 3 does not have.
+  - *Package Control*, even for a manual install: it installs the python
+    libraries OrgEverywhere uses and two helper packages.
+  - *An orgs server* for everything that works across files (the agenda,
+    capture, refile, clocking, id links...). Editing a file works without
+    one. See *Connecting to orgs*.
+
+* Installing with Package Control
+  1. Open the command palette (=ctrl+shift+p=, =cmd+shift+p= on macOS) and
+     run *Package Control: Install Package*.
+  2. Pick *OrgEverywhere*.
+  3. Restart Sublime once the libraries have installed.
+
+  On its first start OrgEverywhere asks Package Control for two more
+  packages if they are missing:
+
+  - *Table Editor*: the table editing keys (moving between cells, inserting
+    and deleting rows and columns) are Table Editor's commands.
+  - *PowerShell*: syntax highlighting for powershell source blocks.
+
+  It also copies its settings into =Packages/User/OrgEverywhere.sublime-settings=
+  the first time it runs (see *Settings*).
+
+* Installing by hand
+  To run from a git checkout, clone the repository into Sublime's
+  =Packages= folder under the name =OrgEverywhere=. The name and its case
+  matter: the python modules import each other as =OrgEverywhere.something=,
+  so a folder called =orgeverywhere= or =OrgEverywhere-master= does not load.
+
+  *Preferences > Browse Packages...* opens the right folder. From a
+  terminal:
+
+  #+BEGIN_SRC sh
+  # macOS
+  git clone https://github.com/ihdavids/orgeverywhere.git \
+      "$HOME/Library/Application Support/Sublime Text/Packages/OrgEverywhere"
+
+  # Linux
+  git clone https://github.com/ihdavids/orgeverywhere.git \
+      ~/.config/sublime-text/Packages/OrgEverywhere
+  #+END_SRC
+
+  #+BEGIN_SRC powershell
+  # Windows
+  git clone https://github.com/ihdavids/orgeverywhere.git "$env:APPDATA\Sublime Text\Packages\OrgEverywhere"
+  #+END_SRC
+
+  Then install the libraries: run *Package Control: Satisfy Libraries*
+  (called *Satisfy Dependencies* in older Package Control versions) and
+  restart Sublime. Package Control reads the list from the package's
+  =dependencies.json=: =pathlib=, =pyyaml=, =dateutil=, =requests=,
+  =regex=, =websocket= and =six=. If OrgEverywhere fails to load with an
+  =ImportError= for one of them in the console (*View > Show Console*),
+  that library did not install; run *Satisfy Libraries* again.
+
+  The connection to the orgs server itself uses only the python standard
+  library (no =requests=).
+
+** The python 3.8 host
+   Sublime Text 4 has two plugin hosts, python 3.3 and python 3.8. A
+   package picks one with a =.python-version= file at its top level;
+   OrgEverywhere's says =3.8=. If you copy the package somewhere by hand,
+   copy that file too: without it Sublime loads OrgEverywhere into the 3.3
+   host and it fails to start (the console shows import or syntax errors
+   from =orgs/=).
+
+* Checking that it works
+  1. Make a file whose name ends in =.org= and open it. The syntax in the
+     bottom right corner says *OrgEverywhere*.
+  2. Type a heading (=* Hello=), put the cursor on it and press =tab=: the
+     heading folds and unfolds.
+  3. The status bar shows the orgs connection (=orgs: http://localhost:8010 (you)=,
+     =orgs: offline=...). Without a server, see *Connecting to orgs*.
+
+  Several other syntaxes come with the package: =orgagenda=,
+  =orgdatepicker=, =orgdateeditor=, =orginput= and =OrgBeancount=. They are
+  used by OrgEverywhere's own views; you never need to set a file to them.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/syntaxs.png]]
+
+* Colour schemes
+  OrgEverywhere colours org files with its own scheme, set in its settings
+  (=color_scheme=). There are two: =OrgEverywhere.sublime-color-scheme= (dark)
+  and =OrgEverywhere-Light.sublime-color-scheme=.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/light-color-scheme.gif]]
+
+  - *Org Select Color Scheme* picks one of the built in schemes, or one you
+    generated.
+  - *Org Create Color Scheme From Active*, run from a non org file, takes
+    the colour scheme you use for everything else and writes an org
+    flavoured copy of it to
+    =Packages/User/OrgColorSchemes/<name>_Org.sublime-color-scheme=, with
+    comments on which scopes to tweak. It only works with
+    =.sublime-color-scheme= files, not older =.tmTheme= ones, and it switches
+    the agenda and date picker views to the new scheme as well.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/color_scheme_creator.gif]]
+
+* Next
+  - *Connecting to orgs*: start a server and log in.
+  - *Keys*: the default key bindings.
+  - *Settings*: where settings live and how to change them.

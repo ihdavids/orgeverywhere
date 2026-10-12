@@ -1,0 +1,195 @@
+#+TITLE: Capture, Refile and Archive
+#+DOC_SECTION: Planning
+#+DOC_ORDER: 3
+
+* Capture
+  Capture is for getting a thought out of your head quickly, without
+  leaving what you are doing: press a key, type, close the panel, and it
+  is filed. Most people capture into an inbox and sort it out later with
+  refile.
+
+  | Command     | Keys                                                          |
+  |-------------+---------------------------------------------------------------|
+  | Org Capture | =ctrl+shift+x=, =alt+o z= (NeoVintageous command mode: =Z=)   |
+
+  *Org Capture* lists your own templates (the =captureTemplates= setting)
+  and then, when the orgs server is connected, the server's templates,
+  shown as =orgs: Name=. The two kinds work differently.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/orgcapture.gif]]
+
+* Server templates
+  The server's templates live in its =orgs.yaml=, so Sublime, worg, the
+  command line and VSCode capture with the same ones:
+
+  #+BEGIN_SRC yaml
+  server:
+    captureTemplates:
+      - name: "Todo"
+        type: "entry"
+        target:
+          type: "file+headline"
+          filename: "inbox.org"
+          id: "Inbox"
+        template: |-
+          TODO {{Heading}}
+          :PROPERTIES:
+            :CREATED: {{now}}
+          :END:
+          {{CONTENT}}
+  #+END_SRC
+
+  The template is a form with fields to fill in:
+
+  - ={{name}}= a value, labelled from its name,
+  - ={{name|prompt}}= the same with your own label,
+  - ={{name|=default}}= pre-filled and still editable (the server fills in
+    =uuid=, =now=, =username= and the like this way),
+  - ={{CONTENT}}= the body.
+
+  OrgEverywhere turns the form into a snippet in the capture panel: each
+  field is a tab stop, defaults are filled in. For an =entry= the first
+  line is the heading (keyword, priority and =:tags:= kept) and the rest
+  its content. When the panel loses focus the text is sent to the server
+  once and the panel closes; the server writes the target file (saving
+  its buffer first if it is open with changes). Closing the panel before
+  typing anything sends nothing.
+
+  - *Org: Abort Capture (orgs template)* throws the capture away instead.
+  - If the server does not answer in time the capture may still have been
+    written: you are asked before it is sent again. On any other error the
+    text stays in the panel and is sent next time it loses focus.
+
+  Set =orgsCaptureTemplates= to =false= to leave the server's templates
+  out of the list. *Org: orgs reload server config* re-reads =orgs.yaml=
+  after you change the templates.
+
+* Local templates
+  The =captureTemplates= setting holds templates that OrgEverywhere files
+  itself, writing the target file directly:
+
+  #+BEGIN_SRC js
+  "refile": "~/notes/refile.org",
+  "captureTemplates":
+  [
+      { "name": "Todo",    "type": "entry", "snippet": "todo_heading",    "target": ["file", "{refile}"] },
+      { "name": "Meeting", "type": "entry", "snippet": "meeting_heading", "target": ["file+headline", "~/notes/work.org", "Meetings"], "openas": "direct" },
+      { "name": "Journal", "type": "entry", "snippet": "note_heading",    "target": ["file+olp+datetree", "~/notes/journal.org"] },
+  ],
+  #+END_SRC
+
+  - =name= :: the name in the list.
+  - =snippet= :: a sublime snippet (without =.sublime-snippet=) from your
+    =Packages/User/orgsnippets= folder or the package's own:
+    =todo_heading=, =note_heading=, =meeting_heading=, =capture_heading=,
+    =plain_template=.
+  - =type= :: =entry= (a heading under the target), =item= (a list item
+    in the first list there), =checkitem= (a checkbox item),
+    =table-line= (a row of the first table) or =plain= (text at the end
+    of the target).
+  - =target= :: where it goes (below).
+  - =openas= :: ="panel"= (the default: a capture panel, written to the
+    target when it loses focus) or ="direct"= (opens the target file at
+    the place instead).
+  - =properties= :: for a datetree, the heading formats
+    ={"year-format": "%Y", "month-format": "%Y-%m %B", "day-format": "%Y-%m-%d %A"}=.
+
+** Targets
+   | Target                                            | Goes                                                          |
+   |---------------------------------------------------+---------------------------------------------------------------|
+   | =["file", path]=                                  | at the end of the file                                        |
+   | =["file+headline", path, "Heading"]=              | under that heading (made if it is missing)                    |
+   | =["file+olp", path, "Heading 1", "Heading 2"]=    | under the heading at that outline path                        |
+   | =["file+regexp", path, "regex"]=                  | at the first line matching the regular expression             |
+   | =["file+olp+datetree", path, "Heading"...]=       | under today's year / month / day headings, made as needed     |
+   | =["id", "custom-id"]=                             | under the heading with that =CUSTOM_ID=                       |
+   | =["clock"]=                                       | under the heading the clock is running on                     |
+
+   In a path, ={refile}= is the =refile= setting and ={daypage}= is
+   today's local day page (=dayPagePath=, see *Day Pages*). A missing
+   target file is created.
+
+** Snippet variables
+   Capture snippets can use these besides sublime's own:
+
+   | Variable            | Value                                   |
+   |---------------------+-----------------------------------------|
+   | =ORG_INACTIVE_DATE= | =[2026-10-11 Sun]=                      |
+   | =ORG_ACTIVE_DATE=   | =<2026-10-11 Sun>=                      |
+   | =ORG_DATE=          | =2026-10-11=                            |
+   | =ORG_TIME=          | =14:05:09=                              |
+   | =ORG_CLIPBOARD=     | the clipboard                           |
+   | =ORG_SELECTION=     | the selected text where you captured    |
+   | =ORG_LINENUM=       | the line you captured from              |
+   | =ORG_FILENAME=      | the file you captured from              |
+
+   A snippet that links back to where you were:
+
+   #+BEGIN_EXAMPLE
+   <snippet>
+       <content><![CDATA[
+   * NOTE ${1:HEADING}
+     :PROPERTIES:
+     :FROM:    [[file:${ORG_FILENAME}::${ORG_LINENUM}][Source]]
+     :CREATED: $ORG_INACTIVE_DATE
+     :END:
+     $0
+   ]]></content>
+       <tabTrigger>capture_heading</tabTrigger>
+       <scope>text.orgmode</scope>
+   </snippet>
+   #+END_EXAMPLE
+
+   =captureBufferName= names the panel (=*capture*=) and
+   =captureWriteFormat= is the encoding the target is written in
+   (=utf-8=). *Org Open Refile* (=ctrl+alt+x=) opens the =refile= file.
+
+* Refile and copy
+  Refile moves the heading at the cursor (and everything under it) to
+  another place; copy leaves the original where it is. The orgs server
+  does it: it offers its refile targets, moves the subtree and rewrites
+  both files. Open buffers of those files are saved first if they have
+  changes, and reload when the server has written them.
+
+  | Command                     | Keys                                      | Target                                   |
+  |-----------------------------+-------------------------------------------+------------------------------------------|
+  | Org Refile                  | =alt+o R= (NeoVintageous =R=)              | any heading, or the end of a file        |
+  | Org Refile To EOF           | NeoVintageous =space r f=                  | the end of a file                         |
+  | Org Refile File and Heading | NeoVintageous =space r r=                  | a file, then a heading in it             |
+  | Org Copy                    |                                           | any heading, or the end of a file        |
+
+  The list shows each target as =KEYWORD Outline / path :tags:= with its
+  file, and previews it as you move (=orgsPreviewOnHighlight=). It goes
+  =orgsRefileDepth= levels deep (=3=). Which files are offered is the
+  server's call (its org directories, and its refile settings).
+
+* Archive
+  Archiving moves a finished subtree out of the way, into an archive file.
+
+  | Command               | What it does                                                    |
+  |-----------------------+-----------------------------------------------------------------|
+  | Org Archive Subtree   | archive the heading at the cursor                               |
+  | Org Archive All Done  | archive every done heading in this file, in one request         |
+  | Org Insert Archive Tag | tag the heading =ARCHIVE=: it stays where it is, archived      |
+
+  The server archives, to the first of:
+
+  1. the heading's =ARCHIVE= property,
+  2. the file's =#+ARCHIVE:= line,
+  3. the server's =archiveDefault= in =orgs.yaml= (default =%s_archive::=,
+     org's own: =notes.org= archives to =notes.org_archive=).
+
+  =%s= is the file's name; after =::= comes the heading to file under
+  (nothing: the top level).
+
+  #+BEGIN_SRC org
+  #+ARCHIVE: %s_archive::* Archived Tasks
+  * DONE Old project
+    :PROPERTIES:
+    :ARCHIVE: ~/notes/archive/2026.org::
+    :END:
+  #+END_SRC
+
+  The old =archive= setting is not read any more. Keep =.org_archive= in
+  =validOrgExtensions= so archive files open as org. A tree tagged
+  =ARCHIVE= in place is left out of the agenda.

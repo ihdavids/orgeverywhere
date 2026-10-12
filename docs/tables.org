@@ -1,0 +1,647 @@
+#+TITLE: Tables and Spreadsheets
+#+DOC_SECTION: Tables
+#+DOC_ORDER: 1
+
+* Tables in a plain text file
+  An org table is a block of lines that start with =|=. OrgEverywhere keeps
+  it aligned as you type, lets you move rows and columns around and runs
+  formulas over it, so a table can be a small spreadsheet that lives in
+  your notes.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/table_formulas.gif]]
+
+  Emacs evaluates table formulas with calc and emacs lisp. OrgEverywhere
+  has its own formula language instead: the cell reference syntax of org
+  (=@2$3=, =$1..$3=, =@>=) on top of python style expressions, with a set
+  of spreadsheet functions. Most simple org formulas work unchanged;
+  calc specific functions and lisp formulas (='(...)=) do not.
+
+  The editing half (alignment, moving cells, inserting rows and columns)
+  comes from the [[https://packagecontrol.io/packages/Table%20Editor][Table Editor]] package, which OrgEverywhere installs and
+  turns on for org files (=enable_table_editor=, =table_editor_syntax=).
+
+  Tables are part of the file you are editing: everything here works on
+  the buffer, with or without the orgs server. Only references to tables
+  in *other* files (remote references by id, random rows from any table)
+  ask the server where those tables are.
+
+* Creating a table
+  Type a =|=, some text and press =tab=: the line becomes a table row and
+  the cursor moves to the next cell. Type =|-= on the next line and press
+  =tab= to turn it into a separator (hline).
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/table_basic_creation.gif]]
+
+  #+BEGIN_SRC org
+    | Name  | Qty | Price |
+    |-------+-----+-------|
+    | Apple |   3 |  0.50 |
+    | Pear  |   2 |  0.75 |
+  #+END_SRC
+
+  Other ways to get a table:
+
+  - *Org Insert Blank Table* (=org_insert_blank_table=) asks for the size
+    as =WxH= (=4x3=) and inserts an empty table with a header separator.
+
+    [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/blank_table_insert.gif]]
+
+  - *Org Convert Region To Table* (=org_convert_selection_to_table=) turns
+    the selected text into a table. The separator is guessed from the
+    text: comma, semicolon, tab or space, whichever splits the lines most
+    evenly (comma wins a tie). A python style list of lists
+    (=[[1,2],[3,4]]=) is understood too.
+
+    [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/convert_region_to_table.gif]]
+
+  - *Org Import Csv* (=org_import_table_from_csv=) asks for a file and
+    inserts its contents as a table at the cursor, with the same separator
+    guessing.
+
+* Editing a table
+  =tab= and =shift+tab= move between cells and realign the table, =enter=
+  moves down a row. The rest of the editing keys:
+
+  | Keys                | Does                                            |
+  |---------------------+-------------------------------------------------|
+  | =tab= / =shift+tab= | next / previous cell (and align)                |
+  | =enter=             | next row                                        |
+  | =shift+enter=       | split the cell: the text after the cursor moves down |
+  | =alt+shift+right=   | insert a column                                 |
+  | =alt+shift+left=    | delete the column                               |
+  | =alt+shift+down=    | insert a row                                    |
+  | =alt+shift+up=      | delete the row                                  |
+  | =alt+right= / =alt+left= | move the column right / left               |
+  | =alt+up= / =alt+down=    | move the row up / down                     |
+  | =alt+o t a=         | align the table                                 |
+  | =alt+o t -=         | insert a separator line                         |
+  | ~alt+o t =~         | insert a double separator line                  |
+  | =alt+o enter=       | separator below, and move past it               |
+  | =alt+o t j=         | join the current line with the next             |
+
+  With NeoVintageous the same commands sit under =space= in command mode
+  (=space t a=, =space t -=, =space t e= ...).
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/table_add_delete_cells.gif]]
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/table_moving_cells_around.gif]]
+
+  Moving or inserting rows and columns also updates the formulas below the
+  table, so a formula that read =$3= reads the column's new number. A
+  formula that pointed at a deleted row or column is marked =@INVALID= or
+  =$INVALID= so you can see it needs fixing.
+
+  *Org Clear Table Cell* (=org_clear_cell=, =space t k=) empties the cell
+  under the cursor.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/clear_cell.gif]]
+
+* Formulas
+** Writing a formula
+   Formulas live on a =#+TBLFM:= line directly under the table. Each
+   formula has a target and an expression; several formulas share the line,
+   separated by =::=.
+
+   #+BEGIN_SRC org
+     | Name  | Qty | Price | Total |
+     |-------+-----+-------+-------|
+     | Apple |   3 |  0.50 |   1.5 |
+     | Pear  |   2 |  0.75 |   1.5 |
+     |-------+-----+-------+-------|
+     | Sum   |   5 |       |   3.0 |
+     #+TBLFM:$4=$2*$3::@>$2=vsum(@2..@-1)::@>$4=vsum(@2..@-1)
+   #+END_SRC
+
+   You do not have to edit the =#+TBLFM:= line by hand. Type the formula
+   into a cell and evaluate the table: OrgEverywhere moves it to the
+   =#+TBLFM:= line, with a target made from the cell you typed it in.
+
+   | You type          | It becomes          | Applies to       |
+   |-------------------+---------------------+------------------|
+   | ~=$2*$3~          | ~$4=$2*$3~          | the whole column |
+   | ~:=$2*$3~         | ~@3$4=$2*$3~        | this cell only   |
+   | ~>=vsum($2..$4)~  | ~@3=vsum($2..$4)~   | the whole row    |
+
+   [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/table_formulas_insert.gif]]
+
+   If the cell already has a formula, the new one replaces it.
+
+** Evaluating
+   - =alt+o c c= (=org_recalc=, =space c c= with NeoVintageous) in a table
+     evaluates every formula of that table. =org_recalc= is the do what I
+     mean key: on a source block it runs the block, on a dynamic block it
+     refreshes the block, in a table it recalculates.
+   - *Org Eval Cell* (=org_fill_in_formula_from_cell=) does the same from a
+     cell, after moving a formula typed into the cell to =#+TBLFM:=.
+   - *Org Execute Formula* (=org_execute_formula=) evaluates only the
+     formula of the cell under the cursor.
+   - *Org Execute All Tables* (=org_execute_all_tables=) recalculates every
+     table in the file, top to bottom.
+
+   A formula that fails writes =<ERR>= into its cells; the python console
+   (=ctrl+`=) has the details.
+
+** Seeing what a formula touches
+   When the cursor is in a cell that a formula writes, the cells the
+   formula reads are outlined, and so is the formula on the =#+TBLFM:=
+   line. With the cursor on a formula in the =#+TBLFM:= line, the same
+   happens for that formula.
+
+   - *Org Show Table Rows* / *Org Hide Table Rows* put the row and column
+     numbers next to the table, which helps when writing references.
+     Separator lines are numbered with roman numerals.
+
+     [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/table_show_table_rows.gif.gif]]
+
+   - *Org Highlight Formula* (=org_highlight_formula=) highlights the
+     formula under the cursor; *Org Clear Table Highlights*
+     (=org_clear_table_regions=) removes the outlines.
+   - =tableShowCursor= (default true) outlines the cell under the cursor.
+     A =NoTableHighlight= property on the heading turns the outlines off
+     for its tables.
+
+** Changing a formula
+   *Org Edit Table Formula* (=org_edit_formula_for_cell=, =space t e=)
+   copies the formula of the current cell back into the cell. Edit it and
+   evaluate the table again.
+
+   [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/edit_formula.gif]]
+
+   Note that the copy carries its full target (~$4=$2*$3~). Put the
+   leading marker back (~=~, ~:=~, ~>=~) to say how the formula should be
+   stored, or edit the =#+TBLFM:= line directly.
+
+** A one off formula over a column
+   *Org Table Exec Below* (=org_exec_on_column=) asks for an expression and
+   applies it once to the current cell and every cell below it in the
+   column. Nothing is stored. Useful for nudging a column of numbers:
+   =$0*1.1=.
+
+   [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/edit_by_formula.gif]]
+
+* The formula language
+** References
+   Rows and columns are numbered from 1. Separator lines are not counted:
+   in the table above, =@1= is the header row and =@2= is "Apple".
+
+   | Reference     | Means                                                 |
+   |---------------+-------------------------------------------------------|
+   | =@2$3=        | row 2, column 3                                       |
+   | =$3=          | column 3 of the row being computed                    |
+   | =@2=          | row 2 of the column being computed                    |
+   | =$-1=, =$+2=  | one column left, two columns right of the current one |
+   | =@-1=, =@+1=  | the row above, the row below                          |
+   | =@-1$-2=      | relative row and column together                      |
+   | =@<=, =@<<=   | the first row, the second row                         |
+   | =@>=, =@>>=   | the last row, the last but one                        |
+   | =$<=, =$>=    | the first column, the last column                     |
+   | =@#=, =$#=    | the number of the current row, of the current column  |
+   | =$1..$3=      | columns 1 to 3 of the current row (a range)           |
+   | =@2..@-1=     | rows 2 to the one above, in the current column        |
+   | =@2$1..@4$3=  | the block of cells between the two corners            |
+
+   Org's =@I= / =@II= references to separator lines are not supported.
+
+** Targets
+   The part before the ~=~ says which cells the formula fills.
+
+   | Target          | Fills                                              |
+   |-----------------+----------------------------------------------------|
+   | ~$4=~           | column 4, every row below the first separator      |
+   | ~@3=~           | row 3, every column                                |
+   | ~@3$4=~         | one cell                                           |
+   | ~@>$2=~         | the last row, column 2                             |
+   | ~@2$1..@5$2=~   | every cell of the block                            |
+   | ~$name=~        | a named column (see Advanced tables)               |
+
+   A column formula skips the rows above the first separator, so headers
+   are safe. A single cell formula wins over a column or row formula that
+   covers the same cell.
+
+** Expressions
+   Expressions are python expressions evaluated in a sandbox: =+ - * /=,
+   =%= (modulo), =**= (power), comparisons (~==~ ~!=~ ~<~ ~>~ ~<=~ ~>=~),
+   =and=, =or=, =not=, strings in quotes and the conditional form:
+
+   #+BEGIN_EXAMPLE
+     $4=$2*$3 if $3 > 0 else 0
+     $5="late" if date($4) < now() else ""
+   #+END_EXAMPLE
+
+   A cell's text becomes a value when it is used: =12= and =1.5= are
+   numbers, =40%= is =0.4=, =true=, =t= and =false= are booleans, anything
+   else is a string. Dates and durations need =date()= and =duration()=.
+
+** Format flags
+   A formula can end in =;flags=:
+
+   - =N= - empty cells count as =0= (normally an empty cell is an empty
+     string, and adding it to a number fails).
+   - =%.2f= - print floating point results with that many decimals.
+
+   #+BEGIN_SRC org
+     | a     | b     | c   |
+     | 1     | 1     |     |
+     | 0.476 | 0.476 | 0.0 |
+     #+TBLFM:@3=@2/2.1;N%.3f
+   #+END_SRC
+
+   The rest of calc's mode flags have no meaning here and are ignored.
+
+** Constants and properties
+   =#+CONSTANTS:= defines names for numbers, used with a =$= in front:
+
+   #+BEGIN_SRC org
+     #+CONSTANTS: c=299792458 g=9.81
+     | mass | energy |
+     |------+--------|
+     |    2 |        |
+     #+TBLFM:$2=$1*$c**2
+   #+END_SRC
+
+   The properties of the heading the table sits under are available the
+   same way, prefixed with =PROP_=: a heading with =:Rate: 85= in its
+   property drawer can use =$PROP_Rate= in its tables.
+
+   Built in symbols are used without a =$=: =pi=, =True=/=true=/=t=,
+   =False=/=false=, =None=/=nil=.
+
+** Functions
+   | Function                    | Does                                                        |
+   |-----------------------------+-------------------------------------------------------------|
+   | =vsum(range)=               | sum of the cells                                            |
+   | =vmean(range)=              | average                                                     |
+   | =vmedian(range)=            | median                                                      |
+   | =vmax(range)=, =vmin(range)= | largest, smallest                                          |
+   | =vsumifeq(a,b,range)=       | sum of the cells of range on rows where ~a == b~            |
+   | =vsumifgt=, =vsumiflt=, =vsumifgteq=, =vsumiflteq= | the same with ~>~, ~<~, ~>=~, ~<=~   |
+   | =abs=, =int=, =float=, =bool=, =str= | conversions                                        |
+   | =round=, =floor=, =ceil=, =trunc= | rounding                                              |
+   | =sqrt=, =pow(x,y)=, =exp=, =log=, =log10=, =log2= | math                                  |
+   | =sin=, =cos=, =tan=, =asin=, =acos=, =atan= | trigonometry (radians)                      |
+   | =sinh=, =cosh=, =tanh=, =asinh=, =acosh=, =atanh= | hyperbolic functions                  |
+   | =degrees=, =radians=        | convert angles                                              |
+   | =rand()=, =randomf()=       | random number from 0 to 1                                   |
+   | =random(a,b)=, =randint(n)= | random integer from a to b, below n                         |
+   | =now()=                     | the current date and time                                   |
+   | =date(x)=                   | an org timestamp from a cell or string                      |
+   | =duration(x)=               | a duration (=3d=, =2h=, =1:30=); add it to a date           |
+   | =year=, =month=, =day=, =hour=, =minute=, =second= | parts of a date                      |
+   | =weekday(d)=, =yearday(d)=  | day of the week (monday is 0), day of the year              |
+   | =time(d)=                   | the time of day of a date                                   |
+   | =filename(x)=               | a file link or relative path made absolute                  |
+   | =remote(name,@r$c)=         | a cell of another table (see below)                         |
+   | =sbe(name, x=1)=            | the result of a named source block (see Source Blocks)      |
+   | =highlight(cell,color,text)= | colour a cell, return text                                 |
+   | =red(cell)=, =green=, =blue=, =yellow=, =cyan=, =purple=, =pink= | colour the cell, keep its value |
+   | =gradient(cell,pct,c1,c2,...)= | colour by a 0 to 100 value through a list of colours     |
+   | =passed(test)=              | a green =PASSED= or a red =FAILED= (used by the table tests) |
+
+   Dates and durations work together: =date($3)+duration($2)= is the
+   timestamp =$2= after =$3=.
+
+   #+BEGIN_SRC org
+     | Task   | Effort | Start            | End              |
+     |--------+--------+------------------+------------------|
+     | Design | 2d     | <2021-03-15 Mon> | <2021-03-17 Wed> |
+     | Build  | 4d     | <2021-03-17 Wed> | <2021-03-21 Sun> |
+     #+TBLFM:$4=date($3)+duration($2)
+   #+END_SRC
+
+   *Org Show Table Tests* opens the table unit tests: a file of small
+   tables exercising every function, a good place to see a function used.
+
+   [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/tables_unit_tests.gif]]
+
+** Remote references
+   =remote(name, @r$c)= reads a cell of another table. =name= is either
+
+   - the =#+NAME:= of a table in the same file, or
+   - the =ID= or =CUSTOM_ID= of a heading anywhere in your org files: the
+     first table under that heading is used.
+
+   #+BEGIN_SRC org
+     #+NAME: rates
+     | role | rate |
+     |------+------|
+     | dev  |   85 |
+     | qa   |   60 |
+
+     | hours | cost |
+     |-------+------|
+     |    10 |  850 |
+     #+TBLFM:$2=$1*remote('rates',@2$2)
+   #+END_SRC
+
+   Since 2.0 an id is looked up through the orgs server, so a remote table
+   can be in any file the server knows, open or not (an open buffer is
+   used as is, unsaved changes included). The answer is remembered until
+   the server reports a change, so recalculating a big table does not ask
+   for the same id again and again. Without a server only ids in open
+   buffers are found. A reference that cannot be resolved gives
+   =<UNK REF>=.
+
+* Advanced tables
+  Org's advanced table syntax is supported. Put a marker in the first
+  column of a row. Once a table uses markers, column formulas and row
+  ranges leave the marker column alone; columns keep their numbers, so
+  the first data column is still =$2=.
+
+  | Marker  | Row is                                                              |
+  |---------+---------------------------------------------------------------------|
+  | =!=     | column names: =$a= refers to the column named =a=                   |
+  | =^=     | names for the cells in the row above                                |
+  | =_=     | names for the cells in the row below                                |
+  | =$=     | parameters: ~max=5~ defines =$max= for the formulas                 |
+  | =#=     | recalculated as you move through it with =tab= / =enter=            |
+  | =*=     | recalculated with the table, not on the fly                         |
+  | =/=     | skipped by formulas                                                 |
+
+  #+BEGIN_SRC org
+    |   | results |    |   |   |   |
+    |---+---------+----+---+---+---|
+    | ! | a       | b  | c | d | e |
+    | # | 9       |    |   | 4 | 5 |
+    | # | 3       | 1  | 2 |   |   |
+    | $ | max=5   |    |   |   |   |
+    | # | 15      | 10 |   |   |   |
+    #+TBLFM:@4$2=$b+$c::@3$2=$e+$d::@6$2=$max+$b
+  #+END_SRC
+
+  See [[https://orgmode.org/manual/Advanced-features.html][Advanced features]] in the org manual.
+
+* Your own functions and symbols
+  Python files in =Packages/User/orgtable/= can add functions and
+  symbols to the formula language. Turn the folder on first:
+
+  #+BEGIN_SRC js
+    "enableTableExtensions": true,
+  #+END_SRC
+
+  - *A function*: the file name is the function name, the file defines
+    =Execute=. =Packages/User/orgtable/stamp.py= gives =stamp()=:
+
+    #+BEGIN_SRC python
+      import datetime
+
+      def Execute():
+          return str(datetime.datetime.now())
+    #+END_SRC
+
+    Arguments are passed as written in the formula. A cell reference
+    arrives as a cell object: =str(cell)= is its text.
+
+  - *Symbols*: a file with =AddSymbols(s)= adds names to the dictionary it
+    is given. Symbols are used without a =$=:
+
+    #+BEGIN_SRC python
+      def AddSymbols(s):
+          s['c'] = 299792458
+    #+END_SRC
+
+  Extensions are loaded once. While writing one set
+  =forceLoadExternalExtensions= to true so each evaluation reloads them
+  (and turn it off again: it is slow).
+
+** A file of physical constants
+   This is the emacs =constants.el= table as a symbols file. Save it as
+   =Packages/User/orgtable/constants.py= and formulas can use =AU=, =lyr=,
+   =kmh=, =NA= and the rest.
+
+   Two names are changed from constants.el: =in= (inch) is a python
+   keyword and cannot be used in an expression, so it is =inch=; and
+   =t= (metric ton) would replace the built in =t= (true), so it is
+   =ton=.
+
+   #+BEGIN_SRC python
+     def AddSymbols(s):
+         # Natural constants
+         s["e"]    = 1.602176462e-19  # Elementary charge [C]
+         s["c"]    = 2.99792458e8     # Speed of light [m/s]
+         s["h"]    = 6.62606876e-34   # Planck's constant [J s]
+         s["hbar"] = 1.054571596e-34  # Planck's constant / 2 pi [J s]
+         s["GG"]   = 6.673e-11        # Gravitational constant [N m^2/kg^2]
+         s["NA"]   = 6.02214199e23    # Avogadro's constant [1/mol]
+         s["me"]   = 9.10938188e-31   # Electron rest mass [kg]
+         s["mp"]   = 1.67262158e-27   # Proton rest mass [kg]
+         s["mn"]   = 1.67492716e-27   # Neutron rest mass [kg]
+         s["mu"]   = 1.88353109e-28   # Muon rest mass [kg]
+         s["amu"]  = 1.66053873e-27   # Atomic mass unit [kg]
+         s["Ryd"]  = 1.09737315685e7  # Rydberg's constant [1/m]
+         s["fsc"]  = 7.297352533e-3   # Fine structure const []
+         s["k"]    = 1.3806503e-23    # Boltzmann's constant [J/K]
+         s["R0"]   = 8.314472e0       # Molar gas constant [J/K mol]
+         s["V0"]   = 2.2710981e-2     # Ideal gas volume [m^3/mol]
+         s["sth"]  = 6.6524e-29       # Thompson cross section [m^2]
+         s["sig"]  = 5.6703e-8        # Stefan-Boltzmann const [W/m^2 K^4]
+         s["a"]    = 7.5657e-15       # Radiation constant [J/m^3 K^4]
+         # Math constants
+         s["exp1"] = 2.7182818284590452354  # e (base of ln)
+         # Length units
+         s["m"]    = 1.0e0            # Meter [m]
+         s["Ang"]  = 1e-10            # Angstroem [m]
+         s["mum"]  = 1e-6             # Micrometer [m]
+         s["inch"] = 2.54e-2          # Inch [m]
+         s["ft"]   = 3.048e-1         # Foot [m]
+         s["yd"]   = 9.144e-1         # Yard [m]
+         s["mi"]   = 1.609344e3       # Mile [m]
+         s["nmi"]  = 1.852e3          # Nautical Mile [m]
+         s["pt"]   = 3.527777778e-4   # Point (1/72 in) [m]
+         # Area units
+         s["hect"] = 1e4              # Hectare [m^2]
+         s["acre"] = 4.04685642241e3  # Acre [m^2]
+         s["ba"]   = 1e-28            # Barn [m^2]
+         # Time units
+         s["s"]    = 1.0e0            # Seconds [s]
+         s["min"]  = 60e0             # Minutes [s]
+         s["hr"]   = 3600e0           # Hours [s]
+         s["d"]    = 8.64e4           # Days [s]
+         s["wk"]   = 6.048e5          # Weeks [s]
+         s["yr"]   = 3.15576e7        # Years [s]
+         s["Hz"]   = 1.0e0            # Hertz [1/s]
+         # Velocity units
+         s["kmh"]  = 2.7777777778e-1  # Kilometers per hour [m/s]
+         s["mph"]  = 4.4704e-1        # Miles per hour [m/s]
+         s["knot"] = 5.144444444e-1   # Knot [m/s]
+         # Mass units
+         s["g"]    = 1.0e-3           # Grams [kg]
+         s["lb"]   = 4.5359237e-1     # Pound [kg]
+         s["oz"]   = 2.8349523125e-2  # Ounce [kg]
+         s["ton"]  = 1e3              # Metric ton [kg]
+         s["ct"]   = 2e-4             # Carat [kg]
+         # Force units
+         s["N"]    = 1e0              # Newton [kg m/s^2]
+         s["dyn"]  = 1e-5             # Dyne [kg m/s^2]
+         # Energy units
+         s["J"]     = 1e0             # Joule [J]
+         s["erg"]   = 1e-7            # Erg [J]
+         s["cal"]   = 4.1868e0        # Calories [J]
+         s["eV"]    = 1.602176462e-19 # Electron Volt [J]
+         s["invcm"] = 1.986445e-23    # Energy in cm^-1 [J]
+         s["Wh"]    = 3.6e3           # Watt hour [J]
+         s["hp"]    = 7.457e2         # Horse power [J/s]
+         s["Btu"]   = 1.055056e10     # British Thermal Unit [J]
+         # Power units
+         s["W"]     = 1e0             # Watt [J/s]
+         # Pressure units
+         s["Pa"]    = 1e0             # Pascal [N/m^2]
+         s["bar"]   = 1e5             # Bar [N/m^2]
+         s["atm"]   = 1.01325e5       # Atmospheres [N/m^2]
+         s["torr"]  = 1.333224e2      # Torr [N/m^2]
+         s["psi"]   = 6.89475729317e3 # Pounds/in^2 [N/m^2]
+         s["mHg"]   = 1.333224e5      # Meter of Mercury [N/m^2]
+         # Temperature units
+         s["degK"]  = 1.0e0           # Kelvin [K]
+         s["degC"]  = 1.0e0           # Celsius [K]
+         s["degF"]  = 0.55555555556e0 # Fahrenheit [K]
+         # Light units
+         s["cd"]    = 1e0             # Candela [cd]
+         s["sb"]    = 1e4             # Stilb [cd/m^2]
+         s["lm"]    = 1e0             # Lumen [cd sr]
+         s["lx"]    = 1e0             # Lux [cd sr/m^2]
+         s["ph"]    = 1e4             # Phot [lx]
+         s["lam"]   = 3.18309886184e3 # Lambert [cd/m^2]
+         # Radiation units
+         s["Bq"]    = 1.0e0           # Becquerel [1/s]
+         s["Ci"]    = 3.7e10          # Curie [1/s]
+         s["Gy"]    = 1.0e0           # Gray [J/kg]
+         s["Sv"]    = 1.0e0           # Sievert [J/kg]
+         s["R"]     = 2.58e-4         # Roentgen [C/kg]
+         s["rd"]    = 1.0e-2          # Rad [J/kg]
+         s["rem"]   = 1.0e-2          # Rem [J/kg]
+         # Amount of matter
+         s["Mol"]   = 1.0e0           # Mol [mol]
+         # Friction units
+         s["Poi"]   = 1.0e-1          # Poise [kg/m s]
+         s["St"]    = 1.0e-4          # Stokes [m^2/s]
+         # Electrical units (esu)
+         s["Amp"]     = 1.0e0         # Ampere [A]
+         s["C"]       = 1.0e0         # Coulomb [C]
+         s["Fdy"]     = 9.6485341472e4 # Faraday [C]
+         s["volt"]    = 1.0e0         # Volt [W/A]
+         s["ohm"]     = 1.0e0         # Ohm [V/A]
+         s["mho"]     = 1.0e0         # Mho [A/V]
+         s["siemens"] = 1.0e0         # Siemens [A/V]
+         s["farad"]   = 1.0e0         # Farad [C/V]
+         s["henry"]   = 1.0e0         # Henry [Wb/A]
+         s["T"]       = 1.0e0         # Tesla [Wb/m^2]
+         s["gauss"]   = 1.0e-4        # Gauss [Wb/m^2]
+         s["Wb"]      = 1.0e0         # Weber [V s]
+         # Angular units
+         s["rad"]     = 1.0e0             # Radian [rad]
+         s["sr"]      = 1.0e0             # Steradian [sr]
+         s["deg"]     = 1.745329252e-2    # Degrees [rad]
+         s["grad"]    = 1.570796327e-2    # Grad [rad]
+         s["arcmin"]  = 2.908882087e-4    # Arcminutes [rad]
+         s["arcsec"]  = 4.848136812e-6    # Arcseconds [rad]
+         s["deg2"]    = 3.04617419786e-4  # Square Degrees [sr]
+         s["arcmin2"] = 8.46159499406e-8  # Square Arcminutes [sr]
+         s["arcsec2"] = 2.35044305389e-11 # Square Arcseconds [sr]
+         # Astronomical units
+         s["lyr"]    = 9.460536207e15   # Lightyear [m]
+         s["pc"]     = 3.085677582e16   # Parsec [m]
+         s["Lsun"]   = 3.82e26          # Solar Luminosity [W]
+         s["Msun"]   = 1.989e30         # Solar Mass [kg]
+         s["Mjup"]   = 1.8986e27        # Jupiter mass [kg]
+         s["Mea"]    = 5.976e24         # Earth Mass [kg]
+         s["Mmn"]    = 7.35e22          # Moon mass [kg]
+         s["Rsun"]   = 6.96e8           # Solar radius [m]
+         s["Rearth"] = 6.378e6          # Earth radius [m]
+         s["Rmoon"]  = 1.738e6          # Moon radius [m]
+         s["Rjup"]   = 7.1492e7         # Jupiter radius [m]
+         s["AU"]     = 1.49597870691e11 # Astronomical unit [m]
+         s["Dmoon"]  = 3.844e8          # Distance Earth-Moon [m]
+         s["Djup"]   = 7.78412e11       # Distance Sun-Jupiter [m]
+         s["Jy"]     = 1e-26            # Jansky [W / m^2 Hz]
+         s["ga"]     = 9.80665e0        # Earth acceleration [m/s^2]
+         # Planck units (h)
+         s["lpl"]    = 4.05083e-35      # Planck length [m]
+         s["mpl"]    = 5.45621e-8       # Planck mass [kg]
+         s["tpl"]    = 1.35121e-43      # Planck time [s]
+         # Planck units (hbar)
+         s["lplb"]   = 1.61605e-35      # Planck length [m]
+         s["mplb"]   = 2.17671e-8       # Planck mass [kg]
+         s["tplb"]   = 5.39056e-44      # Planck time [s]
+   #+END_SRC
+
+* Plotting with gnuplot
+  *Org Plot Table* (=org_plot_table=) draws a table with
+  [[http://www.gnuplot.info/][gnuplot]] and puts a link to the picture under the table.
+
+  1. Install gnuplot and tell OrgEverywhere where it is:
+
+     #+BEGIN_SRC js
+       "gnuplot": "/usr/local/bin/gnuplot",
+     #+END_SRC
+
+  2. Describe the plot with a =#+PLOT:= line above the table.
+  3. Run *Org Plot Table* with the cursor in the table (or on the
+     =#+PLOT:= line).
+
+  #+BEGIN_SRC org
+    #+PLOT: title:"Citations" ind:1 deps:(3 4) with:lines set:grid file:plot.png
+    |    Sede   |  Max   | H-index |  top  |
+    |-----------+--------+---------+-------|
+    | Sao Paolo |  71.00 |   11.50 |  13.5 |
+    | Stockholm | 134.19 |   14.33 | 16.33 |
+    | Leeds     | 165.77 |   19.68 | 21.68 |
+    | Morelia   | 257.56 |   17.67 | 19.67 |
+    | Chile     | 257.72 |   21.39 | 23.39 |
+    #+TBLFM:$4=$3+2.0
+  #+END_SRC
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/tables_gnuplot.gif]]
+
+  | Option          | Meaning                                                       |
+  |-----------------+---------------------------------------------------------------|
+  | =title:"..."=   | the plot title (default "Table Data")                         |
+  | =ind:N=         | the column used as the x axis                                 |
+  | =deps:(a b)=    | the columns plotted against it (default: all)                 |
+  | =with:STYLE=    | gnuplot style: =lines=, =points=, =histograms=, =candlesticks= ... |
+  | =set:"..."=     | a gnuplot =set= command; repeat for more                      |
+  | =unset:"..."=   | a gnuplot =unset= command                                     |
+  | =using:"..."=   | a gnuplot =using= clause, written as is                       |
+  | =include:header= | plot the rows above the first separator too                  |
+  | =file:NAME=     | the output; the extension picks the terminal (png, jpg, gif, svg, ps, html, txt). =file:viewer= opens gnuplot's own window instead |
+
+  Without =file:= the picture is =plot_<date>_<time>.png= beside the org
+  file. The link goes into a =#+RESULTS:= under the table and the images
+  in the file are shown inline.
+
+  The =#+PLOT:= line is read from the heading the table sits under: one
+  plot description per heading.
+
+  A gnuplot source block is the other way to plot: see Diagrams.
+
+* Random rows
+  *Org Insert Rnd Table Row* (=org_insert_random_row_from_table=) picks a
+  named table and inserts one of its rows, chosen at random, at the
+  cursor: a quick way to keep a list of writing prompts, meals or names.
+  Header rows, separators and advanced table marker rows are never
+  picked.
+
+  With the orgs server connected the list offers every =#+NAME:= table the
+  server knows (plus the ones in this file) and the table can live in any
+  file. Without it only the tables named in this file are offered. A
+  key binding of your own can name the table directly with the =tblName=
+  argument:
+
+  #+BEGIN_SRC js
+    { "keys": ["ctrl+alt+r"], "command": "org_insert_random_row_from_table",
+      "args": { "tblName": "meals" } }
+  #+END_SRC
+
+* Tables as data
+  A named table can be the input of a source block (=:var data=name=),
+  and a source block's output can be a table (=:results table=). See
+  Babel. That makes it easy to turn a table into any other format: a
+  python block that prints csv, for instance.
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN_SRC python :var DATA=prices :results raw
+      for r in DATA:
+          print(",".join([str(x) for x in r]))
+    #+END_SRC
+  #+END_EXAMPLE
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/table_output_csv.gif]]

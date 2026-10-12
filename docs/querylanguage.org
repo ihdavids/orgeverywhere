@@ -1,0 +1,103 @@
+#+TITLE: The Query Language
+#+DOC_SECTION: orgs Server
+#+DOC_ORDER: 2
+
+* Queries
+  The orgs server answers questions about your headings in a small
+  expression language: function calls joined with =&&= (and), =||= (or)
+  and =!= (not), with brackets, numbers and comparisons
+  (=HabitStreak() > 7=). A query is true or false for each heading; the headings it is
+  true for are the answer.
+
+  #+BEGIN_EXAMPLE
+  IsTodo() && HasTags("work")
+  IsTask() && !InTagGroup("HOME")
+  IsProject() && !IsArchived() && IsBlockedProject()
+  IsHabit() && HabitStreak() > 7
+  MatchHeadline("(?i)budget") || MatchContent("(?i)invoice")
+  IsDone() && OlderThan(30) && !IsArchived()
+  #+END_EXAMPLE
+
+  Strings go in double or single quotes. Patterns are Go regular
+  expressions (=(?i)= for case insensitive).
+
+  OrgEverywhere uses queries in:
+
+  - *Org: orgs Query Search* (a quick panel of the matches),
+  - *Org: Agenda Query (orgs)* and =OrgsQuery= agenda views (see
+    *The Agenda*),
+  - saved queries (*Org: orgs Save Query*), shared with worg and the
+    command line,
+  - flashcard decks (*Org: orgs Drill Flashcards*).
+
+* Filters
+  ={{Name}}= in a query is replaced by the server's filter of that name,
+  so filters build on each other. They are set in =orgs.yaml=:
+
+  #+BEGIN_SRC yaml
+  filters:
+    AllTasks: "!IsProject() && IsTodo() && !IsArchived()"
+    HomeTasks: "{{ AllTasks }} && InTagGroup('HOME')"
+  #+END_SRC
+
+  The server comes with =AllTasks=, =HomeTasks=, =WorkTasks=,
+  =WorkProjects=, =Projects=, =ActiveProjects=, =StuckProjects=,
+  =LooseTasks=, =NextTasks=, =DoneTasks=, =Clocked=, =Phone=, =Meetings=
+  and =Notes=; a filter of the same name in your =orgs.yaml= replaces
+  one.
+
+* Common functions
+** State
+   | Function                 | True for a heading that...                                         |
+   |--------------------------+--------------------------------------------------------------------|
+   | =IsTodo()=               | has an active keyword (by its file's =#+TODO=)                     |
+   | =IsDone()=               | has a done keyword                                                 |
+   | =HasAStatus()=           | has any keyword                                                    |
+   | =IsStatus("WAITING")=    | has that keyword                                                   |
+   | =IsTask()=               | is an open todo, not a project and not archived                    |
+   | =IsNextTask()=           | has a next keyword (=NEXT=, or the file's =#+NEXT:=)               |
+   | =IsPriority("A")=        | has that priority                                                  |
+   | =IsArchived()=           | is tagged =ARCHIVE=, or is under such a heading                    |
+
+** Projects
+   | Function               | True for a heading that...                                           |
+   |------------------------+----------------------------------------------------------------------|
+   | =IsProject()=          | is a project                                                         |
+   | =IsBlockedProject()=   | is a project without a next action                                   |
+   | =IsPartOfProject()=    | is inside a project                                                  |
+
+** Tags, properties and text
+   | Function                          | True for a heading that...                                |
+   |-----------------------------------+-----------------------------------------------------------|
+   | =HasTags("a", "b")=               | has all these tags (inherited ones count)                 |
+   | =HasTagMatching("^M[0-9]+$")=     | has a tag matching the pattern                            |
+   | =InTagGroup("WORK")=              | has a tag of that tag group (=tagGroups= in =orgs.yaml=)   |
+   | =NoTags()=                        | has no tags                                               |
+   | =HasProperty("EFFORT")=           | has that property                                         |
+   | =MatchProperty("OWNER", "^ian")=  | has that property matching the pattern                    |
+   | =MatchHeadline("re")=             | has a headline matching the pattern                       |
+   | =MatchContent("re")=              | has a headline or text (not its children's) matching      |
+   | =InFile("work")=                  | is in a file whose path matches the pattern               |
+
+** Dates and clocks
+   | Function                  | True for a heading that...                                         |
+   |---------------------------+--------------------------------------------------------------------|
+   | =HasScheduled()=, =HasDeadline()=, =HasTimestamp()=, =HasAnyDate()= | has that kind of date |
+   | =ScheduledPast()=, =DeadlinePast()= | has that date before today (a deadline today is not past) |
+   | =DeadlineWithin(3)=, =ScheduledWithin(3)= | has that date between today and 3 days on        |
+   | =Today()=, =Yesterday()=, =ThisWeek()= | is on the agenda that day, or in the seven days to today |
+   | =HasClock()=              | has clock lines                                                    |
+   | =OlderThan(30)=           | has its own date at least 30 days ago (=DaysOld()= is the number)  |
+
+** Lists, links, habits and records
+   | Function                     | True for a heading that...                                      |
+   |------------------------------+-----------------------------------------------------------------|
+   | =HasChecklist()=, =ChecklistDone()= | has checkboxes, all of them ticked (=ChecklistLeft()= counts the rest) |
+   | =HasTable()=, =HasBlock()=, =HasDrawer()= | holds a table, a block, a drawer                  |
+   | =HasLinks()=, =LinksTo("notes.org")= | links somewhere, to something matching             |
+   | =HasBacklinks()=, =BacklinkCount() == 0= | is linked to, or is an orphan                    |
+   | =HasBrokenLinks()=           | holds a link that resolves to nothing                           |
+   | =IsHabit()=, =HabitStreak() > 7=, =MissedHabit()= | is a habit, on a streak, overdue              |
+   | =IsRecord("contact")=, =InCollection("contact")= | is a record, is in a collection          |
+
+  The full list is in the orgs server's documentation.

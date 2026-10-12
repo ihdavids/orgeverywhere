@@ -1,0 +1,13 @@
+%YAML1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+name: orginput
+file_extensions:
+  - orginput
+scope: source.orginput
+version: 2
+hidden: true
+contexts:
+  main:
+    - match: '.*'
+      scope: orginput.text

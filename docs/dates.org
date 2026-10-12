@@ -1,0 +1,132 @@
+#+TITLE: Dates and Times
+#+DOC_SECTION: Editing
+#+DOC_ORDER: 7
+
+* Timestamps
+  A timestamp is a date, optionally with a time:
+
+  | Written                            | Is                                                  |
+  |------------------------------------+-----------------------------------------------------|
+  | =<2026-10-12 Mon>=                 | active: it puts the heading on the agenda that day  |
+  | =<2026-10-12 Mon 14:00>=           | active, with a time                                 |
+  | =<2026-10-12 Mon 14:00-15:30>=     | a time range on one day                             |
+  | =<2026-10-12 Mon>--<2026-10-14 Wed>= | a range of days                                   |
+  | =[2026-10-12 Mon]=                 | inactive: a note of when, never on the agenda       |
+  | =<2026-10-12 Mon +1w>=             | repeating: every week from that date                |
+
+  The weekday is for you to read; the date is what counts.
+
+* Scheduled, deadline, or an appointment
+  Which kind of date to use depends on what the heading is:
+
+  - *SCHEDULED* - when you plan to start working on it. The task shows on
+    the agenda from that day on, every day, until you mark it done.
+  - *DEADLINE* - when it has to be done by. The agenda warns you about it
+    ahead of time (14 days by default, or what the timestamp says:
+    =<2026-10-30 Fri -3d>= warns three days ahead), and it stays on the
+    agenda, overdue, until it is done.
+  - *A plain active timestamp* - an appointment: a meeting, a doctor's
+    visit. It shows on that day only (every occurrence, if it repeats).
+
+  #+BEGIN_EXAMPLE
+  ** TODO Write the report
+     DEADLINE: <2026-10-30 Fri -3d>
+  ** TODO Start the garden plan
+     SCHEDULED: <2026-10-12 Mon>
+  ** Lunch with Sam
+     <2026-10-15 Thu 12:30>
+  #+END_EXAMPLE
+
+  The agenda is worked out by the orgs server, which reads saved files; see
+  *Planning* for what lands on which day.
+
+* Adding dates
+  | Keys          | Command                       | Adds                                                     |
+  |---------------+-------------------------------+----------------------------------------------------------|
+  | =alt+o i s=   | *Org Schedule*                | a =SCHEDULED:= line under the heading, date from the picker |
+  | =alt+o i e=   | *Org Deadline*                | a =DEADLINE:= line, date from the picker                 |
+  | =alt+o i t=   | *Org Timestamp*               | an active timestamp line under the heading               |
+  | =alt+o i d a= | *Org Insert Date Active*      | an active timestamp at the cursor, from the picker       |
+  | =alt+o i d i= | *Org Insert Date Inactive*    | an inactive timestamp at the cursor, from the picker     |
+  |               | *Org Insert Today Active*     | =<today>= at the cursor                                  |
+  |               | *Org Insert Today Inactive*   | =[today]= at the cursor                                  |
+  |               | *Org Insert Now Active*       | =<today hh:mm>= at the cursor                            |
+  |               | *Org Insert Now Inactive*     | =[today hh:mm]= at the cursor                            |
+  |               | *Org Closed*                  | a =CLOSED: [now]= line under the heading                 |
+
+  *Org Schedule*, *Org Deadline* and *Org Timestamp* always add a new line
+  right under the heading line; they do not replace a =SCHEDULED:= or
+  =DEADLINE:= the heading already has, so delete the old one yourself.
+  Cancelling the picker removes the line again.
+
+  Dates picked with the picker always carry a time (the time shown in the
+  picker, which starts at now). Delete the time if you only want the day.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/scheduling.gif]]
+
+* The date picker
+  The date picker opens a view with three months - last month, this month
+  and next - and a clock, and an input line at the bottom of the window
+  holding the date. Change the date in the input line or with the keys,
+  watch the calendar follow, and press =enter= to use it or =escape= to
+  cancel.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/datetime_picker.gif]]
+
+** Typing a date
+   The input line understands:
+
+   | Type                         | Means                                                   |
+   |------------------------------+---------------------------------------------------------|
+   | =.= or =+0=                  | now                                                     |
+   | =15=                         | the 15th: this month if that is still ahead, else next month |
+   | =3d=, =2h=, =1d 4h=, =30min=, =1y= | now plus that long                                |
+   | =1:30=                       | now plus an hour and a half                             |
+   | =fri=, =tuesday=             | the next Friday, Tuesday... (a week ahead if it is today) |
+   | =mar=, =mar 15=, =15 mar=    | that month (and day) this year                          |
+   | =2026-11-03 Tue 09:00=       | that date and time, as written in a timestamp           |
+
+   Offsets are always forward from now: there are no negative offsets, and
+   no =w= (weeks) unit - use =7d=. A leading =+= is not understood
+   (=3d=, not =+3d=).
+
+** Moving with the keys
+   | Keys                            | Moves the date by |
+   |---------------------------------+-------------------|
+   | =<= / =>=                       | a day             |
+   | =ctrl+,= / =ctrl+.=             | a week            |
+   | =alt+,= / =alt+.=               | a month           |
+   | =ctrl+shift+,= / =ctrl+shift+.= | an hour           |
+   | =alt+shift+,= / =alt+shift+.=   | a minute          |
+
+** Picking with the mouse
+   =alt+click= on a day in the calendar picks it. Sublime cannot give a
+   package mouse bindings that only apply in one view, so this needs a
+   mouse map in your User folder: run
+   *Preferences > Package Settings > Org Everywhere > Setup MouseMap* once. It
+   writes =Packages/User/Default.sublime-mousemap= (only if you have none;
+   otherwise add its =alt+button1= binding to yours by hand, see
+   *Open MouseMap* in the same menu).
+
+** The first day of the week
+   The calendar starts its weeks on =firstDayOfWeek= (=Sunday=). Set it to
+   =Monday= for weeks that start on Monday.
+
+* Repeating dates
+  A repeater after the date makes it come round again:
+
+  | Repeater | Marking the task done moves the date                              |
+  |----------+------------------------------------------------------------------|
+  | =+1w=    | one week on from the date it had (it may still be in the past)    |
+  | =++1w=   | on by weeks until it is in the future                             |
+  | =.+1w=   | one week on from today                                            |
+
+  Units are =d=, =w=, =m= and =y=. A repeating task does not stay done:
+  changing it to a done state leaves it in its todo state, moves its dates
+  on, and writes =LAST_REPEAT= and a =State "DONE" from "TODO"= line in its
+  =LOGBOOK=. See *Planning* for todo states and the agenda, and
+  [[https://orgmode.org/manual/Repeated-tasks.html][Repeated tasks]] in the
+  org manual.
+
+* Further reading
+  - [[https://orgmode.org/manual/Dates-and-Times.html][Dates and times]] in the org manual

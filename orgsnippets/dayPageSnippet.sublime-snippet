@@ -1,0 +1,14 @@
+
+<snippet>
+    <content><![CDATA[
+#+TITLE:  ${ORG_FILENAME}
+#+AUTHOR: ${ORG_AUTHOR}
+
+* ${1:HEADING}
+  $0
+
+]]></content>
+    <tabTrigger>daypage_create</tabTrigger>
+    <scope>text.orgmode</scope>
+    <description>DayPage Heading</description>
+</snippet>

@@ -1,0 +1,54 @@
+* 1.2.44
+** FIXED Capture Supports Unicode
+	- [[https://github.com/ihdavids/orgextended/issues/57][Fix for Capture fails silently with unicode error]] 
+
+	Captures that contained unicode characters would fail. This was
+	due to the fact that the capture mechanism was not saving files with the default text encoding.
+
+	There is a new option that allows you to control the format of the destination capture file:
+	#+BEGIN_SRC js
+    // What file format should we write out as. This should be a python encoding value
+    // CAN BE:
+    // - utf-8
+    // - utf-16
+    // - utf-32
+    // SEE: https://docs.python.org/3.3/library/codecs.html#standard-encodings
+    "captureWriteFormat": "utf-8",
+	#+END_SRC
+
+	The default is now utf-8
+
+** FIXED Autocalculated Rows Fix
+	- [[https://github.com/ihdavids/orgextended/issues/59][in tables, auto calculating rows sometimes break a column formula]]
+
+	Thanks to JosefTaylor reporting that autocalculating tables sometimes get confused with table formulas.
+	Some improvements have been made to fix this going forward.
+
+	The problem was that as you edit the column you can cross over into the next cell's space while editing. 
+	This was confusing the automatic targetting for the formula since the destination cell
+	was computed before the table was reformatted. I have added a table align before recomputing the cell.
+	It's a little slower when tabbing around but should result in correct behaviour.
+   
+   |   | am | I  |   what  |   |
+   |---+----+----+---------+---|
+   | # |  2 | 20 |  62.832 |   |
+   | # |  3 | 13 |  40.841 |   |
+   | # |  5 | 41 | 128.805 |   |
+   #+TBLFM::$4=$3*pi;N%.3f
+
+** FEATURE Rounding Out Tag Support
+   Added new option to control the tag column when inserting tags:
+
+   #+BEGIN_SRC js
+    // Where should tags start in a headline?
+    // Tags will get inserted at this column
+    "tagColumn" : 80,
+   #+END_SRC
+
+   3 new commands (sadly t is used for timestamp so I am using m for mark...)
+   - Org Remove Tag      ::   (NeoVintageous: <space> r m)     Prompt to remove a tag
+   - Org Remove All Tags ::   (NeoVintageous: <space> r a m)   Removes all tags from current headline
+   - Org Fix Tags        ::   (NeoVintageous: <space> f m)     Will re-indent all tags in the file to the tag column specified
+
+
+

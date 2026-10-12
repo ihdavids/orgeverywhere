@@ -1,0 +1,107 @@
+#+TITLE: Dynamic Blocks
+#+DOC_SECTION: Tables
+#+DOC_ORDER: 3
+
+* Blocks that write themselves
+  A dynamic block is a pair of lines whose contents are generated:
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN: NAME :param value :param value
+    ...generated text...
+    #+END:
+  #+END_EXAMPLE
+
+  With the cursor on the =#+BEGIN:= line, =alt+o c c= (=org_recalc=, the
+  do what I mean key) or *Org Exec Dynamic Block*
+  (=org_execute_dynamic_block=) runs the writer called =NAME= with the
+  parameters and replaces everything between the two lines with what it
+  returns. Anything you typed inside the block is lost on the next run.
+
+  OrgEverywhere has three writers built in and runs your own from
+  =Packages/User/orgdynamic/=. The orgs server can refresh dynamic blocks
+  too (see the end of this page).
+
+* clocktable
+  A table of the clocked time of the heading the block sits under and of
+  every heading below it.
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN: clocktable :maxlevel 2
+    | Heading   | Time |      |
+    |-----------+------+------|
+    | Project   | 5:30 |      |
+    | \_ Design |      | 2:00 |
+    | \_ Build  |      | 3:30 |
+    #+END:
+  #+END_EXAMPLE
+
+  | Parameter      | Meaning                                                |
+  |----------------+--------------------------------------------------------|
+  | =:maxlevel N=  | how many time columns, one per level (default and minimum 2); deeper headings are still listed |
+  | =:scope subtree= | the only scope supported: the current heading's subtree |
+
+  The times are the =CLOCK:= lines of the file as it is in the buffer.
+  For clock reports across all your files use *Org: orgs Clock Report*
+  (orgs Server section), or let the server refresh the block.
+
+* columnview
+  A table of headings and their properties. See Column View.
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN: columnview :id global :indent t :maxdepth 2
+    #+END:
+  #+END_EXAMPLE
+
+* insertdatetime
+  Writes the current date and time; a small example of a writer.
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN: insertdatetime
+    2021-03-09 20:55:12.345678
+    #+END:
+  #+END_EXAMPLE
+
+* Writing your own
+  A writer is a python file in =Packages/User/orgdynamic/=; its file name
+  is the block name. =Packages/User/orgdynamic/greeting.py= runs for
+  =#+BEGIN: greeting=. It defines =Execute(view, params)=, which returns
+  the new contents of the block as a list of lines:
+
+  #+BEGIN_SRC python
+    import datetime
+
+    def Execute(view, params):
+        who = params.Get('who', 'world')
+        return ["Hello " + who, "It is " + str(datetime.date.today())]
+  #+END_SRC
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN: greeting :who Ian
+    Hello Ian
+    It is 2021-03-09
+    #+END:
+  #+END_EXAMPLE
+
+  - =view= is the Sublime view of the org file.
+  - =params= holds the =:name value= pairs of the =#+BEGIN:= line:
+    =params.Get(name, default)=, =params.GetInt(name, default)=,
+    =params.GetList(name, default)= (for =(a b c)= values).
+  - The lines are indented to the level of the heading the block is in.
+  - An optional =PostExecute(view, params, region)= runs after the text is
+    in the buffer; the built in table writers use it to have the table
+    aligned (=view.run_command("table_editor_next_field")=).
+
+  This is the place for things that shell out: a ledger or beancount
+  balance, a report from a build server, the output of a script.
+
+  A file you change is reloaded the next time the block runs. The
+  built in writers live in the package's =orgdynamic= folder; a user file
+  with the same name takes their place.
+
+* On the server
+  *Org: orgs Update Dynamic Blocks* refreshes every dynamic block in the
+  file on the orgs server, *Org: orgs Update Dynamic Block at Cursor* only
+  the one under the cursor. The buffer is saved first and the server's
+  result comes back into it. The server has its own writers (clocktable,
+  columnview and more), which can see all your org files; see the orgs Server section. Your python writers in =Packages/User/orgdynamic/= only
+  run locally.

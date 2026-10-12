@@ -1,0 +1,53 @@
+#+TITLE: Priorities
+#+DOC_SECTION: Editing
+#+DOC_ORDER: 6
+
+* Priority cookies
+  A priority is a cookie after the todo state on a heading line:
+
+  #+BEGIN_EXAMPLE
+  * Projects
+  ** TODO [#A] Renew the passport
+  ** TODO [#B] Book the flights
+  ** TODO Pack
+  #+END_EXAMPLE
+
+  A priority means nothing to org beyond what you make of it: the agenda can
+  sort and filter by it, queries can ask for it. A heading without one has
+  none.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/learning_todo_priorities.gif]]
+
+* Changing a priority
+  *Org Change Priority* (=alt+o p=) lists the priorities; pick one to set
+  it on the heading at the cursor, replacing any it had. Pick =none= to
+  remove it.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/priorities_cycling.gif]]
+
+  In the agenda =,= changes the priority of the heading on that line.
+
+* Which priorities there are
+  By default =A= to =E=. Change the list for all files with the
+  =priorities= setting:
+
+  #+BEGIN_SRC js
+  "priorities": ["A", "B", "C"],
+  #+END_SRC
+
+  or for one file with a =#+PRIORITIES:= line, which wins over the
+  setting:
+
+  #+BEGIN_EXAMPLE
+  #+PRIORITIES: 1 2 3 4 5
+  #+END_EXAMPLE
+
+  Unlike Emacs, where =#+PRIORITIES:= gives the highest, lowest and default
+  priority, OrgEverywhere takes the line as the full list to choose from, in
+  order.
+
+  Priorities can be letters or digits. =A= to =E= each have their own
+  colour in the OrgEverywhere colour schemes; any other priority is coloured
+  as a general priority.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/priorities.jpg]]

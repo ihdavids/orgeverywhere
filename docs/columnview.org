@@ -1,0 +1,119 @@
+#+TITLE: Column View
+#+DOC_SECTION: Tables
+#+DOC_ORDER: 2
+
+* Properties as a table
+  Column view shows headings as the rows of a table and their properties
+  as its columns: the effort, owner and state of every task of a project
+  at a glance.
+
+  Emacs draws column view as an overlay on the outline. Sublime cannot,
+  so OrgEverywhere offers the two other ways org has of getting that table:
+
+  - the =columnview= dynamic block, which writes the table into the file
+    (below), and
+  - the orgs web ui's column view: *Org: orgs Open Web UI* and pick
+    /Column View/ (needs the orgs server; see the orgs Server section).
+
+* Choosing the columns
+  =#+COLUMNS:= lists the columns, in org's format
+  =%[WIDTH]PROPERTY[(TITLE)]=:
+
+  #+BEGIN_SRC org
+    #+COLUMNS: %40ITEM(Task) %Effort(Effort) %TODO %DEADLINE %TAGS %PRIORITY
+  #+END_SRC
+
+  A =#+COLUMNS:= line applies to the heading it sits under and everything
+  below it; one at the top of the file applies to the whole file. Without
+  one the columns are =%70ITEM(Task) %17Effort(Effort)=.
+
+  Any property name can be a column (=%Owner=, =%Effort=). The lookup
+  tries the name as written, then upper and lower case. These special
+  names come from the heading itself:
+
+  | Column         | Value                                          |
+  |----------------+------------------------------------------------|
+  | =ITEM=         | the heading text                               |
+  | =TODO=         | the todo keyword                               |
+  | =PRIORITY=     | the priority letter                            |
+  | =TAGS=         | the heading's own tags                         |
+  | =ALLTAGS=      | its tags including inherited ones              |
+  | =SCHEDULED=    | the scheduled timestamp                        |
+  | =DEADLINE=     | the deadline timestamp                         |
+  | =CLOSED=       | when it was closed                             |
+  | =TIMESTAMP=    | the first active timestamp in the entry        |
+  | =TIMESTAMP_IA= | the first inactive timestamp in the entry      |
+  | =FILE=         | the name of the file                           |
+
+  The width is accepted and ignored (the table is aligned to its
+  contents). Summary types (={+}=, ={:}=...) and the =CLOCKSUM=,
+  =CATEGORY= and =BLOCKED= columns are not computed.
+
+* The columnview block
+  #+BEGIN_EXAMPLE
+    #+BEGIN: columnview :id global :indent t :maxdepth 2 :exclude-tags (Skip)
+    #+END:
+  #+END_EXAMPLE
+
+  Put the cursor on the =#+BEGIN:= line and press =alt+o c c= (or run
+  *Org Exec Dynamic Block*): everything between the two lines is replaced
+  by the table.
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN: columnview :hlines nil :id global :indent t :maxdepth 2
+    | Task                       | Effort | Todo | Deadline             | Tags  |
+    | 1.1.26                     |        |      |                      | a     |
+    | ..Source Blocks            | 2d     | DONE |                      | a     |
+    | ..Folding                  |        |      |                      | a     |
+    | ..Properties               | 2d     |      | 2021-03-09 Tue 20:55 | a     |
+    | ..ColumnView Dynamic Block | 1d     |      |                      | a     |
+    #+END:
+  #+END_EXAMPLE
+
+  | Parameter              | Meaning                                                        |
+  |------------------------+----------------------------------------------------------------|
+  | =:id global=           | every heading of this file (the default)                       |
+  | =:id local=            | the headings under the top level heading the block sits in      |
+  | =:id file:NAME=        | every heading of another org file, found by the orgs server    |
+  | =:id SOME-ID=          | the headings under the heading with that =ID= or =CUSTOM_ID=   |
+  | =:maxdepth N=          | only N levels deep (0, the default, is all of them)            |
+  | =:indent t=            | indent =ITEM= with =..= per level                              |
+  | =:hlines t=            | a separator before every row; =:hlines N= before rows up to level N |
+  | =:skip-empty-rows t=   | leave out headings whose columns are all empty                 |
+  | =:exclude-tags (A B)=  | leave out headings with any of these tags                      |
+
+  =:match= (a tags/properties match) is not supported.
+
+  Since 2.0 =:id file:= and an id are resolved by the orgs server, so the
+  heading or file can be anywhere in your org files, open or not. Without
+  a server only open buffers are found and the block says
+  =NO COLUMNVIEW DATA=.
+
+** Formulas on a column view
+   The block is rewritten each time it runs, so a =#+TBLFM:= inside it
+   would be lost. Put the =#+TBLFM:= line directly after =#+END:=
+   instead: OrgEverywhere treats it as the table's formula line, and it
+   survives a refresh. Columns that no property fills are a place for
+   computed values:
+
+   #+BEGIN_EXAMPLE
+     #+COLUMNS: %ITEM(Task) %Effort(Effort) %START(Start) %END(End) %RESPONSIBLE(Who)
+     #+BEGIN: columnview :exclude-tags (Skip)
+     | Task   | Effort | Start            | End              | Who |
+     | Task 1 | 1d     | <2021-03-13 Sat> | <2021-03-14 Sun> | Ian |
+     | Task 2 | 3d     | <2021-03-15 Mon> | <2021-03-18 Thu> | Joe |
+     #+END:
+     #+TBLFM:@2$4..@>$4=date($3)+duration($2)
+   #+END_EXAMPLE
+
+   The block has no separator under its header row (unless =:hlines= adds
+   them), so a plain column formula (~$4=...~) would run on the header
+   too; the range target starts at row 2 instead.
+
+   [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/learning_gantt_columndata.gif]]
+
+** On the server
+   *Org: orgs Update Dynamic Blocks* and *Org: orgs Update Dynamic Block
+   at Cursor* have the orgs server refresh the blocks instead (it saves
+   the buffer first and the result comes back into it). The server has its
+   own columnview implementation; see the orgs Server section.

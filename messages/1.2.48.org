@@ -1,0 +1,128 @@
+* 1.2.48
+** Properties
+   :PROPERTIES:
+     :Created: [2022-07-20 Wed 08:49]
+   :END:
+
+	- I found myself adding a Created property to a lot of new notes.
+	  (I like timestamps on when a note has been created)
+	  So I have added a new command Org Insert Created Property that will
+	  auto insert a :Created: [TIMESTAMP] to a heading, saves me a few keystrokes.
+	  (See above for the format)
+
+
+** FIXED FILETAGS
+   Filestags with colons around them were not having the colon stripped.
+   This was a bug introduced a while back and I did not notice.
+   This is no longer the case:
+
+   #+BEGIN_SRC org
+      #+FILETAGS: :A:B:C:
+   #+END_SRC 
+
+   Will now correctly tag all nodes with A B and C tags
+
+** FIXED Checkbox summaries
+   Summaries that were followed by a list of checkboxes in a second heading could miscalculate the summary
+   including checkboxes from the next heading
+
+   #+BEGIN_SRC org
+
+   * A [1/2]       <-- This would be miscalculated as [1/3] vs [1/2]
+     - [ ] B
+     - [x] C
+   ** D 
+     - [ ] E
+
+   While still facilitating nested summaries:
+
+   * Heading [3/5]
+   - [x] A
+   - [x] B
+   - [ ] C
+   - [-] D [1/3]
+      - [ ] X
+      - [x] Y
+      - [ ] Z
+   - [x] E
+
+   #+END_SRC
+   
+** FIXED Clocking in and out was crashing
+   Clocking in and out on a node was throwing exceptions due to the property
+   drawer API attempting to operate on a root node missing some API. This should now be fixed.
+
+** New Command Org Jump To Clock
+   This will jump to an active clock if one is running. Currently not bound to anything.
+
+** New Todo filters
+*** clockedtoday
+   clockedtoday tests if the todo has a clock value and if either start or end spans today
+   If you are using the clocking feature this makes it easier to get a quick list of things you have worked on today.
+  
+   #+BEGIN_SRC js
+     "Todays Work":   ["Todos : clockedtoday"],
+   #+END_SRC 
+
+*** clockfilter
+   clockfilter is like durationfilter in that it takes a duration specifier
+
+   #+BEGIN_SRC js
+     "This Weeks Work":   ["Todos : clockfilter +7d"],
+   #+END_SRC
+
+*** showduration
+   This will show the amount of time in hours and minutes that you spent on a todo, in the todo view
+
+   #+BEGIN_SRC js
+     "This Weeks Work":   ["Todos : clockfilter +7d : showduration"],
+   #+END_SRC
+
+*** hide filters
+   3 Additional formatting options for task list views:
+
+   - hidefilename
+   - hideheading
+   - hidestatus
+
+   #+BEGIN_SRC js
+     "This Weeks Work":   ["Todos : clockfilter +7d : showduration : hidefilename"],
+   #+END_SRC
+
+   These will hide the filename, todo heading and todo status fields as desired in the listing.
+
+*** showtotalduration
+   This option will turn on a summary of the total duration at the end of task listing of tasks that were clocked.
+
+   #+BEGIN_SRC js
+     "This Weeks Work":   ["Todos : clockfilter +7d : showduration : showtotalduration"],
+   #+END_SRC
+
+*** byproject
+   This task pane option will group tasks by project adding a == [Project Name] == header to each project for clarity
+
+   #+BEGIN_SRC js
+     "This Weeks Work":   ["Todos : clockfilter +7d : showduration : showtotalduration : byproject"],
+   #+END_SRC
+
+** New Agenda Views
+   Clocked view shows anything with a clock value including non todos
+
+   For example this is different than the above as the above will show anything in an open state
+   since it uses the Todo view while the following will actually show all work done on any node.
+   Obviously this comes with a slight performance cost as it has to scan non todo nodes, but it makes
+   the clocking feature more useful.
+
+   #+BEGIN_SRC js
+     "This Weeks Work":   ["Clocked : clockfilter +7d : showduration"],
+   #+END_SRC
+
+** Tweak to Composite Todo List Titles
+   If the composite list only contains a single view, the name of the view is assigned the name of the composite view + [view name]
+   This allows a custom view with "This Weeks Work" as the name to appear as:
+
+   #+BEGIN_EXAMPLE
+     This Weeks Work [Clocked]
+   #+END_EXAMPLE
+
+   Increasing clarity as to the type of list you are viewing

@@ -1,0 +1,122 @@
+#+TITLE: LaTeX Exporter
+#+DOC_SECTION: Exporting
+#+DOC_ORDER: 3
+
+* LaTeX and pdf
+  [[https://www.latex-project.org/][LaTeX]] is a typesetting system; its most common output is a pdf.
+  OrgEverywhere's LaTeX exporter turns an org file into a =.tex= file and,
+  if you have LaTeX installed, into a pdf.
+
+  - *Org Export File As Latex* (=org_export_file_as_latex=) writes
+    =file.tex= next to the org file. No LaTeX installation is needed for
+    this.
+  - *Org Export File As Pdf* (=org_export_file_as_pdf=) writes =file.tex=
+    and runs =pdflatex= on it in the org file's folder, giving =file.pdf=.
+
+  No LaTeX? *Org: orgs Export File as PDF* has the orgs server make the
+  pdf (the server needs LaTeX instead); see Exporting.
+
+* Installing LaTeX
+  A LaTeX installation is large; give it some time.
+
+  - Windows: [[http://www.tug.org/texlive/acquire-netinstall.html][TeX Live]] or MiKTeX.
+  - macOS: [[https://www.tug.org/mactex/][MacTeX]] (=brew install --cask mactex=).
+  - Linux: TeX Live from your distribution (=texlive-latex-extra=).
+  - More: [[https://www.latex-project.org/get/][Getting LaTeX]].
+
+  Then tell OrgEverywhere where =pdflatex= is:
+
+  #+BEGIN_SRC js
+    "latex2Pdf": "/Library/TeX/texbin/pdflatex",
+  #+END_SRC
+
+  The pdf command runs =pdflatex= once. LaTeX needs a second run to fill
+  in the table of contents and references: export again (or run
+  =pdflatex= by hand) when they are empty.
+
+  The preamble loads =listings=, =hyperref=, =graphicx=, =longtable=,
+  =wrapfig=, =rotating=, =amsmath=, =amssymb=, =ulem=, =babel= (greek,
+  english), =CJKutf8= and a few more, so a full installation (or those
+  packages) is needed.
+
+* Document options
+  | Keyword                | Setting         | Meaning                                     |
+  |------------------------+-----------------+---------------------------------------------|
+  | =#+TITLE:=             |                 | =\title=                                    |
+  | =#+AUTHOR:=            |                 | =\author=                                   |
+  | =#+DATE:=              |                 | =\date=                                     |
+  | =#+LATEX_CLASS:=       | =latexClass=    | the document class (=article= by default)   |
+  | =#+LATEX_HEADER:=      |                 | a line added to the preamble                |
+  | =#+OPTIONS:=           |                 | =toc:nil=, =toc:2=, =title:nil=, =author:nil=, =date:nil= |
+
+  =#+LATEX_CLASS:= and =#+OPTIONS:= go at the top of the file.
+  =#+LATEX_HEADER:= lines (like the other line keywords) are only read
+  inside a heading: put them in the first section.
+
+  #+BEGIN_SRC org
+    #+TITLE: Field Report
+    #+AUTHOR: Ian
+    #+LATEX_CLASS: report
+    #+OPTIONS: toc:2
+
+    * Introduction
+      #+LATEX_HEADER: \usepackage{geometry}
+      #+LATEX_HEADER: \geometry{margin=2cm}
+      ...
+  #+END_SRC
+
+  Headings become =\section=, =\subsection=, =\subsubsection=,
+  =\paragraph= and =\subparagraph=.
+
+* LaTeX in the document
+  - =#+LATEX: \newpage= puts a line of LaTeX into the document.
+  - =@@\vspace{1em}@@= puts LaTeX inline.
+  - =#+BEGIN_EXPORT latex= ... =#+END_EXPORT= is copied as is.
+  - Math: =$x^2$= and =\(x^2\)= inline, =\[ ... \]= displayed.
+  - =<<target>>= becomes a =\label=; =*target*= a =\hyperref= to it.
+
+* Pictures and tables
+  An image link becomes =\includegraphics=; by default at 80% of the line
+  width. =#+ATTR_LATEX:= above it sets the size, =#+CAPTION:= turns it
+  into a figure:
+
+  #+BEGIN_EXAMPLE
+    #+CAPTION: The pipeline
+    #+ATTR_LATEX: :width 0.5\linewidth :placement [h]
+    [[file:images/pipeline.png]]
+  #+END_EXAMPLE
+
+  | Attribute       | For             | Meaning                                         |
+  |-----------------+-----------------+-------------------------------------------------|
+  | =:width=, =:height=, =:scale= | images | =\includegraphics= options                 |
+  | =:float=        | tables          | =t=, =multicolumn=, =sideways=, =wrap= or =nil= |
+  | =:placement=    | tables, figures | =[h]=, =[!htp]=... (a figure needs a caption)   |
+  | =:center nil=   | tables, figures | do not centre                                   |
+  | =:environment=  | tables          | =tabular= (default), =longtable=, =tabularx=... |
+  | =:mode=         | tables          | =math= or =inline-math= for a matrix            |
+  | =:caption=      | tables, figures | a caption (instead of =#+CAPTION:=)             |
+
+  A table with a caption floats as a =table=. Image folders are added to
+  =\graphicspath=; images are found as described in Exporting.
+
+* Source blocks
+  Source blocks become =lstlisting= environments of the =listings=
+  package, with the block's language. When a language name in org is not
+  the one =listings= knows, map it:
+
+  #+BEGIN_SRC js
+    "latexListingPackageLang": {
+        "python": "Python",
+        "lua":    "[5.2]Lua",
+    },
+  #+END_SRC
+
+  =:exports results= or =none= on a block leaves its code out. Blocks are
+  not run before a LaTeX export unless =latexExecuteSourceOnExport= is
+  true.
+
+* On the server
+  The orgs server's =latex= exporter (*Org: orgs Export File*) and its pdf
+  export (*Org: orgs Export File as PDF*) are an alternative that needs no
+  local LaTeX; the server also has a =dnd= exporter for documents in the
+  style of the D&D 5e books. See Exporting and the orgs Server section.

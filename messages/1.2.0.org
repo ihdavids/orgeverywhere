@@ -1,0 +1,39 @@
+* 1.2.0
+	Core Idea: I am considering the spreadsheet feature out of preview now.
+               most of the core org features with spreadsheets are now supported.
+               While there are a ton of functions yet to support to have calc equivalence
+               I believe what we have is a pretty good line in the sand to say we have something
+               some usable.
+
+** Spreadsheets Beta
+  More core functions
+
+  - tanh
+  - cosh
+  - sinh
+  - atanh
+  - acosh
+  - asinh
+  - atan
+  - acos
+  - asin
+  - degrees
+  - radians
+  - sqrt
+  - pow
+  - log
+  - log10
+  - log2
+
+  Added unit tests for these functions.
+
+** Editing
+  - New Command: "Org Insert Archive Tag" will add the :ARCHIVE: Tag to a node. Not currently bound to a key.
+  - ARCHIVE tag gets filtered out by default in agenda. This means archived TODO's do not accidentally show up if you have a FILETAG on your archive file.
+  - Fixed a bug with moving headings up and down when the heading is at the end of the file.
+ 
+** Tags
+  - FILETAGS comment is now respected properly as an inheritied tag on a heading. 
+
+** Notifications
+  - Notifications system now respects the ARCHIVE tag.

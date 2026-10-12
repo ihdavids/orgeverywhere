@@ -1,0 +1,69 @@
+#+TITLE: Day Pages
+#+DOC_SECTION: Planning
+#+DOC_ORDER: 5
+
+* A page a day
+  A day page is a work log: one org file per day (or per week), named by
+  its date, that you open in the morning, plan the day in, and write
+  notes, meetings and progress into as the day goes. Yesterday's page is
+  a keypress away.
+
+  | Command              | Keys                                       | What it does                                     |
+  |----------------------+--------------------------------------------+--------------------------------------------------|
+  | Org Day Page Create  | =alt+o d c= (NeoVintageous =space d c=)    | open today's page, making it if needed           |
+  | Org Day Page Previous | =alt+o d p= (NeoVintageous =space d p=)   | the page before the one you are on               |
+  | Org Day Page Next    | =alt+o d n= (NeoVintageous =space d n=)    | the page after; past the last one, today's page  |
+
+  Previous and next step from the page you are looking at (or from today)
+  to the nearest page that exists.
+
+* Day pages from the server
+  When the orgs server has a =dayPagePath= its day pages are used, the
+  same ones worg and the orgs command line open:
+
+  #+BEGIN_SRC yaml
+  server:
+    dayPagePath: "/Users/me/notes/worklog"
+    dayPageMode: "week"          # or "day"
+    dayPageModeWeekDay: "Monday"
+    dayPageTemplate: "daypage.tpl"
+  #+END_SRC
+
+  The server names the pages (=Mon_2026_10_12.org=), makes today's page
+  from its template, and when it does, carries the open tasks over from
+  the last page and archives it. In =week= mode there is one page per
+  week, named by =dayPageModeWeekDay=, and previous / next step a week.
+
+* Today's tasks
+  When today's page is new, OrgEverywhere adds today's open tasks from your
+  other files to it: what the server's agenda has on today (scheduled,
+  carried forward because it is overdue, deadlines due or warning, dated
+  today) that is a todo, not done and not archived. Each is copied with
+  its text up to its first child heading; a task already on the page (the
+  server may have carried it over) is not copied again, nor is a child of
+  a task that is. Set =dayPageCopyTasksForToday= to =false= to turn this
+  off.
+
+* Local day pages
+  Without a server, or when the server has no =dayPagePath=, OrgEverywhere
+  makes the pages itself from its own settings (the status bar says it is
+  using them):
+
+  | Setting                 | Default            | Effect                                                         |
+  |-------------------------+--------------------+----------------------------------------------------------------|
+  | =dayPagePath=           | not set            | the folder for day pages (a string)                            |
+  | =dayPageNameFormat=     | ="%a_%Y_%m_%d"=    | strftime name of a page; old pages are found by it, so keep it |
+  | =dayPageMode=           | ="day"=            | ="week"= for a page per week                                    |
+  | =dayPageModeWeekDay=    | ="Monday"=         | the day a week page is named by                                |
+  | =dayPageSnippet=        | ="dayPageSnippet"= | the snippet a new page starts with (=orgsnippets= folder)      |
+  | =dayPageArchiveOld=     | =true=             | tag the previous page =#+FILETAGS: ARCHIVE= when a new one is made |
+  | =dayPageCopyOpenTasks=  | =true=             | copy the previous page's open top level tasks to the new one    |
+  | =dayPageCopyTasksForToday= | =true=          | add today's tasks from other files (needs the server)          |
+  | =dayPageCreateOldPages= | =false=            | Previous makes the page for the day before if it is missing    |
+
+  The day page snippet gets the capture snippet variables
+  (=ORG_ACTIVE_DATE=, =ORG_DATE=...) plus =ORG_AUTHOR=, and =ORG_FILENAME=
+  is the page's date name.
+
+  A capture template can target today's local page with ={daypage}=
+  (see *Capture, Refile and Archive*).

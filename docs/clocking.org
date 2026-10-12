@@ -1,0 +1,97 @@
+#+TITLE: Clocking
+#+DOC_SECTION: Planning
+#+DOC_ORDER: 4
+
+* Clocking time
+  Org can record how long you work on a task: clock in when you start,
+  clock out when you stop, and a =CLOCK:= line with the start, end and
+  duration goes into the heading's =:LOGBOOK:= drawer:
+
+  #+BEGIN_SRC org
+  * TODO Write the report
+    :LOGBOOK:
+    CLOCK: [2026-10-11 Sun 09:02]--[2026-10-11 Sun 10:47] =>  1:45
+    :END:
+  #+END_SRC
+
+  Together with effort estimates (=EFFORT= property, *Org Insert Effort*)
+  and clock reports it shows where your time went and how your estimates
+  held up, and it makes timesheets easy.
+
+  | Command                 | Keys                                          | What it does                        |
+  |-------------------------+-----------------------------------------------+-------------------------------------|
+  | Org Clock In            | =alt+o c i= (NeoVintageous =space c i=)       | start the clock on this heading     |
+  | Org Clock Out           | =alt+o c o= (NeoVintageous =space c o=)       | stop the clock                      |
+  | Org Jump To Clock       |                                               | open the heading the clock is on    |
+  | Org Agenda ClockIn / Out | =c i= / =c o= in the agenda                  | clock in to an agenda entry, out    |
+  | Org: orgs Clock Report  |                                               | time clocked across all files       |
+
+* The clock lives on the server
+  With the orgs server connected, the clock is the server's. There is one
+  running clock for all your orgs clients: clock in from Sublime and worg
+  shows it running; clock out from the command line and Sublime's status
+  bar stops. Starting a clock stops the one already running.
+
+  - Clocking in tells the server; nothing is written to the file yet.
+  - Clocking out has the server write the =CLOCK:= line into the
+    heading's =:LOGBOOK:=. If that file is open with unsaved changes it is
+    saved first; the buffer reloads with the new line.
+  - The server can also stop the clock by itself (its =autoclockout=
+    plugin). OrgEverywhere hears of clock changes through the server's
+    events and looks again every =orgsClockPollSeconds= (=120=).
+
+  Org files show the running clock in the status bar,
+  =Clock: Write the report (1:45)=, unless =clockShowInStatus= is
+  =false=. *Org Jump To Clock* asks the server where the clock is and
+  opens the heading.
+
+  *Org Clear Clock* and *Org Update Active Clock* only apply to the offline
+  clock: a server clock is stopped with clock out, and has no open
+  =CLOCK:= line in the file to read a start time back from.
+
+* Without a server
+  When no server is connected the old local clock is used: clocking in
+  writes an open =CLOCK: [start]--= line into the heading's logbook and
+  remembers the clock in =Packages/User/OrgEverywhere_Clocks.yaml=; clocking
+  out closes the line and saves the file. This clock is Sublime's alone.
+
+  - =clockingSubMinuteClocks= (=true=): keep clock lines shorter than a
+    minute; =false= removes them on clock out.
+  - =clockInPropertyBlock= (=false=): write =CLOCK= into the property
+    drawer instead of the logbook.
+
+  A clock started offline is closed the offline way when you next clock
+  in or out with the server connected (the server does not know about
+  it).
+
+  *Org Recalculate Clock* rewrites the clock lines of the heading at the
+  cursor, recomputing their durations.
+
+* Clock reports
+  *Org: orgs Clock Report* asks which period (today, yesterday, this
+  week, last week, this month, last month, this year, last year,
+  everything until now) and shows a table of the time clocked in every
+  file, by heading, with the total:
+
+  #+BEGIN_EXAMPLE
+  #+TITLE: Clock report: This week
+  Total: 12:30   (6 entries)
+
+  | Headline            | File      |  Time |
+  |---------------------+-----------+-------|
+  | Website             | work.org  |  8:15 |
+  | \_ Write the report | work.org  |  1:45 |
+  ...
+  #+END_EXAMPLE
+
+  =enter= or a double click on a row opens that heading, =g= refreshes.
+
+  Inside a file, a =clocktable= dynamic block sums the clocks of the
+  subtree it is in; *Org: orgs Update Dynamic Blocks* has the server
+  refresh the dynamic blocks of a file (see the tables and dynamic blocks
+  guides).
+
+* Clocking or today?
+  Clocking is not for everyone. If you do not need the minutes, keeping a
+  "today" heading or a day page gives you most of the benefit with less
+  ceremony: see *Markers and Today* and *Day Pages*.

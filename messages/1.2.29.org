@@ -1,0 +1,15 @@
+* 1.2.29
+** Links
+	- New command "Org Search Links" searches links across all org files.
+
+** Backlinks
+	- Fixed a bug where folds in the backlinks buffer would get confused.
+
+** Awk
+	- Syntax highlighting for awk source blocks:
+
+	#+BEGIN_SRC awk
+	  BEGIN {OFS="|"}; { sum+= $2}; END { print "Sum", sum} 
+	#+END_SRC
+
+	

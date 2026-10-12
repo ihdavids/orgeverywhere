@@ -1,0 +1,4 @@
+#+TITLE: Planning
+#+DOC_ORDER: 3
+
+Todo states, the agenda, capture, refile and archive, clocking, day pages and a way of putting them together. These work across all of your org files, through the orgs server.

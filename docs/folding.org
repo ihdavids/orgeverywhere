@@ -1,0 +1,88 @@
+#+TITLE: Folding
+#+DOC_SECTION: Editing
+#+DOC_ORDER: 2
+
+* Tab
+  =tab= is the key that makes an org file feel like org. What it does
+  depends on where the cursor is:
+
+  | Cursor on                                | =tab=                                                  |
+  |------------------------------------------+--------------------------------------------------------|
+  | a heading line                           | cycles the heading: folded, children, whole subtree     |
+  | a property drawer or other drawer        | folds or unfolds the drawer                             |
+  | a dynamic block (=#+BEGIN:=)             | folds or unfolds the block                              |
+  | a link                                   | shows or hides the link's target                        |
+  | a checkbox with sub items                | folds or unfolds the sub items                          |
+  | text before the first heading            | cycles the whole file: overview, contents, show all     |
+  | a table                                  | moves to the next cell                                  |
+  | anywhere else                            | the usual: completes, expands a snippet, or a tab       |
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/orgfolding.gif]]
+
+** Cycling a heading
+   =tab= on a heading moves it through three states:
+
+   1. *Folded*: only the heading line shows.
+   2. *Children*: the heading's text and its child headings show, each
+      child folded.
+   3. *Subtree*: everything under it shows.
+
+   Then back to folded.
+
+** Cycling the whole file
+   =shift+tab= on any heading (or =tab= above the first heading) cycles the
+   whole file:
+
+   1. *Overview*: top level headings only.
+   2. *Contents*: every heading, no text - a table of contents.
+   3. *Show all*: everything, with drawers folded.
+
+   [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/global_tab_cycling.gif]]
+
+   Emacs can narrow the buffer to one subtree. Sublime cannot, so the
+   nearest thing is to fold everything else: *Org Fold Others*
+   (=space f o= with NeoVintageous) folds every heading that is not the
+   current one or above it.
+
+* Folding commands
+  None of these has a default key; run them from the command palette or
+  bind them (see *Keys*).
+
+  | Command                    | Does                                                      |
+  |----------------------------+-----------------------------------------------------------|
+  | *Org Fold All*             | fold every heading                                        |
+  | *Org Unfold All*           | unfold every heading                                      |
+  | *Org Fold Contents*        | every heading visible, their text folded (contents view)  |
+  | *Org Fold Others*          | fold everything except the current heading and its parents |
+  | *Org Fold All Links*       | hide the targets of all links, showing only descriptions  |
+  | *Org Fold Thing*           | fold the current selection                                |
+  | *Org Remove All Folds*     | unfold everything in the file, drawers and links too      |
+
+* How a file opens
+  When an org file is opened its folds are set from its =#+STARTUP:= line,
+  or the =startup= setting when it has none (default =["showall"]=):
+
+  | Startup word          | The file opens                           |
+  |-----------------------+------------------------------------------|
+  | =overview= or =fold=  | top level headings only                  |
+  | =content=             | all headings, no text                    |
+  | =showall= (default)   | everything, drawers folded               |
+
+  #+BEGIN_EXAMPLE
+  #+STARTUP: overview
+  #+END_EXAMPLE
+
+  Links are always shown folded (description only) when a file opens.
+
+  With =onFocusRespectStartupFolds= set to true, switching back to an
+  =overview= or =content= file folds everything but the heading you are in.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/orgstartfolding.gif]]
+
+* When folds go wrong
+  OrgEverywhere's folds are Sublime folds placed by position. After big edits
+  outside OrgEverywhere (a file changed on disk, a large paste) a fold can
+  end up in the wrong place. Save the file and run
+  *Org Remove All Folds*; then fold again.
+
+  Folding is per view: the same file in two tabs can be folded differently.

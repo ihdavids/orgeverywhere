@@ -1,0 +1,105 @@
+import sublime
+import sublime_plugin
+import datetime
+import re
+from pathlib import Path
+import os
+import fnmatch
+import OrgEverywhere.orgparse.loader as loader
+import OrgEverywhere.orgparse.node as node
+import OrgEverywhere.orgparse.date as orgdate
+from   OrgEverywhere.orgparse.sublimenode import * 
+import OrgEverywhere.orgutil.util as util
+import OrgEverywhere.orgutil.navigation as nav
+import OrgEverywhere.orgutil.template as templateEngine
+import logging
+import sys
+import traceback 
+import OrgEverywhere.orgfolding as folding
+import OrgEverywhere.orgdb as db
+import OrgEverywhere.asettings as sets
+import OrgEverywhere.pymitter as evt
+import OrgEverywhere.orgproperties as props
+import OrgEverywhere.orgdatepicker as datep
+import OrgEverywhere.orginsertselected as insSel
+import OrgEverywhere.orglinks as orglink
+import OrgEverywhere.orgneovi as nvi
+import OrgEverywhere.orgagenda as oa
+import OrgEverywhere.orgcheckbox as checkbox
+import OrgEverywhere.orgnumberedlist as numberedlist
+
+log = logging.getLogger(__name__)
+
+
+RE_LIST_REPLACE = re.compile(r'\s*(([0-9]+[.)])|[-+])\s+')
+def isListLine(l):
+    return RE_LIST_REPLACE.search(l)
+
+class ListData:
+    def __init__(self,view=None,pt=None):
+        if(view != None):
+            reg = view.line(pt)
+            line = view.substr(reg)
+            if(numberedlist.isNumberedLine(view,reg)):
+                wasNumbered = True
+                self.data = numberedlist.getListAtPoint(view,pt)
+            elif(checkbox.isUnorderedList(line)):
+                self.data = checkbox.getListAtPoint(view,pt)
+            else:
+                self.data = None
+        else:
+            self.data = [] 
+
+    @staticmethod
+    def CreateListFromList(lst):
+        ls = ListData()
+        for l in lst:
+            l = RE_LIST_REPLACE.sub("",l)
+            ls.data.append([None,l])
+        return ls
+
+    def __iter__(self):
+        return self.Iterate()
+
+    def Iterate(self):
+        for row in self.data:
+            yield row[1]
+        return None
+
+RE_ISCOMMENT = re.compile(r"^\s*[#][+]")
+def LookupNamedListInFile(name):
+    l = None
+    view = sublime.active_window().active_view()
+    if(view):
+        node = db.Get().AtInView(view)
+        if(node):
+            # Look for named objects in the file.
+            names = node.names
+            if(names and name in names):
+                row = names[name]['row']
+                last_row = view.lastRow()
+                for r in range(row,last_row):
+                    pt = view.text_point(r, 0)
+                    line = view.substr(view.line(pt))
+                    m = RE_ISCOMMENT.search(line)
+                    if(m):
+                        continue
+                    elif(line.strip() == ""):
+                        continue
+                    else:
+                        row = r
+                        break
+                pt = view.text_point(row,0)
+                reg = view.line(pt)
+                line = view.substr(reg)
+                if(numberedlist.isNumberedLine(view,reg) or checkbox.isUnorderedList(line)):
+                    l = ListData(view,pt)
+    return l
+
+def IfListExtract(view,pt):
+    l = None
+    reg = view.line(pt)
+    line = view.substr(reg)
+    if(numberedlist.isNumberedLine(view,reg) or checkbox.isUnorderedList(line)):
+        l = ListData(view,pt)
+    return l

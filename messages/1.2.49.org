@@ -1,0 +1,87 @@
+* 1.2.49
+
+** FIXED Clocking out
+	- When clocking in to a different file while a previous clock was running the clock value was getting written
+	  to the wrong file due to using the wrong view!
+	- We now open the other file, add the clock out value, save it and switch back to the correct buffer
+** REMINDER org_agenda_custom_view
+   Recently I was asked about todo views. I thought I would take a moment and
+   highlight what is already there. 
+
+	The org_agenda_choose_custom_view command can be handy
+	for scanning through your todo lists, but if you are like me,
+	it can get in the way.
+
+	You can bind your own keybindings and select a particular view quickly like so:
+	Here I am using a neovintageous style keybinding to pop up my "This Weeks Work" list
+	when I press <space> o l w in normal mode. (Think VIM) You can do much the same for whatever your
+	preferences might be.
+
+
+	#+BEGIN_SRC js
+    { "keys": [" ","o", "l", "w"]
+    , "command": "org_agenda_custom_view"
+    , "args": {"toShow": "This Weeks Work"}
+    , "context": [{"key": "vi_command_mode_aware"}]  
+    },
+	#+END_SRC
+
+	This view is created using the view syntax like so:
+
+	#+BEGIN_SRC js
+    "AgendaCustomViews": 
+    {
+    	# My agenda is comprised of several standard views
+        "Default":           ["Calendar", "Week", "Day", "Blocked Projects", "Loose Tasks"],
+        # Show any todos tagged as being active
+        "Active":            ["Todos : tagfilter +Active"],
+        # Show my todos tagged as being part of my backlog.
+        "Backlog":           ["Todos : tagfilter +Backlog"],
+        # Show anything, not just todos that have been clocked within the last 7 days. Also show their duration
+        # and group them in projects if they are associated with a project.
+        "This Weeks Work":   ["Clocked : clockfilter +7d : showduration : showtotalduration : byproject"],
+    },
+	#+END_SRC
+
+	
+** Agenda Task Lists
+	- Todo lists now have a dynamic filter option. This option will provide an input box that allows you to dynamically filter the text in the todo list.
+	- The keybinding is REALLY rough right now. 
+		- In neovintageous mode "f","f" will bring back up the input box allowing for more filtering goodness.
+		- In normal mode alt+o f f will bring back up the input box allowing for more filtering goodness.
+	- Escape will clear the filter
+	- Enter will make the filter permanent allowing you to scroll through todos again.
+
+	You can force this input panel to have focus and be visible when the todo list pops up with the following option:
+
+	If sublime will ever support more rich panels I would love to add dynamic filtering by tag, priority and other things in there.
+	For now I will have to add then piecemeal.
+
+	#+BEGIN_SRC js
+    "agendaTodoFilterByDefault": true,
+	#+END_SRC
+
+*** New todo view columns
+	Not sure I like this yet, still somewhat experimental.
+
+    - showdate - will show most relevant date information (active, scheduled, dealine, closed timestamp)
+    - showtime - will show the time info from the most relevant date information
+
+    #+BEGIN_SRC js
+        "This Weeks Work":   ["Clocked : clockfilter +7d : showduration : showtotalduration : byproject : showdate : showtime"],
+    #+END_SRC
+
+*** Better todo sorting
+	Somewhat experimental at the moment...
+
+    - Now sorts by date by default, will be looking to make this configurable going forward as well.
+    - Sort order can be flipped globally if preferred using:
+
+    #+BEGIN_SRC js
+      "agendaTodoSortAscending": false,
+    #+END_SRC
+
+    Or locally in a list using:
+
+    - sortascend
+    - sortdescend

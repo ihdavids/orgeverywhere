@@ -1,0 +1,28 @@
+%YAML1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+name: orgdatepicker
+file_extensions:
+  - orgdatepicker
+scope: source.orgdatepicker
+version: 2
+hidden: true
+contexts:
+  main:
+    # filename and line location
+    - match: '(Mo|Tu|We|Th|Fr)'
+      scope: keyword orgdatepicker.weekdayheader
+
+    - match: '(Sa|Su)'
+      scope: constant.numeric orgdatepicker.weekendheader
+
+    - match: '(January|February|March|April|May|June|July|August|September|October|November|December)\s*([0-9]+)'
+      scope: string.quoted orgdatepicker.monthheader
+
+    - match: '\.|`'
+      scope: comment orgdatepicker.timetick
+
+    - match: 'O'
+      scope: orgagenda.block.1 orgdatepicker.hourhand
+    - match: 'o'
+      scope: orgagenda.block.2 orgdatepicker.minutehand

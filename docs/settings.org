@@ -1,0 +1,81 @@
+#+TITLE: Settings
+#+DOC_SECTION: Getting Started
+#+DOC_ORDER: 4
+
+* Where settings live
+  OrgEverywhere's settings are in =OrgEverywhere.sublime-settings=. Sublime
+  merges two copies of that file:
+
+  1. =Packages/OrgEverywhere/OrgEverywhere.sublime-settings=: the defaults that
+     come with the package, with a comment on every setting. Do not edit
+     it; an upgrade replaces it.
+  2. =Packages/User/OrgEverywhere.sublime-settings=: yours. A setting here
+     wins over the default.
+
+  *Preferences > Package Settings > Org Everywhere > Settings* opens both side
+  by side, the defaults on the left and yours on the right.
+
+  On its first start OrgEverywhere copies the whole default file into
+  =Packages/User= if you have none. That copy then pins every setting at
+  the value it had in that version, including settings a later version
+  changes. It is a good idea to trim your file down to the settings you
+  actually changed:
+
+  #+BEGIN_SRC js
+  // Packages/User/OrgEverywhere.sublime-settings
+  {
+      "orgsUrl": "https://myserver:8443",
+      "orgsCaFile": "~/orgs/server.crt",
+      "tagColumn": 70,
+      "startup": ["content"],
+  }
+  #+END_SRC
+
+  Because the org syntax is called OrgEverywhere, this file is also the
+  syntax specific settings file for org views: ordinary Sublime settings in
+  it (=color_scheme=, =auto_complete=, =word_wrap=, =tab_size=...) apply to
+  org files only. The agenda and the date picker have their own
+  (=orgagenda.sublime-settings=, =orgdatepicker.sublime-settings=), which is
+  where their colour schemes are set.
+
+* When a change takes effect
+  Most settings are read each time they are used, so a change applies to
+  the next command. The connection settings (=orgsUrl=, =orgsCaFile=,
+  =orgsNoVerify=, =orgsPathMap=, =orgsCredentialStore=...) are read when
+  OrgEverywhere connects: run *Org: Connect to orgs server* after changing
+  them. Settings that are read when a file is opened (=startup=) apply to
+  files opened afterwards.
+
+* Values that refer to other values
+  A string setting can use ={date}=, ={time}= and ={datetime}= (now), and
+  the name of any other setting in braces, which is replaced by that
+  setting's value. The default capture templates do this: their target is
+  =["file", "{refile}"]=, the =refile= setting.
+
+* In buffer settings
+  Many things can be set for one file instead of globally, with a keyword
+  line near the top of the file, as in Emacs org mode:
+
+  #+BEGIN_EXAMPLE
+  #+STARTUP: content logdone
+  #+TODO: TODO NEXT WAITING | DONE CANCELLED
+  #+PRIORITIES: A B C
+  #+END_EXAMPLE
+
+  The file's line wins over the global setting (=startup=, =todoStates=,
+  =priorities=...). The guides for each feature say which they read.
+
+* Settings that are no longer used
+  Since 2.0 the orgs server decides which files are org files, so
+  =orgFiles=, =orgExcludeDirs= and =orgExcludeFiles= are ignored, and
+  =orgDirs= is only used to look for images when exporting without a
+  server. Set =orgDirs= in the server's =orgs.yaml= instead. See
+  *Connecting to orgs*.
+
+* Reference
+  Every setting, with its default and what it does, is listed under
+  *Reference > Settings*. The orgs connection settings are explained in
+  *Connecting to orgs*.
+
+  To see what OrgEverywhere is doing, set ="enableDebugLogging": true= and
+  open the console (*View > Show Console*).

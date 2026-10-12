@@ -1,0 +1,192 @@
+#+TITLE: What the Server Adds
+#+DOC_SECTION: orgs Server
+#+DOC_ORDER: 1
+
+* The orgs server
+  Everything in OrgEverywhere that looks across files - the agenda,
+  capture, refile, clocking, ids, backlinks - goes through the orgs
+  server. The server also brings features OrgEverywhere never had. They
+  are in the command palette as *Org: orgs ...*, need a connected server,
+  and are shared with worg, the =orgs= command line and VSCode.
+
+  Most of them open either a quick panel (with a preview of each heading
+  as you move, =orgsPreviewOnHighlight=) or a result view. In a result
+  view (habits, clock report, text search results) =enter= or a double
+  click opens the line's heading and =g= (*Org: orgs Refresh Result
+  View*) rebuilds the view.
+
+* Finding things
+** Query search
+   *Org: orgs Query Search* offers "New query...", your saved queries and
+   the server's filters, then lists the matching headings. A query is an
+   expression such as =IsTodo() && HasTags("work")= (see
+   *The Query Language*).
+
+   - *Org: orgs Save Query* saves a query on the server under a name.
+     Saved queries are yours, and show up in worg and the command line too.
+   - *Org: orgs Delete Saved Query* removes one.
+   - *Org: Agenda Query (orgs)* shows a query's headings as an agenda list
+     instead (see *The Agenda*).
+
+** Full text search
+   A regular expression search through the text of every org file:
+
+   | Command                                     | Results                                  |
+   |---------------------------------------------+------------------------------------------|
+   | Org: orgs Full Text Search                  | a quick panel of =file, line: text=      |
+   | Org: orgs Full Text Search (results view)   | a find results style view                |
+   | Org: orgs Full Text Search in This File     | this file only                           |
+
+   It starts with the word at the cursor. =orgsTextSearchIgnoreCase=
+   (=true=) and =orgsTextSearchMax= (=200= matches kept per file) control
+   it.
+
+* Habits
+  A habit is a repeating todo with =:STYLE: habit=:
+
+  #+BEGIN_SRC org
+  * TODO Go for a run
+    SCHEDULED: <2026-10-11 Sun .+2d>
+    :PROPERTIES:
+    :STYLE:    habit
+    :END:
+  #+END_SRC
+
+  *Org: orgs Habits* shows every habit over the last =orgsHabitDays= days
+  (=21=): whether it is due or late today, the current and best streak,
+  how often it was kept, and a bar with a mark per day (■ done, × missed,
+  · nothing due). In the view =t= (*Org: orgs Toggle Habit Done Today*)
+  marks the habit on the line done for today, or takes today's tick back.
+
+* Clock report
+  *Org: orgs Clock Report* sums the clocked time of every file for a
+  period: today, yesterday, this or last week, month or year, or
+  everything. See *Clocking*.
+
+* File history
+  For files in a git repository, *Org: orgs File History* lists the
+  working copy, the staged index and the commits that touched the file
+  (=orgsHistoryLimit=, =100=). Picking one shows the file as it was then,
+  in a scratch view.
+
+* Contacts, records and birthdays
+  The server keeps records: headings with a =RECORD= property (a contact,
+  a piece of equipment...) filed in collections.
+
+  - *Org: orgs Contacts* searches your contacts (name, numbers, addresses,
+    notes; empty lists them all) and opens the one you pick.
+  - *Org: orgs Records* asks which collection first, then searches it.
+  - *Org: orgs Upcoming Birthdays* lists birthdays and anniversaries in
+    the next =orgsBirthdayDays= days (=60=), with the age.
+
+* The web UI
+  *Org: orgs Open Web UI* opens worg, the server's web interface, in your
+  browser on the app you pick: agenda, search, saved queries, kanban,
+  gantt chart, column view, clock report, tables, files, links, mind map,
+  collections, contacts, code, flashcards, diff and history,
+  presentation, voice notes, starmap. =orgsWebUrl= sets its address when
+  it is not the server's url. worg asks for its own login.
+
+* Encryption
+  The server encrypts heading bodies in org-crypt's format with gpg (when
+  its encryption is set up).
+
+  - *Org: orgs Encrypt Heading* encrypts the body of the heading at the
+    cursor. With a passphrase (not a key) it asks for it twice.
+  - *Org: orgs Decrypt Heading* either shows the text in a panel (the
+    file stays encrypted; the panel is cleared when you close it, and
+    nothing is saved) or writes it back into the file in the clear.
+
+* Attachments
+  *Org: orgs Attachments* lists the files attached to the heading at the
+  cursor (its attachment folder, from its =:ID:= or =:DIR:=). Picking one
+  downloads it to a private temporary folder and opens it: org and text
+  files in Sublime, anything else in its own program.
+
+* Flashcards
+  *Org: orgs Drill Flashcards* reviews org-drill cards: pick a deck the
+  server has, or "Query..." to use the headings a query finds
+  (=orgsDrillQuery=, =HasTags("drill")=). Each due card is shown in an
+  *Org Drill* view with its answer hidden; show the answer, grade
+  yourself 0 to 5, and the server schedules the card's next review. A
+  failed card comes back in the same session.
+
+* New files from templates
+  *Org: orgs New File from Template* asks for one of the server's org
+  directories, a file name, a title and one of the server's file
+  templates, has the server create the file and opens it.
+
+* Updater plugins
+  The server's updater plugins change a heading from another system: the
+  =jira= updater, for one, fills a heading in from its jira issue.
+  *Org: orgs Update Heading (Jira/plugin)* asks which updater
+  (=orgsDefaultUpdater=, =jira=) and runs it on the heading at the cursor.
+  The updater has to be configured on the server.
+
+* Exporting, tangling, dynamic blocks and source blocks
+  The server can do some of the work on the file you are editing. Each of
+  these saves the buffer first and waits for the server to read it; what
+  the server writes back reloads into the buffer.
+
+  - *Org: orgs Export File* exports with any of the server's exporters
+    (html, latex, reveal.js, mermaid...), *Org: orgs Export File as PDF*
+    straight to pdf. See the exporting guides.
+  - *Org: orgs Tangle File* writes the file's =:tangle= source blocks out.
+  - *Org: orgs Update Dynamic Blocks* refreshes every dynamic block in the
+    file (=clocktable=, =columnview=...); *Org: orgs Update Dynamic Block
+    at Cursor* only the one you are in.
+  - *Org: orgs Execute Source Block* and *Org: orgs Execute All Source
+    Blocks* run source blocks (and =#+CALL:= lines) on the server and
+    write their results.
+
+  The server only runs code when its =orgs.yaml= allows it, since running
+  the programs in your files is a different promise from reading them:
+
+  #+BEGIN_SRC yaml
+  server:
+    babel:
+      enable: true
+      languages: ["python", "sh"]   # empty: every language orgs can run
+      timeout: 30
+  #+END_SRC
+
+  Without it the command explains that the server will not run source
+  blocks. The local *Org Exec Source Block* commands still run code in
+  Sublime.
+
+* The connection
+  | Command                                    | What it does                                  |
+  |--------------------------------------------+-----------------------------------------------|
+  | Org: Connect to orgs server                | find the server and log in                    |
+  | Org: Log in to orgs                        | log in again                                  |
+  | Org: Log out of orgs (forget stored login) | log out and forget the stored login           |
+  | Org: Set orgs server url                   | set =orgsUrl= and connect                     |
+  | Org: orgs connection status                | the server, user, session and live updates    |
+  | Org: orgs reload server config             | have the server re-read its =orgs.yaml=       |
+
+  Connecting and logging in are covered in Getting Started.
+
+* Keeping files in sync
+  The server reads your files from disk and Sublime edits buffers, so
+  there are two copies of a file while you type. OrgEverywhere keeps them
+  honest:
+
+  - *The server sees saved files.* The agenda, search, backlinks and
+    everything else that looks across files answer from what is saved. A
+    modified buffer is not in them until you save it (the agenda counts
+    the waiting buffers; =agendaSaveBeforeRender= saves them for you).
+  - *Edits by the server reload clean buffers.* Refile, archive, agenda
+    actions, clock out, capture and the rest have the server write the
+    file; an open buffer without unsaved changes reloads with the new
+    text. With =orgsEvents= (=true=) the server's change events keep
+    notifications, the clock, ids and backlinks current when files
+    change outside Sublime.
+  - *Dirty buffers are saved first.* Before the server writes a file that
+    is open with unsaved changes, OrgEverywhere saves it and waits for the
+    server to read it, so the server's change is not lost by the next
+    save of the buffer, nor your edits by the server's. With
+    =orgsSaveBeforeServerEdits= set to =false= such a command refuses
+    ("save the file first") instead, and you save yourself.
+
+  A server on another machine sees its own paths: map them to yours with
+  =orgsPathMap=.

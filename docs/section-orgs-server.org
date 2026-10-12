@@ -1,0 +1,4 @@
+#+TITLE: orgs Server
+#+DOC_ORDER: 8
+
+What the orgs server adds beyond the agenda and capture: query search, habits, clock reports, full text search and more.

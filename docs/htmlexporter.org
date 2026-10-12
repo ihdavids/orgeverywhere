@@ -1,0 +1,127 @@
+#+TITLE: Html Exporter
+#+DOC_SECTION: Exporting
+#+DOC_ORDER: 2
+
+* Exporting a file to html
+  *Org Export File As Html* (=org_export_file_org_html=) writes the org
+  file as =file.html= next to it: one self contained page with the style
+  inlined. *Org Export Subtree As Html*
+  (=org_export_subtree_as_org_html=) exports only the heading under the
+  cursor, as =file_subtree.html=.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/htmlexport.gif]]
+
+  Before exporting, every source block of the file is run so that its
+  results are current; turn that off with
+  =htmlExecuteSourceOnExport=: false.
+
+  The page has
+
+  - the title, author and language of the file (=#+TITLE:=, =#+AUTHOR:=,
+    =#+LANGUAGE:=),
+  - each heading as a section whose heading can be clicked to fold it,
+  - code coloured by [[https://highlightjs.org/][highlight.js]] (loaded from a CDN),
+  - checkboxes as html checkboxes (a partly done =[-]= shows checked; set
+    =htmlExportPartialCheckboxChecked=: false for unchecked),
+  - a footer with the date, the author and when it was made.
+
+  For the general rules (what is read from where, images, source block
+  results) see Exporting.
+
+* Styles
+  The look comes from a style: a set of files named after it. Choose the
+  style per file or for every file:
+
+  #+BEGIN_SRC org
+    #+HTML_STYLE: funky
+  #+END_SRC
+
+  #+BEGIN_SRC js
+    "HtmlStyle": "funky",
+  #+END_SRC
+
+  OrgEverywhere comes with =blocky= (the default), =funky=, =plain= and
+  =refined=. A style is up to four files:
+
+  | File                     | Goes                                                   |
+  |--------------------------+--------------------------------------------------------|
+  | =STYLE.css=              | into a =<style>= in the head: most of the look         |
+  | =STYLE_inheader.html=    | into the head: fonts, scripts, meta tags               |
+  | =STYLE_heading.html=     | at the top of the body: a banner, a logo               |
+  | =STYLE_footing.html=     | at the end of the body: a rule and a footer line       |
+
+  OrgEverywhere looks for them in =Packages/User/htmlstyles/= first, then in
+  the package's own =htmlstyles= folder. To make a style of your own, copy
+  the files of a built in one into =Packages/User/htmlstyles/= under a
+  new name and change them. A =_inheader.html= that loads fonts:
+
+  #+BEGIN_SRC html
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat&display=swap" rel="stylesheet">
+  #+END_SRC
+
+** Adding to a style
+   Four more options add to whatever the style has. Each can be a file
+   keyword or a setting; the value is either the text itself (anything
+   with a =<= or ={= in it) or the path of a file to read.
+
+   Mind the spelling: for these four the file keyword is written in mixed
+   case and the setting in upper case (the other way round from
+   =#+HTML_STYLE:= / =HtmlStyle=):
+
+   | Keyword            | Setting         | Adds to                    |
+   |--------------------+-----------------+----------------------------|
+   | =#+HtmlCss:=       | =HTML_CSS=      | the css                    |
+   | =#+HtmlInHeader:=  | =HTML_INHEADER= | the head                   |
+   | =#+HtmlHeading:=   | =HTML_HEADING=  | the top of the body        |
+   | =#+HtmlFooting:=   | =HTML_FOOTING=  | the end of the body        |
+
+   #+BEGIN_SRC org
+     #+HtmlCss: body { max-width: 50em; }
+     #+HtmlHeading: /Users/me/notes/banner.html
+   #+END_SRC
+
+* Html in the document
+  - =#+HTML: <hr class="fancy">= puts a line of html into the page.
+  - A =#+BEGIN_EXPORT http= ... =#+END_EXPORT= block is copied into the
+    page as is. Note the language: the html exporter passes =http= export
+    blocks through (and drops =html= ones).
+  - An html comment line =<!-- NAME attributes -->= before an image link
+    adds those attributes to the =<img>= of the next image whose path
+    contains =NAME=. (=#+ATTR_HTML:= is not applied to images.)
+  - =#+CAPTION: A caption= above a table gives it a numbered caption
+    (/Table 1: .../).
+  - A property drawer's properties become attributes of the heading's
+    =<section>=: =:class: warning= gives =<section class="warning">=, for
+    styling single sections.
+  - =#+BEGIN_NOTES= blocks become =<aside class="notes">=.
+
+  #+BEGIN_EXAMPLE
+    * Results
+      :PROPERTIES:
+      :class: highlight
+      :END:
+      <!-- throughput width="600" style="border: 1px solid #ccc" -->
+      [[file:images/throughput.png]]
+
+      #+CAPTION: Throughput by week
+      | week | jobs |
+      |------+------|
+      |    1 |  120 |
+  #+END_EXAMPLE
+
+* Diagrams and code
+  Diagram blocks (=plantuml=, =graphviz=, =ditaa=, =gnuplot=; the
+  =htmlDefaultSkipSrc= setting) show only their picture; other blocks
+  show their code. =:exports= on a block overrides both: =code=,
+  =results=, =both=, =none=.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/ditaa_export.png]]
+
+* The server's html
+  *Org: orgs Export File* with the =html= exporter renders the file with
+  the orgs server's html exporter and lets you pick one of its themes.
+  It is the same html the orgs command line and web ui produce; see
+  Exporting and the orgs Server section.
+
+* Pandoc's html
+  *Org Pandoc File To Html* converts with pandoc instead; see Pandoc.

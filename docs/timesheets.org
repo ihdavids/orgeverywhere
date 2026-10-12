@@ -1,0 +1,134 @@
+#+TITLE: Timesheets and Gantt Charts
+#+DOC_SECTION: Source Blocks
+#+DOC_ORDER: 3
+
+* Planning with properties
+  A project plan is mostly already in your org files: the tasks are todo
+  headings, and a few properties say how long each one takes, who does
+  it and what it waits for. OrgEverywhere turns those into a timesheet
+  table, a mermaid gantt chart or a Google Charts gantt page.
+
+  Since 2.0 the tasks come from the orgs server: every todo and done
+  heading of every file the server knows (archived trees and projects -
+  tasks with sub tasks - left out), saved files only. The server must be
+  connected.
+
+  | Where              | What it is                                                          |
+  |--------------------+---------------------------------------------------------------------|
+  | =SCHEDULED=        | the start (else the deadline, else the first active timestamp)      |
+  | =:EFFORT:=         | the estimate (=1d=, =3h=, =2d4h=); the end is start plus effort    |
+  | =:ASSIGNED:=       | who does it                                                         |
+  | =:AFTER:=          | the =ID= of the task it waits for                                   |
+  | =:ORDERED: t=      | on a parent: each child waits for the one before it                 |
+  | =:SECTION:=        | a group name for the gantt chart (also read from the parent)        |
+  | =CLOCK:= lines     | the time spent, summed over the heading and its sub headings        |
+
+  =ASSIGNED= and =SECTION= can also be set for a whole file with
+  =#+PROPERTY: ASSIGNED Ian= above the first heading, and for every file
+  with the =timesheetDefaultAssigned= and =timesheetDefaultSection=
+  settings.
+
+  #+BEGIN_SRC org
+    * Website
+      :PROPERTIES:
+      :ORDERED:  t
+      :SECTION:  Website
+      :END:
+    ** TODO Design
+       SCHEDULED: <2021-03-15 Mon>
+       :PROPERTIES:
+       :EFFORT:   2d
+       :ASSIGNED: Ian
+       :ID:       design-task
+       :END:
+    ** TODO Build
+       :PROPERTIES:
+       :EFFORT:   4d
+       :ASSIGNED: Joe
+       :END:
+    * TODO Launch party
+      :PROPERTIES:
+      :EFFORT:   1d
+      :AFTER:    design-task
+      :END:
+  #+END_SRC
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/learning_gantt_effort.gif]]
+
+* The timesheet table
+  *Org Timesheet Table* (=org_insert_timesheet=) inserts a table of those
+  tasks at the cursor:
+
+  #+BEGIN_SRC org
+    |Name           |Estimate    |Start           |End             |Dep|Assigned|Spent  |X|
+    |-
+    |Design         |2d          |<2021-03-15 Mon>|<2021-03-17 Wed>|   |Ian     |3:15:00| |
+    |Build          |4d          |                |                |1  |Joe     |       | |
+    |Launch party   |1d          |                |                |1  |        |       | |
+  #+END_SRC
+
+  - *Dep* is the number of the task, in this list, that it waits for.
+  - *Spent* is the clocked time, *X* marks done tasks.
+  - Press =tab= in it to align it. It is an ordinary table from then on:
+    add formulas, plot it, export it.
+
+  *Org Choose Timesheet Table* (=org_choose_timesheet=) first asks for one
+  of your =AgendaCustomViews= and uses that view's filters (tags, files,
+  query...; see the Agenda guide) to choose the tasks; the plain command
+  uses the =Default= view.
+
+* Gantt charts
+  Both chart commands ask for an =AgendaCustomViews= entry, like *Org
+  Choose Timesheet Table*, and write into the folder named by the
+  =timesheetPath= setting:
+
+  #+BEGIN_SRC js
+    "timesheetPath": "/Users/me/notes/schedule",
+    "mermaidPath":   "/usr/local/bin/mmdc",
+    "timesheetDefaultStartDate": "2023-01-02",
+  #+END_SRC
+
+  - *Org Timesheet Mermaid Gantt* (=org_generate_mermaid_gantt_chart=)
+    writes =schedule.mermaid= and renders it to =project_schedule.png=
+    with the mermaid command line tool (=mermaidPath=; note this is not
+    the =mermaid= setting the source blocks use). Tasks are grouped by
+    =SECTION=, weekends are skipped, and a task without a date starts on
+    =timesheetDefaultStartDate=. A one letter =ASSIGNED= value sets the
+    bar's style: =D= done, =A= active, =C= critical, =M= milestone, =X=
+    critical and done, =Y= critical and active. The render step runs on
+    Windows and macOS only; on Linux run =mmdc= on =schedule.mermaid=
+    yourself.
+
+  - *Org Timesheet Google Gantt* (=org_generate_google_gantt_chart=)
+    writes =project_schedule.html=, a page that draws the chart with
+    Google Charts in the browser (it needs internet access). Bars are
+    coloured by who is assigned; done tasks are 100% complete.
+
+* Gantt charts on the server
+  The orgs server draws gantt charts of its own:
+
+  - *Org: orgs Open Web UI*, then /Gantt Chart/, shows an interactive
+    chart of your tasks in the browser.
+  - *Org: orgs Export File* with the =gantt= exporter turns the current
+    file into a gantt chart page, and =mermaid= into a mermaid file.
+
+  See the orgs Server section.
+
+* Doing it by hand
+  For a one off chart, a column view block plus a little formula gives a
+  plan table you can adjust by hand (see Column View):
+
+  #+BEGIN_EXAMPLE
+    #+COLUMNS: %ITEM(Task) %Effort(Effort) %START(Start) %END(End) %RESPONSIBLE(Who)
+    #+BEGIN: columnview :exclude-tags (Skip)
+    | Task   | Effort | Start            | End              | Who |
+    | Task 1 | 1d     | <2021-03-13 Sat> | <2021-03-14 Sun> | Ian |
+    | Task 2 | 3d     | <2021-03-15 Mon> | <2021-03-18 Thu> | Joe |
+    #+END:
+    #+TBLFM:@2$4..@>$4=date($3)+duration($2)
+  #+END_EXAMPLE
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/learning_gantt_columnview.gif]]
+
+  This follows the [[https://www.youtube.com/watch?v=5ViUBaarsbw][Gantt charts in org]] video, which goes on to plot
+  such a table with gnuplot.

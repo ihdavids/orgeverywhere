@@ -1,0 +1,124 @@
+#+TITLE: Reveal.js Slides
+#+DOC_SECTION: Exporting
+#+DOC_ORDER: 5
+
+* Slides from an outline
+  [[https://revealjs.com/][reveal.js]] presentations are web pages: they run in any browser, need
+  no presentation software and can be put on a web server. *Org Export
+  File As Reveal Js* (=org_export_file_reveal_js=) turns an org outline
+  into one:
+
+  - each top level heading is a slide,
+  - its sub headings are slides stacked below it (reveal.js's vertical
+    slides: press down to go through them),
+  - the text under a heading is the slide's content: lists, tables, code,
+    images, links.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/revealjs.gif]]
+
+  The result is =file.html= next to the org file; it loads reveal.js
+  (4.1) from a CDN, so presenting needs internet access unless you host
+  reveal.js yourself (=REVEAL_LOCATION= below). Note that the html
+  exporter writes the same file name: export the deck last, or keep it in
+  a file of its own.
+
+  This exporter is simpler than emacs' org-reveal, but covers what a talk
+  usually needs.
+
+  #+BEGIN_SRC org
+    #+TITLE: Our Quarter
+    #+REVEAL_THEME: night
+    #+REVEAL_TRANS: slide
+
+    * Where we are
+      - Shipped the importer
+      - Halved the build time
+    * The numbers
+      | Month | Builds | Minutes |
+      |-------+--------+---------|
+      | Jan   |    410 |      12 |
+      | Feb   |    455 |       6 |
+    ** By team
+       ...
+  #+END_SRC
+
+* Options
+  Each option is a keyword at the top of the file or a setting for every
+  deck.
+
+  | Keyword                | Setting                 | Default   | Values                                    |
+  |------------------------+-------------------------+-----------+-------------------------------------------|
+  | =#+REVEAL_THEME:=      | =RevealTheme=           | =league=  | =black=, =white=, =league=, =beige=, =sky=, =night=, =serif=, =simple=, =solarized=, =moon=, =blood= |
+  | =#+REVEAL_HIGHLIGHT:=  | =RevealHighlight=       | =zenburn= | the code colouring: =zenburn=, =monokai=  |
+  | =#+REVEAL_TRANS:=      | =RevealTransition=      | =none=    | =none=, =fade=, =slide=, =convex=, =concave=, =zoom= |
+  | =#+REVEAL_TRANS_SPEED:= | =RevealTransitionSpeed= | =default= | =default=, =fast=, =slow=                |
+  | =#+REVEAL_CSS:=        | =RevealCss=             |           | css added to the page                     |
+  | =#+REVEAL_LOCATION:=   | =RevealLocation=        | jsdelivr  | where reveal.js is loaded from (a url ending in =/=) |
+
+  The search, zoom, notes, math and markdown plugins are loaded.
+
+* Per slide settings
+  Properties on a heading set that slide's background and transition:
+
+  #+BEGIN_SRC org
+    * Thank you
+      :PROPERTIES:
+      :reveal_background: images/crowd.jpg
+      :reveal_background_size: cover
+      :reveal_background_opacity: 0.4
+      :reveal_trans: zoom
+      :END:
+  #+END_SRC
+
+  | Property                         | reveal.js attribute               |
+  |----------------------------------+-----------------------------------|
+  | =reveal_background=, =reveal_background_image= | =data-background-image= |
+  | =reveal_background_size=         | =data-background-size=            |
+  | =reveal_background_position=     | =data-background-position=        |
+  | =reveal_background_repeat=       | =data-background-repeat=          |
+  | =reveal_background_opacity=      | =data-background-opacity=         |
+  | =reveal_background_color=        | =data-background-color=           |
+  | =reveal_background_trans=        | =data-background-transition=      |
+  | =reveal_background_video=        | =data-background-video=           |
+  | =reveal_background_video_loop=   | =data-background-video-loop=      |
+  | =reveal_background_video_muted=  | =data-background-video-muted=     |
+  | =reveal_trans=                   | =data-transition=                 |
+  | =reveal_trans_speed=             | =data-transition-speed=           |
+
+  See the reveal.js documentation on [[https://revealjs.com/backgrounds/][backgrounds]] and
+  [[https://revealjs.com/transitions/][transitions]] for the values.
+
+* Speaker notes and code
+  A =#+BEGIN_NOTES= ... =#+END_NOTES= block is the slide's speaker notes:
+  press =s= during the talk to open the speaker view.
+
+  Source blocks are shown with their code coloured. reveal.js's code
+  options go on the =#+BEGIN_SRC= line:
+
+  #+BEGIN_EXAMPLE
+    #+BEGIN_SRC python :data-line-numbers 2-3 :data-trim
+      def greet(name):
+          message = "Hello " + name
+          print(message)
+    #+END_SRC
+  #+END_EXAMPLE
+
+  - =:data-line-numbers= turns on line numbers; a range (=2-3=, =1,4-5=)
+    highlights those lines.
+  - =:data-trim= removes the surrounding blank space, =:data-noescape=
+    passes html in the code through.
+
+  Source blocks are not run before export unless
+  =revealExecuteSourceOnExport= is true. Languages listed in
+  =revealDefaultSkipSrc= (as well as those in =htmlDefaultSkipSrc=) show
+  only their results.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/orgrevealjs.gif]]
+
+* Slides from the server
+  The orgs server has slide exporters too: =revealjs=, and depending on
+  its configuration =impressjs=, =deckjs=, =webslides= and others, each
+  with its own themes. *Org: orgs Export File* lists them; the deck is
+  written as =file.revealjs.html= (and so on), so it does not replace an
+  html export. The orgs web ui can also present a file (/Presentation/ in
+  *Org: orgs Open Web UI*). See the orgs Server section.

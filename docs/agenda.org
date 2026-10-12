@@ -1,0 +1,273 @@
+#+TITLE: The Agenda
+#+DOC_SECTION: Planning
+#+DOC_ORDER: 2
+
+* What the agenda is
+  The agenda gathers your todos and dated headings from every org file
+  into views: a calendar, a week, today hour by hour, lists of projects,
+  next actions and loose tasks. You act on the entries from there: change
+  their state, clock in, jump to them.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/agenda.gif]]
+
+  Since 2.0 the agenda comes from the orgs server. The server works out
+  what lands on each day (=GET /agenda=) and which headings a list shows
+  (=GET /agenda/nodes=); OrgEverywhere draws it. The agenda in Sublime, worg,
+  VSCode and =orgs agenda= on the command line therefore agree. Without a
+  connected server the agenda says so instead of showing an empty day.
+
+** Saved files only
+   The server reads files from disk. A buffer with unsaved changes is not
+   in the agenda until you save it; the agenda says how many are waiting
+   ("2 unsaved org buffers are not in the agenda - save to include them").
+   Set =agendaSaveBeforeRender= to =true= to have them saved before the
+   agenda is fetched.
+
+* Opening the agenda
+  | Command                    | Keys                                   | What it does                                    |
+  |----------------------------+----------------------------------------+-------------------------------------------------|
+  | Org Agenda Custom View     | =alt+o o a= (NeoVintageous =space o a=) | the =Default= view of =AgendaCustomViews=       |
+  | Org Agenda Choose View     |                                        | pick one of your =AgendaCustomViews=            |
+  | Org Agenda Day View        | =alt+o a d= (NeoVintageous =shift+space=) | calendar, week, today and the project lists     |
+  | Org Todo View              |                                        | every open todo                                  |
+  | Org Filtered Todo View     |                                        | open todos with the tags you type (=tagfilter=) |
+  | Org: Agenda Query (orgs)   |                                        | the headings an orgs query finds                |
+  | Org: Agenda All Tasks (orgs filter AllTasks) |                      | the server's =AllTasks= filter                  |
+
+* In the agenda
+  | Key            | Command                         | What it does                                              |
+  |----------------+---------------------------------+-----------------------------------------------------------|
+  | =enter=        | Org Agenda Goto                 | open the heading                                          |
+  | =space=        | Org Agenda Goto Split           | open the heading in the other group                       |
+  | =<= / =>=      | Org Agenda Goto Prev / Next Day | move the views a day back or on (refetched for that day)  |
+  | =g=            | Org Agenda Day View             | rebuild the day view                                      |
+  | =s=            | Org Agenda Change Todo          | change the todo keyword                                   |
+  | =,=            | Org Agenda Change Priority      | change the priority                                       |
+  | =t=            | Org Agenda Insert Tag           | add or remove a tag                                       |
+  | =e=            | Org Agenda Insert Effort        | set the =EFFORT= property                                 |
+  | =a=            | Org Agenda Insert Assign        | set the =ASSIGNED= property                               |
+  | =i=            | Org Agenda Insert Id            | give the heading an =ID= (a new uuid) if it has none      |
+  | =c i= / =c o=  | Org Agenda ClockIn / ClockOut   | clock in to the entry, clock out                          |
+  | =alt+o f f=    |                                 | open the regex filter of a todo list                      |
+
+  With NeoVintageous in command mode =t= changes the todo keyword and the
+  filter is =f f=; the other keys are the same.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/agenda_movement.gif]]
+
+  Hovering over an entry shows its heading and file.
+
+** Actions happen on the server
+   The heading an entry shows lives in some other file, so the actions
+   above are made by the server: it rewrites the file, and the agenda is
+   fetched again and redrawn. Before the change OrgEverywhere saves the
+   file if it is open with unsaved edits (=orgsSaveBeforeServerEdits=)
+   and checks the heading is still where the agenda found it. If the file
+   changed so much that the heading cannot be told apart from another one
+   with the same title, the action is refused: refresh the agenda and try
+   again.
+
+* What lands on a day
+  The server follows org-mode's agenda rules:
+
+  #+BEGIN_SRC org
+  * Dentist <2026-10-14 Wed 09:30>
+  * TODO Pay the rent
+    SCHEDULED: <2026-10-01 Thu +1m>
+  * TODO Tax return
+    DEADLINE: <2026-10-30 Fri -5d>
+  * Conference
+    <2026-10-20 Tue 09:00>--<2026-10-22 Thu 17:00>
+  #+END_SRC
+
+  - *A plain active timestamp* (in the headline or the heading's own text,
+    not a child's and not inside a drawer) is on its day. Inactive
+    =[...]= stamps never are.
+  - *A repeater* (=+1w=, =++1w=, =.+1w= alike) is on its base day and
+    every interval after it, never before.
+  - *A range* =<a>--<b>= is on every day it spans: with its times on the
+    first and last day, all day in between.
+  - *SCHEDULED* is on its day. While it is not done and the day has
+    passed, it is also on *today*, marked =Sched. Nx= (N days late), and
+    only today: overdue is a today problem.
+  - *DEADLINE* is on its day. While it is not done it is also on today
+    during its warning period, marked =D:@2026-10-30=, and after it,
+    marked =D: Overdue=; on the day itself it says =D: Due Today=. The
+    warning period is the stamp's own =-Nd=, else the server's
+    =agenda.deadlineWarningDays= (default 14; =0= means only its day):
+
+    #+BEGIN_SRC yaml
+    server:
+      agenda:
+        deadlineWarningDays: 14
+    #+END_SRC
+  - *A done heading* (a done keyword of its own file) is on the exact days
+    its dates name only: no carrying forward, no warnings. The day view
+    leaves done headings out; the week view draws them crossed out.
+  - *Archived trees* (a heading tagged =ARCHIVE=, or under one) and
+    *commented trees* (a =COMMENT= heading and everything under it) are
+    left out, as in org.
+
+  Times are wall clock times on calendar days, so a time zone or a
+  daylight saving change does not move a date. "Today" is the date of the
+  machine running Sublime.
+
+* The views
+  A view is drawn from what the server sent and then filtered by the
+  view's own rules and the filters you give it (below).
+
+  | View                 | Shows                                                                            |
+  |----------------------+----------------------------------------------------------------------------------|
+  | Calendar             | three months around the current day; days with something on them are marked, repeats in another colour |
+  | Week                 | the timed entries of the week, as blocks on an hour scale                         |
+  | Day                  | the current day hour by hour, a "now" line, then the entries with no time        |
+  | Todos                | open todos that are not projects                                                  |
+  | Projects             | projects                                                                          |
+  | Not Blocked Projects | projects with a =NEXT= child                                                      |
+  | Blocked Projects     | projects without a =NEXT= child (stuck)                                           |
+  | Next Tasks           | projects that are not stuck, each with its =NEXT= children                       |
+  | Loose Tasks          | open todos that are neither a project nor part of one                            |
+  | Done                 | done headings (filter it: it can be long)                                         |
+  | Clocked              | headings with clock lines                                                         |
+  | Has Status           | headings with any keyword                                                         |
+  | Notes, Meetings, Phone | headings with the =NOTE=, =MEETING= or =PHONE= keyword                         |
+  | OrgsQuery            | the headings an orgs query finds (see below)                                     |
+
+  The calendar and week leave projects out, the day view leaves done and
+  archived headings out.
+
+  What a project is depends on =agendaProjectIs=: =nested_todo= (the
+  default: a todo with todo children), =tag= (a heading tagged =PROJECT=)
+  or =property= (a heading with a =PROJECT= property).
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/agenda_day.gif]]
+
+** The day view
+   Each line is =file: time keyword heading= and what the server said
+   about it (=Sched. 3x=, =D:@2026-10-30=, =D: Overdue=). Timed entries
+   sit at their hour; entries that run over several hours are marked down
+   the left so you can see what overlaps. The hours shown are
+   =agendaDayStartTime= (6) to =agendaDayEndTime= (19), extended when
+   something is later. A scheduled habit (=:STYLE: habit=) shows a bar of
+   the last three weeks.
+
+* Custom views
+  =AgendaCustomViews= names lists of views; each list is shown as one
+  agenda. *Org Agenda Custom View* shows =Default=, *Org Agenda Choose
+  View* offers them all.
+
+  #+BEGIN_SRC js
+  "AgendaCustomViews":
+  {
+      "Default": ["Calendar", "Week", "Day", "Blocked Projects", "Next Tasks", "Loose Tasks"],
+      "Work":    ["Day : tagfilter +WORK", "Todos : tagfilter +WORK -SOMEDAY : showdate 15.15 : showeffort"],
+      "Waiting": ["Todos : statefilter +WAITING : showassigned"],
+      "Week done": ["Done : durationfilter -7d : showdate 15.15"],
+      "Server":  ["OrgsQuery : query IsTodo() && InTagGroup(\"WORK\") : title Work",
+                  "OrgsQuery : filter NextTasks"],
+  },
+  #+END_SRC
+
+  Each entry is a view name followed by =: argument value= or =: flag=
+  parts. The parts are split on =:=, so a value cannot contain one.
+
+** Filters
+   Every view takes these:
+
+   #+BEGIN_EXAMPLE
+   Todos : tagfilter +WORK -SOMEDAY
+   Todos : tagfilter |HOME |GARDEN
+   Todos : priorityfilter |A |B
+   Todos : statefilter -WAITING
+   Day   : durationfilter +2d
+   Done  : durationfilter -30d
+   Done  : datefilter >=20260101 <20260201
+   Clocked : clockfilter -7d
+   #+END_EXAMPLE
+
+   - =tagfilter= :: each word is a tag: =+TAG= (or just =TAG=) it must
+     have, =-TAG= it must not have, and of the =|TAG= words it must have
+     at least one. Tags are inherited from parents and =#+FILETAGS:=.
+   - =priorityfilter= :: the same with priorities.
+   - =statefilter= :: the same with the todo keyword; each word is a
+     regular expression.
+   - =durationfilter= :: =+2d= keeps headings whose scheduled date,
+     deadline or first timestamp is no later than two days from now;
+     =-30d= drops headings closed more than 30 days ago.
+   - =clockfilter= :: keeps headings with clock lines; =-7d= keeps only
+     those whose every clock line ended in the last 7 days.
+   - =datefilter= :: keeps headings closed in a date range, written
+     =YYYYMMDD= after =>=, =>==, =<= or =<==.
+
+   Durations are written =2d=, =3h=, =45min=, =1y= or =1:30=.
+
+   Flags: =hasschedule=, =hasdeadline=, =hasclock=, =hasclose=,
+   =noschedule=, =nodeadline=, =noclock=, =noclose=, =haschildtasks=,
+   =nochildtasks=, =clockedtoday=, and =onlytasks= (the calendar, week and
+   day show only todos).
+
+** Columns of the todo lists
+   The list views (Todos, Projects, Done...) show file, keyword and
+   heading. More columns are flags, or a flag with a python format width:
+
+   - =showdate=, =showtime=, =showeffort=, =showafter= (the =AFTER=
+     property), =showassigned= (=ASSIGNED=), =showid= (=ID= or
+     =CUSTOM_ID=), =showduration= (time clocked) and =showtotalduration=
+     (a total line). =showdate 15.15= gives the date its full width.
+   - =hidefilename=, =hidestatus=, =hideheading=.
+   - =byproject= groups the tasks under their project.
+   - =sortascend= / =sortdescend= (default from =agendaTodoSortAscending=,
+     ascending).
+
+   A list view has a regex filter on the heading: =alt+o f f= opens it
+   (=agendaTodoFilterByDefault= opens it with the view).
+
+* Server queries
+  The =OrgsQuery= view and *Org: Agenda Query (orgs)* show the headings an
+  orgs query language expression finds (see *The Query Language*):
+
+  - =OrgsQuery : query IsTodo() && HasTags("WORK")= runs that query.
+  - =OrgsQuery : filter NextTasks= runs one of the server's named filters
+    (=AllTasks=, =NextTasks=, =StuckProjects=...).
+  - =: title Work= names the view.
+  - With neither, =agendaOrgsQueryDefault= (=IsTodo() && !IsArchived()=).
+
+  *Org: Agenda Query (orgs)* offers this session's recent queries, the
+  server's saved queries and its filters; whichever you pick can be edited
+  before it runs. A query that does not parse says why in the view.
+
+* Settings
+  | Setting                    | Default        | Effect                                                     |
+  |----------------------------+----------------+------------------------------------------------------------|
+  | =AgendaCustomViews=        | see above      | the custom views                                           |
+  | =agendaSaveBeforeRender=   | =false=        | save modified org buffers before fetching the agenda       |
+  | =firstDayOfWeek=           | ="Sunday"=     | first day of the week and the calendar (a day name)        |
+  | =agendaWeekViewNumDays=    | =7=            | days in the week view (=5= with =Monday= for a work week)  |
+  | =agendaDayStartTime=       | =6=            | first hour of the day and week views                       |
+  | =agendaDayEndTime=         | =19=           | last hour                                                  |
+  | =agendaHeaderFormat=       | ="%A %d %B %Y"= (a tab after the day name) | the day view's date heading (strftime) |
+  | =agendaProjectIs=          | ="nested_todo"= | what a project is: =nested_todo=, =tag= or =property=     |
+  | =agendaTodoFilterByDefault= | =false=       | open the regex filter with a list view                     |
+  | =agendaOrgsQueryDefault=   | =IsTodo() && !IsArchived()= | the query of an =OrgsQuery= view without one  |
+
+* Notifications
+  OrgEverywhere reminds you of today's appointments. A background thread
+  asks the server for today's agenda (and again when the server re-reads
+  a file, and every few checks) and keeps the timed entries that are not
+  done. When one is =notifyMinsBefore= minutes away it:
+
+  - shows a *Notifications* view in Sublime with the reminders so far, and
+  - runs an outside notification: on macOS =osascript= (a system
+    notification), on Windows the =balloontip.ps1= script that comes with
+    the package.
+
+  Each entry is announced once a day.
+
+  | Setting                       | Default | Effect                                              |
+  |-------------------------------+---------+-----------------------------------------------------|
+  | =notifyMinsBefore=            | =15=    | minutes before the start to remind                  |
+  | =notifyHoursBefore=           | =0=     | hours, added to the minutes                         |
+  | =noticePeriod=                | =1=     | minutes between checks (at least 1)                 |
+  | =ExternalNotificationCommand= | per OS  | the command line to run; ={todo}= and ={time}= are filled in |
+
+  *Org Agenda Rebuild Notices* rebuilds today's list now.

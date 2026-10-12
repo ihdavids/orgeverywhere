@@ -1,0 +1,185 @@
+#+TITLE: Keys
+#+DOC_SECTION: Getting Started
+#+DOC_ORDER: 3
+
+* Where the keys come from
+  Sublime loads a package's key bindings from =Default.sublime-keymap= and
+  =Default (Windows|OSX|Linux).sublime-keymap=. OrgEverywhere has only the
+  first, so its keys are the same on every platform: =alt+o= is =alt+o= on
+  macOS too (option+o), not =cmd+o=. These are the /default keys/ listed
+  below. (The package also contains an =OrgEverywhere.sublime-keymap=; Sublime
+  does not load a file by that name, so its bindings do nothing.)
+
+  Most keys are a chord: =alt+o= followed by one or more letters. =alt+o i h=
+  means press =alt+o=, let go, press =i=, then =h=. Almost all of them only
+  work in an org file (or the view named in the heading of the table).
+
+  To change a key, open *Preferences > Package Settings > Org Everywhere > Key
+  Bindings*: OrgEverywhere's bindings are on the left, yours on the right.
+  Copy a line across and change its =keys=. Every command, bound or not, is
+  also in the command palette under its caption (*Org ...*).
+
+* Everywhere
+  | Keys           | Command                    | Caption                 |
+  |----------------+----------------------------+-------------------------|
+  | =ctrl+shift+x= | =org_capture=              | Org Capture             |
+  | =alt+o z=      | =org_capture=              | Org Capture             |
+  | =ctrl+alt+x=   | =org_open_refile=          | Org Open Refile         |
+  | =alt+o a d=    | =org_agenda_day_view=      | Org Agenda Day View     |
+  | =alt+o o a=    | =org_agenda_custom_view=   | Org Agenda Custom View  |
+  | =alt+o y l=    | =org_create_link=          | Org Create Link         |
+  | =alt+o d c=    | =org_day_page_create=      | Org Day Page Create     |
+
+* In an org file
+** Tab, enter and the "do what I mean" keys
+   | Keys               | Command                    | What it does                                                         |
+   |--------------------+----------------------------+----------------------------------------------------------------------|
+   | =tab=              | =org_tab_cycling=          | fold or unfold the heading, drawer, link or checkbox at the cursor; before the first heading, cycle the whole file; in a table, next cell |
+   | =shift+tab=        | =org_global_tab_cycling=   | on a heading: cycle the whole file (overview, contents, show all)    |
+   | =enter=            | =org_open_link=            | on a link: follow it                                                 |
+   | =enter=            | =org_enter_on_heading=     | on a heading: new line, indented to the heading's body               |
+   | =ctrl+enter=       | =org_generic_insert=       | new list item, checkbox, numbered item or sibling heading, after this one |
+   | =ctrl+shift+enter= | =org_generic_insert_aux=   | the same at the end of the list, or a child heading                  |
+   | =alt+o t=          | =org_toggle=               | toggle the checkbox, or change the todo state                        |
+   | =alt+o c c=        | =org_recalc=               | run the block or table at the cursor, or recalculate checkbox summaries and numbered lists |
+
+** Headings
+   | Keys           | Command                        | Caption                    |
+   |----------------+--------------------------------+----------------------------|
+   | =ctrl+up=      | =org_up=                       | Org Up (previous heading)  |
+   | =ctrl+down=    | =org_down=                     | Org Down (next heading)    |
+   | =alt+o i h=    | =org_insert_heading_sibling=   | Org Insert Heading Sibling |
+   | =alt+o i c=    | =org_insert_heading_child=     | Org Insert Heading Child   |
+   | =alt+o right=  | =org_change_indent=            | Org Change Indent          |
+   | =alt+o left=   | =org_change_de_indent=         | Org Change DeIndent        |
+   | =alt+o up=     | =org_move_heading_up=          | Org Move Heading Up        |
+   | =alt+o down=   | =org_move_heading_down=        | Org Move Heading Down      |
+   | =alt+o m s=    | =org_select_subtree=           | Org Select Subtree         |
+   | =alt+o m e=    | =org_select_entity=            | Org Select Entity          |
+   | =alt+o y s=    | =org_copy_subtree=             | Org Copy Subtree           |
+   | =alt+o y e=    | =org_copy_entity=              | Org Copy Entity            |
+   | =alt+o p=      | =org_priority_change=          | Org Change Priority        |
+   | =alt+o R=      | =org_refile=                   | Org Refile                 |
+   | =alt+o i i=    | =org_insert_custom_id=         | Org Insert CustomId        |
+
+** Dates and clocking
+   | Keys           | Command                        | Caption                     |
+   |----------------+--------------------------------+-----------------------------|
+   | =alt+o i s=    | =org_schedule=                 | Org Schedule                |
+   | =alt+o i e=    | =org_deadline=                 | Org Deadline                |
+   | =alt+o i t=    | =org_active_timestamp=         | Org Timestamp               |
+   | =alt+o i d a=  | =org_insert_date_active=       | Org Insert Date Active      |
+   | =alt+o i d i=  | =org_insert_date_inactive=     | Org Insert Date Inactive    |
+   | =alt+o c i=    | =org_clock_in=                 | Org Clock In                |
+   | =alt+o c o=    | =org_clock_out=                | Org Clock Out               |
+   | =alt+o c s=    | =org_insert_checkbox_summary=  | Org Add Checkbox Summary    |
+   | =alt+o d n=    | =org_day_page_next=            | Org Day Page Next           |
+   | =alt+o d p=    | =org_day_page_previous=        | Org Day Page Previous       |
+
+   =alt+o i t= is also listed for *Org Insert Tag* in the keymap, but the
+   timestamp binding comes later and wins: run *Org Insert Tag* from the
+   command palette or bind it to a key of your own.
+
+** Tables
+   These come from the Table Editor package and work when the cursor is in
+   a table row.
+
+   | Keys              | Command                              |
+   |-------------------+--------------------------------------|
+   | =tab= / =shift+tab= | next / previous cell               |
+   | =enter=           | =table_editor_next_row=              |
+   | =shift+enter=     | =table_editor_split_column_down=     |
+   | =alt+o t a=       | =table_editor_align=                 |
+   | =alt+o t j=       | =table_editor_join_lines=            |
+   | =alt+o t -=       | =table_editor_insert_single_hline=   |
+   | ~alt+o t =~       | =table_editor_insert_double_hline=   |
+   | =alt+o enter=     | =table_editor_hline_and_move=        |
+   | =alt+left= / =alt+right= | move the column left / right  |
+   | =alt+up= / =alt+down=    | move the row up / down        |
+   | =alt+shift+left=  | delete the column                    |
+   | =alt+shift+right= | insert a column                      |
+   | =alt+shift+up=    | delete the row                       |
+   | =alt+shift+down=  | insert a row                         |
+
+* In the agenda
+  | Keys    | Command                          | Caption                    |
+  |---------+----------------------------------+----------------------------|
+  | =enter= | =org_agenda_go_to=               | Org Agenda Goto            |
+  | =space= | =org_agenda_go_to_split=         | Org Agenda Goto Split      |
+  | =g=     | =org_agenda_day_view=            | Org Agenda Day View        |
+  | =<= / =>= | =org_agenda_goto_prev_day= / =org_agenda_goto_next_day= | previous / next day |
+  | =s=     | =org_agenda_change_todo=         | Org Agenda Change Todo     |
+  | =,=     | =org_agenda_change_priority=     | Org Agenda Change Priority |
+  | =t=     | =org_agenda_insert_tag=          | Org Agenda Insert Tag      |
+  | =e=     | =org_agenda_insert_effort=       | Org Agenda Insert Effort   |
+  | =a=     | =org_agenda_assign=              | Org Agenda Insert Assign   |
+  | =i=     | =org_agenda_id=                  | Org Agenda Insert Id       |
+  | =c i=   | =org_agenda_clock_in=            | Org Agenda ClockIn         |
+  | =c o=   | =org_agenda_clock_out=           | Org Agenda ClockOut        |
+  | =alt+o f f= | =org_agenda_re_open_filter_view= | reopen the filter view  |
+
+* In the date picker
+  The date picker's input line (see *Dates and Times*):
+
+  | Keys                          | Moves the date by |
+  |-------------------------------+-------------------|
+  | =<= / =>=                     | a day             |
+  | =ctrl+,= / =ctrl+.=           | a week            |
+  | =alt+,= / =alt+.=             | a month           |
+  | =ctrl+shift+,= / =ctrl+shift+.= | an hour         |
+  | =alt+shift+,= / =alt+shift+.= | a minute          |
+
+* In orgs result views
+  The views orgs commands open (habits, clock report, full text search
+  results, file history...):
+
+  | Keys    | Command                  | What it does                     |
+  |---------+--------------------------+----------------------------------|
+  | =enter= | =org_orgs_goto_row=      | open the heading or line         |
+  | =g=     | =org_orgs_refresh_view=  | ask the server again             |
+  | =t=     | =org_orgs_habit_toggle=  | mark the habit done today        |
+
+  In the tag and id inputs that offer completions, =up= and =down= move
+  through the suggestions.
+
+* With NeoVintageous
+  If you use [[https://github.com/NeoVintageous/NeoVintageous][NeoVintageous]],
+  a second set of bindings works in command (normal) mode with =space= as
+  the leader in place of =alt+o=: =space i h= inserts a sibling heading,
+  =space c i= clocks in, and so on for every =alt+o= key above, plus:
+
+  | Keys            | Command                              |
+  |-----------------+--------------------------------------|
+  | =Z=             | =org_capture=                        |
+  | =shift+space=   | =org_agenda_day_view=                |
+  | =R=             | =org_refile=                         |
+  | =space i m=     | =org_insert_tag=                     |
+  | =space r m=     | =org_remove_tag=                     |
+  | =space r a m=   | =org_remove_all_tags=                |
+  | =space r f=     | =org_refile_to_file=                 |
+  | =space r r=     | =org_refile_to_file_and_headline=    |
+  | =space f o=     | =org_fold_all_but_me= (fold the rest) |
+  | =space f m=     | =org_fix_tags=                       |
+  | =space f s=     | =save=                               |
+  | =space 1= ... =space 5= | focus editor group 1 to 5    |
+  | =space t e=     | =org_edit_formula_for_cell= (table)  |
+  | =space t k=     | =org_clear_cell= (table)             |
+
+  In the agenda in command mode =t= changes the todo state (=s= without
+  NeoVintageous), and =f f= reopens the filter view.
+
+* Unbound commands
+  Many commands have no key: the folding commands (*Org Fold All*,
+  *Org Unfold All*...), *Org Jump In File*, *Org Insert Property*,
+  *Org Sort List*, *Org Insert Tag* and most of the orgs commands. Run them
+  from the command palette, or give them keys of your own:
+
+  #+BEGIN_SRC js
+  // Packages/User/Default (OSX).sublime-keymap (or Windows / Linux)
+  [
+      { "keys": ["alt+o", "j"], "command": "org_jump_in_file",
+        "context": [{ "key": "selector", "operand": "text.orgmode" }] },
+      { "keys": ["alt+o", "i", "g"], "command": "org_insert_tag",
+        "context": [{ "key": "selector", "operand": "text.orgmode" }] },
+  ]
+  #+END_SRC

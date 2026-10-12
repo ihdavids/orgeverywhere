@@ -1,0 +1,163 @@
+#+TITLE: Links
+#+DOC_SECTION: Links
+#+DOC_ORDER: 1
+
+* Writing links
+  A link is a pair of square brackets holding a target and, optionally,
+  a description. Org shows the description and hides the target:
+
+  #+BEGIN_EXAMPLE
+  [[https://orgmode.org][The org mode site]]
+  [[file:projects.org][Projects]]
+  [[id:6f1c2d0e-1f6a-4c43-9b0e-3a7f3e0f9d12][The budget review]]
+  #+END_EXAMPLE
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/links.gif]]
+
+  Typing =<l= and tab expands the link snippet. =enter= on a link (or
+  *Org Open Link*) follows it.
+
+* Link types
+  | Link                           | Goes to                                                        |
+  |--------------------------------+----------------------------------------------------------------|
+  | =https://...=, =http://...=    | the browser                                                    |
+  | =file:notes.org=               | the file (relative to this one, or absolute; =~= works)        |
+  | =file:notes.org::42=           | line 42 (=::42::7= adds a column)                               |
+  | =file:notes.org::*Heading=     | the heading with that title in that file                       |
+  | =file:notes.org::#custom-id=   | the heading with that =CUSTOM_ID= (or =ID=)                    |
+  | =file:notes.org::text=         | a =<<target>>=, a =#+NAME:=, or a heading of that title        |
+  | =id:UUID=                      | the heading with that =ID= (or =CUSTOM_ID=), in any file       |
+  | =#custom-id=                   | the heading with that =CUSTOM_ID= (or =ID=)                    |
+  | =*Heading=                     | the heading with that title in this file                       |
+  | =text=                         | a =<<target>>=, a =#+NAME:= or a heading in this file          |
+  | =mailto:me@example.com=, =email:= | the mail program (=email:me@x.com/Subject= adds a subject)  |
+  | =cmd:path=, =prompt:path=      | a terminal at that path                                         |
+  | =jira:ABC-123=                 | see *Links the server knows*                                 |
+
+  Files that are not org or text (=*.pdf=, =*.docx=...) open in their own
+  program. =resolver.local_file.force_into_sublime= lists the patterns
+  that always open in Sublime, and =file_exclude_patterns= the ones that
+  never do.
+
+** Targets
+   A target is an anchor in the text, written in double angle brackets.
+   A link with its text jumps to it:
+
+   #+BEGIN_EXAMPLE
+   <<budget-notes>>
+   ...
+   [[budget-notes][see the budget notes]]
+   [[file:work.org::budget-notes][from another file]]
+   #+END_EXAMPLE
+
+* Ids and the server
+  A heading can carry an =:ID:= (a uuid, *Org Create Heading Id*) or a
+  =:CUSTOM_ID:= of your choosing (*Org Insert CustomId*, =alt+o i i=).
+  Ids keep a link working when the heading moves to another file or is
+  renamed, which a =*Heading= link does not.
+
+  The orgs server knows every id in every file, so =id:= and =#custom-id=
+  links (also =file:x.org::#custom-id=) are looked up there and land on
+  the heading wherever it now is. A heading whose buffer has moved it
+  since the last save is found at its place in the buffer, and an id only
+  in an unsaved buffer is still found in the open buffers.
+
+  =*Heading= and plain text links are read from the file itself: its
+  buffer when it is open, the file on disk otherwise.
+
+  *Org Jump To CustomId* lists every custom id the server knows and opens
+  the one you pick.
+
+* Making links
+  - *Org Create Link* (=alt+o y l=, NeoVintageous =space y l=) puts a link
+    to where the cursor is on the clipboard: to the =<<target>>= or
+    =#+NAME:= on the line, else to the heading (by its =ID= or
+    =CUSTOM_ID= if it has one, else by its title), else to the line.
+    Outside org files it links to the line and column.
+  - *Org Link To File* lists the org files the server knows, with their
+    =#+TITLE:= (and =#+ROAM_TAGS:=), and inserts a link to the one you
+    pick, described by its title. =insertRoamTagToFileLink= (=true=)
+    keeps the roam tags in the description; =linkFindUseRoamTags=
+    (=true=) shows them in the list.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/clipboard_link.gif]]
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/link_to_file.gif]]
+
+* Finding links
+** Backlinks
+   Backlinks are the links in other files that point at this one: the
+   other direction of a link, as in org-roam.
+
+   - *Org Show Backlinks* opens a Backlinks view for the current file:
+     the linking files, each link with its line and outline path, and
+     =(broken)= on a link that no longer resolves. Each entry is a link:
+     =enter= follows it. While it is showing, the view follows the org
+     file you switch to and updates when files change
+     (=backlinksUpdate=).
+   - *Org Jump To Backlink* lists them in a quick panel and opens the one
+     you pick.
+
+   The server works out the links, so a backlink only counts once its
+   file is saved.
+
+** Searching all links
+   *Org Search Links* lists every link in every org file (description,
+   target, file, line and heading) and previews each as you move through
+   the list. Handy when you know you linked to something, somewhere.
+
+* Links the server knows
+  The server can teach links new protocols in its =orgs.yaml=:
+
+  #+BEGIN_SRC yaml
+  server:
+    linkProtocols:
+      jira:
+        urlPrefix: "https://mycompany.atlassian.net/browse/"
+      wiki:
+        url: "https://wiki.example.com/pages/{{path}}/view"
+      ticket:
+        cmd: "tkt show"
+  #+END_SRC
+
+  A link whose protocol OrgEverywhere does not handle itself
+  (anything but =file=, =id=, =http=, =https=, =mailto=, =email=, =cmd=,
+  =prompt= and =jira=) is sent to the server, which says where it goes:
+
+  - a web url opens in the browser;
+  - any other kind of url asks you first ("The orgs server resolved ...
+    Open it?");
+  - a command always asks before it runs ("The orgs server wants to run
+    this command for the link ... Run it?"), and runs in the folder of
+    the file holding the link.
+
+  If the server does not know the protocol the local resolvers get it.
+  =jira:= goes to the server too unless you have set
+  =resolver.jira.url= (with =resolver.jira.pattern=) for the local jira
+  resolver.
+
+  =linkResolvers= lists the local resolvers and their order (=internal=,
+  =http=, =https=, =prompt=, =jira=, =email=, =file=); your own resolver
+  modules go in =Packages/User/orgresolver=.
+
+* Images
+  An image link can be shown in the buffer, under the link. It is drawn
+  with a phantom, so it is not text and does not change line numbers.
+
+  | Command         | What it does                         |
+  |-----------------+--------------------------------------|
+  | Org Show Images | show every image link in the file    |
+  | Org Hide Images | hide them                            |
+  | Org Show Image  | show the image link at the cursor    |
+  | Org Hide Image  | hide it                              |
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/orgimages.gif]]
+
+  =#+STARTUP: inlineimages= shows a file's images when it opens; the
+  =startup= setting (default =["showall", "noinlineimages"]=) does it for
+  every file.
+
+  Images on the web are downloaded into a cache the first time they are
+  shown, which can make Sublime wait: turn inline images on with care.
+  A relative image path is looked for next to the file, then in the
+  =imageSearchPath= folders.

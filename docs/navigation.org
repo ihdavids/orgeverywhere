@@ -1,0 +1,57 @@
+#+TITLE: Moving Around
+#+DOC_SECTION: Editing
+#+DOC_ORDER: 3
+
+* Heading to heading
+  - *Org Up* (=ctrl+up=) jumps to the heading above the cursor.
+  - *Org Down* (=ctrl+down=) jumps to the heading below it.
+
+  They stop at the next heading line, whatever its level.
+
+* Jumping within the file
+  *Org Jump In File* lists every heading of the current file, indented by
+  level, in a quick panel. Type a few letters of a heading and press
+  =enter= to go there.
+
+  [[https://raw.githubusercontent.com/ihdavids/orgextended_docs/master/images/jump.gif]]
+
+  It has no default key; it is worth binding one (see *Keys*).
+
+  Sublime's own *Goto Symbol* (=ctrl+r=, =cmd+r= on macOS) also lists the
+  headings of an org file.
+
+* Jumping to a custom id
+  A =CUSTOM_ID= property names a heading, like a bookmark:
+
+  #+BEGIN_EXAMPLE
+  * John Smith
+    :PROPERTIES:
+    :CUSTOM_ID: johnsmith
+    :END:
+  #+END_EXAMPLE
+
+  *Org Jump To CustomId* lists every custom id in every org file the orgs
+  server knows, with its heading and file, and opens the one you pick.
+  Because the list comes from the server it needs a connection; if the file
+  is open and you have moved the heading since saving, OrgEverywhere finds it
+  in the buffer rather than at the line the server last saw.
+
+  Custom ids should be unique across your files. *Org Insert CustomId*
+  (=alt+o i i=) adds one to the heading at the cursor, offering the ids
+  already in use so you can see which are taken; spaces become =-=.
+
+  A link =[[#johnsmith]]= jumps to that heading too, and =id:= links
+  find headings by their =ID= property; links are covered under *Links*.
+
+* Other places to jump to
+  These are covered with the features they belong to:
+
+  - *Org Jump To Clock*: the heading the clock is running on (see
+    *Planning*).
+  - *Org Jump To Today* and *Org: Jump To Marker*: the heading carrying the
+    today marker or another orgs marker (see *Planning*).
+  - *Org Jump To Backlink*: a heading that links to this one (see
+    *Links*).
+  - *Org: orgs Query Search* and *Org: orgs Full Text Search*: any heading
+    or line in any file (see *orgs Server*).
+  - In the agenda, =enter= opens the heading of the line under the cursor.

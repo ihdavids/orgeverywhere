@@ -1,0 +1,62 @@
+* 1.2.34
+** Active Table Cell Highlight
+   Show cursor for current cell.
+
+   Use the following option to turn this off if
+   it is causing you problems.
+
+   #+BEGIN_EXAMPLE
+     "tableShowCursor": false,
+   #+END_EXAMPLE
+
+** Babel Preview
+   - Perl is now supported. Like the other languages you have to
+   	 tell the language handler where your perl interpreter can be found
+   	 with:
+
+   	 #+BEGIN_QUOTE
+   	   "perlPath": "<path to perl interpreter",
+   	 #+END_QUOTE
+
+  	#+NAME: input-table
+  	| a | b | c |
+  	| 1 | 2 | 3 |
+  
+  	#+BEGIN_SRC perl :var DATA=input-table :results table
+    	foreach(my $m = 0; $m <= $#DATA; $m++)
+    	{   
+      		for(my $n = 0; $n <= $#{$DATA[$m]} ; $n++)
+      		{  
+        		print "$DATA[$m][$n] ";  
+      		}  
+      		print "\n";  
+    	} 
+  	#+END_SRC
+  	#+RESULTS:
+  	| a | b | c |
+  	| 1 | 2 | 3 |
+
+  	I am certainly not a perl master, if someone wants to tweak my perl
+  	integration please be my guest.
+
+  	#+BEGIN_SRC perl :results value
+    	return "Hello world"
+  	#+END_SRC
+  	#+RESULTS:
+  	: Hello world
+
+*** R
+   The R language in source blocks was not marked up properly.
+
+** Agenda
+   Files outside of orgDir were being included in the agenda.
+   A request was made to fix this. The old behaviour can be toggled
+   using the following:
+
+   #+BEGIN_SRC js
+        "agendaIncludeFilesOutsideOrgDir": true     
+   #+END_SRC
+
+** Sinamore Slow Checkbox Improvement [0/5]
+   - Improvement to checkbox performance in files with lots of checkboxes and summaries.
+
