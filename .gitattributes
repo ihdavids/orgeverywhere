@@ -1,3 +1,13 @@
 *.gif filter=lfs diff=lfs merge=lfs -text
 *.png filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs -text
+
+# Keep dev-only files out of the archive Package Control installs
+/todo.org export-ignore
+/OrgEverywhere.sublime-project export-ignore
+/tests/** export-ignore
+# ...except the sample files the Org Show TestFile/TableTests/SourceBlockTests commands open
+/tests/testfile.org -export-ignore
+/tests/tableunittests.org -export-ignore
+/tests/sourceunittests.org -export-ignore
+/docs export-ignore

@@ -2,7 +2,7 @@
 	"*": {
 		"*": [
 			"pyyaml",
-			"dateutil",
+			"python-dateutil",
 			"requests",
 			"regex",
 			"six"
