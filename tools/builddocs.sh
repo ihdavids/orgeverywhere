@@ -1,7 +1,8 @@
 #!/bin/sh
 # Builds OrgEverywhere's documentation: the SDOC blocks in the python sources
 # plus the guides in docs/, into build/docs/OrgEverywhere.org, then that into
-# build/docs/OrgEverywhere.html with the orgs html exporter's docs theme.
+# build/docs/OrgEverywhere.html with the orgs html exporter's docs theme. The
+# html is also copied to docs/docs.html, the copy the README links to.
 #
 #   tools/builddocs.sh            org and html
 #   tools/builddocs.sh -org       only the org file
@@ -29,7 +30,7 @@ for arg in "$@"; do
     case "$arg" in
         -org) HTML=0 ;;
         -open) OPEN=1 ;;
-        -h|-help|--help) sed -n '2,21p' "$0"; exit 0 ;;
+        -h|-help|--help) sed -n '2,22p' "$0"; exit 0 ;;
         *) echo "builddocs: unknown option $arg (try -help)" >&2; exit 2 ;;
     esac
 done
@@ -103,6 +104,8 @@ HTMLFILE="$OUT/$NAME.html"
 LOG="$OUT/export.log"
 if (cd "$TEMPLATES_DIR" && "$ORGS" -config "$CONF" -orgdir "$OUT" export -f html -out "$HTMLFILE" "$ORGFILE") >"$LOG" 2>&1; then
     echo "builddocs: wrote $HTMLFILE"
+    cp "$HTMLFILE" "$ROOT/docs/docs.html"
+    echo "builddocs: copied it to $ROOT/docs/docs.html"
 else
     echo "builddocs: the html export failed; see $LOG" >&2
     exit 1

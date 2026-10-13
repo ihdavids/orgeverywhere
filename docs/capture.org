@@ -10,7 +10,10 @@
 
   | Command     | Keys                                                          |
   |-------------+---------------------------------------------------------------|
-  | Org Capture | =ctrl+shift+x=, =alt+o z= (NeoVintageous command mode: =Z=)   |
+  | Org Capture | =ctrl+shift+x=, =alt+o z= (global, opt-in; NeoVintageous command mode: =Z=) |
+
+  The keys are global and opt-in: copy them from the example global keymap
+  (see *Keys*) to use them.
 
   *Org Capture* lists your own templates (the =captureTemplates= setting)
   and then, when the orgs server is connected, the server's templates,
@@ -142,7 +145,8 @@
 
    =captureBufferName= names the panel (=*capture*=) and
    =captureWriteFormat= is the encoding the target is written in
-   (=utf-8=). *Org Open Refile* (=ctrl+alt+x=) opens the =refile= file.
+   (=utf-8=). *Org Open Refile* (=ctrl+alt+x= in the example global keymap,
+   see *Keys*) opens the =refile= file.
 
 * Refile and copy
   Refile moves the heading at the cursor (and everything under it) to

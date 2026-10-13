@@ -11,15 +11,40 @@
   does not load a file by that name, so its bindings do nothing.)
 
   Most keys are a chord: =alt+o= followed by one or more letters. =alt+o i h=
-  means press =alt+o=, let go, press =i=, then =h=. Almost all of them only
-  work in an org file (or the view named in the heading of the table).
+  means press =alt+o=, let go, press =i=, then =h=. They only work in an org
+  file (or the view named in the heading of the table); the few global keys
+  are opt-in, see *Global keys (opt-in)* below.
 
   To change a key, open *Preferences > Package Settings > Org Everywhere > Key
   Bindings*: OrgEverywhere's bindings are on the left, yours on the right.
   Copy a line across and change its =keys=. Every command, bound or not, is
   also in the command palette under its caption (*Org ...*).
 
-* Everywhere
+* Global keys (opt-in)
+  Every default key works only in an org file (or the view named in its
+  table below). A few commands are useful from anywhere: capturing a note,
+  opening the agenda, making a link to the line you are on. Keys for those
+  would be live in every view, taking keys that other packages or you may
+  want, so they are not on by default. They are in an example keymap
+  instead, =Example Global.sublime-keymap=, which Sublime does not load.
+
+  To turn them on, open *Preferences > Package Settings > Org Everywhere >
+  Example Global Key Bindings*: the examples are on the left, your own
+  keymap on the right. Copy the bindings you want across, and change their
+  =keys= if you like.
+
+  #+BEGIN_SRC js
+  [
+      { "keys": ["ctrl+shift+x"],    "command": "org_capture"            },
+      { "keys": ["alt+o", "z"],      "command": "org_capture"            },
+      { "keys": ["ctrl+alt+x"],      "command": "org_open_refile"        },
+      { "keys": ["alt+o", "a", "d"], "command": "org_agenda_day_view"    },
+      { "keys": ["alt+o", "o", "a"], "command": "org_agenda_custom_view" },
+      { "keys": ["alt+o", "y", "l"], "command": "org_create_link"        },
+      { "keys": ["alt+o", "d", "c"], "command": "org_day_page_create"    },
+  ]
+  #+END_SRC
+
   | Keys           | Command                    | Caption                 |
   |----------------+----------------------------+-------------------------|
   | =ctrl+shift+x= | =org_capture=              | Org Capture             |
@@ -29,6 +54,10 @@
   | =alt+o o a=    | =org_agenda_custom_view=   | Org Agenda Custom View  |
   | =alt+o y l=    | =org_create_link=          | Org Create Link         |
   | =alt+o d c=    | =org_day_page_create=      | Org Day Page Create     |
+
+  Without them, run these from the command palette (*Org ...*). The
+  NeoVintageous keys for them (below) stay on: they only work in command
+  mode.
 
 * In an org file
 ** Tab, enter and the "do what I mean" keys

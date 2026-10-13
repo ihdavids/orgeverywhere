@@ -303,7 +303,7 @@ def ResolveViaServer(view, content, fallback):
 r"""
 /* SDOC: Reference::Commands::Links
 *** Org Create Link
-    Command: =org_create_link=  Keys: =alt+o y l=; NeoVintageous normal mode: =space y l=
+    Command: =org_create_link=  Keys: =alt+o y l= (example global keymap); NeoVintageous normal mode: =space y l=
 
     Puts a link to where the cursor is on the clipboard (and the
     NeoVintageous register), to paste somewhere else. In an org file it

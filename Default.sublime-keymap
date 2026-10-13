@@ -1,6 +1,5 @@
 [
 
-	{ "keys": ["ctrl+shift+x"],      "command": "org_capture"                                                                                                          },
 	{ "keys": ["ctrl+up"],           "command": "org_up" ,                       "context": [{ "key": "eol_selector", "operator": "equal", "operand": "text.orgmode" }]},
 	{ "keys": ["ctrl+down"],         "command": "org_down" ,                     "context": [{ "key": "eol_selector", "operator": "equal", "operand": "text.orgmode" }]},
     // TODO: ST4 REQUIRES the use of context vs wrapping.
@@ -74,7 +73,6 @@
         ]
     },
 
-	{ "keys": ["ctrl+alt+x"],        "command": "org_open_refile"                                                                                                      },
 
 
 
@@ -96,8 +94,6 @@
     { "keys": ["ctrl+shift+enter"],  "command": "org_generic_insert_aux",          "context": [{ "key": "selector", "operator": "equal", "operand":  "text.orgmode" }]},
 
     // Normal non vim style bindings
-    { "keys": ["alt+o","z"],         "command": "org_capture"                  },
-    { "keys": ["alt+o","a", "d"],    "command": "org_agenda_day_view"          },
 
     { "keys": ["alt+o", "t"],        "command": "org_toggle",                    "context": [{ "key": "eol_selector", "operand": "text.orgmode"}] },
     { "keys": ["alt+o", "R"],        "command": "org_refile",                    "context": [{ "key": "eol_selector", "operand": "text.orgmode"}] },
@@ -119,7 +115,6 @@
     { "keys": ["alt+o", "c", "o"],       "command": "org_clock_out",                 "context": [{ "key": "eol_selector", "operand": "text.orgmode"}] },
     { "keys": ["alt+o", "c", "c"],       "command": "org_recalc",                    "context": [{ "key": "eol_selector", "operand": "text.orgmode"}] },
     { "keys": ["alt+o", "c", "s"],       "command": "org_insert_checkbox_summary",   "context": [{ "key": "eol_selector", "operand": "text.orgmode"}] },
-    { "keys": ["alt+o", "y", "l"],       "command": "org_create_link",               "context": []},
     { "keys": ["alt+o", "m", "s"],       "command": "org_select_subtree",            "context": [{ "key": "eol_selector", "operand": "text.orgmode"}]},
     { "keys": ["alt+o", "m", "e"],       "command": "org_select_entity",             "context": [{ "key": "eol_selector", "operand": "text.orgmode"}]},
     { "keys": ["alt+o", "y", "s"],       "command": "org_copy_subtree",              "context": [{ "key": "eol_selector", "operand": "text.orgmode"}]},
@@ -128,7 +123,6 @@
     // DAYPAGE
     { "keys": ["alt+o", "d", "n"],       "command": "org_day_page_next",             "context": [{ "key": "eol_selector", "operand": "text.orgmode"}]  },
     { "keys": ["alt+o", "d", "p"],       "command": "org_day_page_previous",         "context": [{ "key": "eol_selector", "operand": "text.orgmode"}]  },
-    { "keys": ["alt+o", "d", "c"],       "command": "org_day_page_create",                                                                             },
     // TABLES
     { "keys": ["alt+o", "t", "a"],       "command": "table_editor_align", "context":
         [
@@ -237,7 +231,6 @@
     },
 
     // ORG AGENDA NORMAL KEYBINDING
-    { "keys": ["alt+o", "o", "a"],       "command": "org_agenda_custom_view",        "context": []  },
     { "keys": ["enter"],             "command": "org_agenda_go_to",                  "context": [{ "key": "eol_selector", "operand": "source.orgagenda"}]  },
     { "keys": [" "],                 "command": "org_agenda_go_to_split",            "context": [{ "key": "eol_selector", "operand": "source.orgagenda"}]  },
     { "keys": ["g"],                 "command": "org_agenda_day_view",               "context": [{ "key": "eol_selector", "operand": "source.orgagenda"}]  },

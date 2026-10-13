@@ -69,7 +69,8 @@
   the one you pick.
 
 * Making links
-  - *Org Create Link* (=alt+o y l=, NeoVintageous =space y l=) puts a link
+  - *Org Create Link* (=alt+o y l= from the example global keymap, see
+    *Keys*; NeoVintageous =space y l=) puts a link
     to where the cursor is on the clipboard: to the =<<target>>= or
     =#+NAME:= on the line, else to the heading (by its =ID= or
     =CUSTOM_ID= if it has one, else by its title), else to the line.

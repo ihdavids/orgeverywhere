@@ -10,9 +10,12 @@
 
   | Command              | Keys                                       | What it does                                     |
   |----------------------+--------------------------------------------+--------------------------------------------------|
-  | Org Day Page Create  | =alt+o d c= (NeoVintageous =space d c=)    | open today's page, making it if needed           |
+  | Org Day Page Create  | =alt+o d c= (global, opt-in; NeoVintageous =space d c=)   | open today's page, making it if needed           |
   | Org Day Page Previous | =alt+o d p= (NeoVintageous =space d p=)   | the page before the one you are on               |
   | Org Day Page Next    | =alt+o d n= (NeoVintageous =space d n=)    | the page after; past the last one, today's page  |
+
+  =alt+o d c= is global and opt-in: copy it from the example global keymap
+  (see *Keys*) to use it.
 
   Previous and next step from the page you are looking at (or from today)
   to the nearest page that exists.

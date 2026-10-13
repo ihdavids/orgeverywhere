@@ -257,7 +257,7 @@ def onPostWindowCommand(window, cmd, args):
 r"""
 /* SDOC: Reference::Commands::Capture
 *** Org Open Refile
-    Command: =org_open_refile=  Keys: =ctrl+alt+x=
+    Command: =org_open_refile=  Keys: =ctrl+alt+x= (example global keymap)
 
     Opens the file named by the =refile= setting, where captures land by
     default. Logs an error to the console when =refile= is not set.
@@ -947,7 +947,7 @@ def GetProp(template, name, defaultVal=None):
 r"""
 /* SDOC: Reference::Commands::Capture
 *** Org Capture
-    Command: =org_capture=  Keys: =ctrl+shift+x=, =alt+o z=; NeoVintageous normal mode: =Z=
+    Command: =org_capture=  Keys: =ctrl+shift+x=, =alt+o z= (example global keymap); NeoVintageous normal mode: =Z=
 
     Captures a note, todo or other text without leaving what you are doing.
     A quick panel lists the =captureTemplates= from your settings, then,

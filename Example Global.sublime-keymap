@@ -1,0 +1,17 @@
+// OrgEverywhere: example global key bindings.
+//
+// Sublime does not load this file. These bindings work in every view, not
+// just org files, so they are not on by default: they would take keys that
+// other packages (or you) may want. To use them, open
+//   Preferences > Package Settings > Org Everywhere > Example Global Key Bindings
+// and copy the ones you want from the left into your own keymap on the right.
+// Change the keys freely.
+[
+	{ "keys": ["ctrl+shift+x"],         "command": "org_capture"            },
+	{ "keys": ["alt+o", "z"],           "command": "org_capture"            },
+	{ "keys": ["ctrl+alt+x"],           "command": "org_open_refile"        },
+	{ "keys": ["alt+o", "a", "d"],      "command": "org_agenda_day_view"    },
+	{ "keys": ["alt+o", "o", "a"],      "command": "org_agenda_custom_view" },
+	{ "keys": ["alt+o", "y", "l"],      "command": "org_create_link"        },
+	{ "keys": ["alt+o", "d", "c"],      "command": "org_day_page_create"    },
+]

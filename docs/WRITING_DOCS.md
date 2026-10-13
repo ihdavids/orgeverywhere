@@ -11,8 +11,9 @@ The manual is built from two kinds of source by `tools/builddocs.sh`
 
 `docs/overview.org` is the introduction and is written first, whole.
 
-Build: `tools/builddocs.sh` (org and html in `build/docs/`), `-org` for the
-org file only, `-open` to open the html. It needs an orgs checkout at
+Build: `tools/builddocs.sh` (org and html in `build/docs/`, and the html
+copied to `docs/docs.html`, which the README links to; commit it), `-org` for
+the org file only, `-open` to open the html. It needs an orgs checkout at
 `../orgs` or `ORGS_DIR`.
 The docex it builds must take `-ext`, `-title`, `-theme` and `-guides`
 (and read `#+DOC_ORDER`), which the orgs repository's `cmd/docex` does.

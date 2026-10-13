@@ -26,13 +26,16 @@
 * Opening the agenda
   | Command                    | Keys                                   | What it does                                    |
   |----------------------------+----------------------------------------+-------------------------------------------------|
-  | Org Agenda Custom View     | =alt+o o a= (NeoVintageous =space o a=) | the =Default= view of =AgendaCustomViews=       |
+  | Org Agenda Custom View     | =alt+o o a= (global, opt-in; NeoVintageous =space o a=) | the =Default= view of =AgendaCustomViews=       |
   | Org Agenda Choose View     |                                        | pick one of your =AgendaCustomViews=            |
-  | Org Agenda Day View        | =alt+o a d= (NeoVintageous =shift+space=) | calendar, week, today and the project lists     |
+  | Org Agenda Day View        | =alt+o a d= (global, opt-in; NeoVintageous =shift+space=) | calendar, week, today and the project lists     |
   | Org Todo View              |                                        | every open todo                                  |
   | Org Filtered Todo View     |                                        | open todos with the tags you type (=tagfilter=) |
   | Org: Agenda Query (orgs)   |                                        | the headings an orgs query finds                |
   | Org: Agenda All Tasks (orgs filter AllTasks) |                      | the server's =AllTasks= filter                  |
+
+  Keys marked /global, opt-in/ are in the example global keymap and are
+  off until you copy them into your own keymap: see *Keys*.
 
 * In the agenda
   | Key            | Command                         | What it does                                              |

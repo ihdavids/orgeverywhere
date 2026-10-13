@@ -11,6 +11,13 @@
   > Everywhere cannot both be enabled: if Org Everywhere finds OrgExtended at
   > startup it offers to disable it.
 
+# Documentation
+
+  The manual is [docs/docs.html](docs/docs.html): one html file with every
+  guide and the full command and settings reference
+  ([read it in the browser](https://raw.githack.com/ihdavids/orgeverywhere/main/docs/docs.html)).
+  It is built from `docs/` and the sources by `tools/builddocs.sh`.
+
 # How it works
 
   orgs is a small server that watches a directory of org files and keeps a
@@ -195,7 +202,8 @@
   - [Agenda](https://github.com/ihdavids/orgextended_docs/blob/master/agenda.org) - Keeping track of your day.
   - [Key Bindings](https://github.com/ihdavids/orgextended_docs/blob/master/keybindings.org) - A quick reference of some of the default keybindings.
   
-  The full documentation for this plugin can be found at: [Docs](https://github.com/ihdavids/orgextended_docs)
+  The full documentation for this plugin is [docs/docs.html](docs/docs.html). The older OrgExtended
+  documentation is at: [Docs](https://github.com/ihdavids/orgextended_docs)
 
 # Thank You
   I have shamelessly built this plugin on the backs of some excellent plugins and libraries.

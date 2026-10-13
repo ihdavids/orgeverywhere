@@ -2158,7 +2158,7 @@ class OrgTodoViewCommand(sublime_plugin.TextCommand):
 r"""
 /* SDOC: Reference::Commands::Agenda
 *** Org Agenda Day View
-    Command: =org_agenda_day_view=  Keys: =alt+o a d=; =g= in an agenda view; NeoVintageous normal mode: =shift+space=
+    Command: =org_agenda_day_view=  Keys: =alt+o a d= (example global keymap); =g= in an agenda view; NeoVintageous normal mode: =shift+space=
 
     The default agenda: one "Agenda" view made of a three month calendar
     (days with entries highlighted), the week (an hour grid per day), today
@@ -2306,7 +2306,7 @@ viewRegistry = CalendarViewRegistry()
 r"""
 /* SDOC: Reference::Commands::Agenda
 *** Org Agenda Custom View
-    Command: =org_agenda_custom_view=  Keys: =alt+o o a=; NeoVintageous normal mode: =space o a=
+    Command: =org_agenda_custom_view=  Keys: =alt+o o a= (example global keymap); NeoVintageous normal mode: =space o a=
     Args: =toShow= (default ="Default"=)
 
     Builds the agenda named =toShow= in =AgendaCustomViews= (the ="Default"=

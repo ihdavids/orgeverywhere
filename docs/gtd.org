@@ -43,7 +43,7 @@
   #+END_SRC
 
   Because it is a server template, the same capture works from worg on
-  your phone and from the command line. =ctrl+shift+x=, pick
+  your phone and from the command line. *Org Capture*, pick
   =orgs: Inbox=, type, move on. See *Capture, Refile and Archive*.
 
   Context comes from tags: =:@work:=, =:@home:=, =:@phone:=. Put a tag on
@@ -61,7 +61,7 @@
      their project, a =SCHEDULED= date if they belong to a day, a
      =DEADLINE= if they have one.
 
-  Then plan the day: open the agenda (=alt+o o a=). The day view shows
+  Then plan the day: open the agenda (*Org Agenda Custom View*). The day view shows
   what is fixed today, what is overdue ("Sched. 3x"), and deadlines
   coming up. With a "today" heading (see *Markers and Today*) or a day
   page (see *Day Pages*) you can list the tasks you mean to do and keep

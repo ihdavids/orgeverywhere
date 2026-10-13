@@ -583,7 +583,7 @@ class OrgDayPageNextCommand(sublime_plugin.TextCommand):
 r"""
 /* SDOC: Reference::Commands::Day Pages
 *** Org Day Page Create
-    Command: =org_day_page_create=  Keys: =alt+o d c=; NeoVintageous normal mode: =space d c=  Args: =onDone=
+    Command: =org_day_page_create=  Keys: =alt+o d c= (example global keymap); NeoVintageous normal mode: =space d c=  Args: =onDone=
 
     Opens today's day page, creating it if it does not exist yet.
 
