@@ -1,0 +1,19 @@
+* 2.0.2 - Global key bindings are now opt-in
+  - The key bindings that worked in every view, not just org files, are no
+    longer on by default:
+    | Keys           | Command                |
+    |----------------+------------------------|
+    | ctrl+shift+x   | org_capture            |
+    | alt+o z        | org_capture            |
+    | ctrl+alt+x     | org_open_refile        |
+    | alt+o a d      | org_agenda_day_view    |
+    | alt+o o a      | org_agenda_custom_view |
+    | alt+o y l      | org_create_link        |
+    | alt+o d c      | org_day_page_create    |
+    They are now in an example keymap. To keep using them, open
+    Preferences > Package Settings > Org Everywhere > Example Global Key Bindings
+    and copy the ones you want into your own keymap on the right.
+    The commands are still in the command palette, and the NeoVintageous
+    keys for them are unchanged.
+  - The full manual is now in the package as docs/docs.html, linked from the
+    README.

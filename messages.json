@@ -1,5 +1,6 @@
 {
 	"install": "messages/install.org",
 	"2.0.0": "messages/2.0.0.org",
-	"2.0.1": "messages/2.0.1.org"
+	"2.0.1": "messages/2.0.1.org",
+	"2.0.2": "messages/2.0.2.org"
 }
