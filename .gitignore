@@ -3,5 +3,6 @@ __pycache__/
 *.pyc
 .DS_Store
 .claude/settings.local.json
-# Reference clone of the original orgextended repository
+# Reference clone of the original orgextended repository (now kept at ../orgextended-reference,
+# outside the package, so Sublime does not load its syntaxes and settings)
 OrgExtended/

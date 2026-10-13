@@ -204,26 +204,32 @@ class OrgsSetUpServerCommand(sublime_plugin.WindowCommand):
 
     def pick_folder(self, on_done):
         folders = self.window.folders()
-
-        def choose_other():
-            if hasattr(sublime, "select_folder_dialog"):
-                sublime.select_folder_dialog(lambda d: d and on_done(d))
-            else:
-                self.window.show_input_panel("Folder of org files for orgs to read:", os.path.expanduser("~/org"),
-                                             lambda d: d.strip() and on_done(os.path.expanduser(d.strip())), None, None)
-        if not folders:
-            choose_other()
-            return
-        items = [[os.path.basename(f) or f, f] for f in folders] + [["Choose another folder...", ""]]
+        items = [[os.path.basename(f) or f, f] for f in folders] + [
+            ["Type a folder path...", "enter accepts it"],
+            ["Browse for a folder...", "pick it, then click Open"] if hasattr(sublime, "select_folder_dialog") else None]
+        items = [i for i in items if i]
 
         def done(i):
             if i < 0:
                 return
             if i < len(folders):
                 on_done(folders[i])
+            elif i == len(folders):
+                self.type_folder(on_done, folders[0] if folders else os.path.expanduser("~/org"))
             else:
-                choose_other()
+                sublime.select_folder_dialog(lambda d: d and on_done(d[0] if isinstance(d, list) else d))
         _quick(self.window, items, done, "Which folder of org files should orgs read?")
+
+    def type_folder(self, on_done, initial, caption="Folder of org files for orgs to read:"):
+        """A folder typed by hand; asks again, keeping what was typed, when
+        it is not a folder."""
+        def got(d):
+            d = os.path.abspath(os.path.expanduser(d.strip()))
+            if os.path.isdir(d):
+                on_done(d)
+                return
+            sublime.set_timeout(lambda: self.type_folder(on_done, d, "Not a folder - folder of org files:"), 0)
+        self.window.show_input_panel(caption, initial, got, None, None)
 
     def pick_login(self, release, org_dir):
         items = [
@@ -800,7 +806,8 @@ r"""
 
     Everything about the orgs connection in one quick panel: log in or out,
     check again, the connection status, open worg, change the server url,
-    and the local orgs server (or set one up).
+    connect to the local server Org Everywhere for VS Code runs (when there
+    is one), and the local orgs server (or set one up).
 EDOC */
 """
 
@@ -817,6 +824,10 @@ class OrgsMenuCommand(sublime_plugin.WindowCommand):
             ("Connection status", orgs.describe(), lambda: w.run_command("orgs_status")),
             ("Open worg", "the orgs web ui", lambda: w.run_command("org_orgs_open_web")) if cl is not None else None,
             ("Change the server url...", sets.Get("orgsUrl", None) or "", lambda: w.run_command("orgs_set_url")),
+        ] + [
+            ("Connect to VS Code's orgs server", srv.url, lambda srv=srv: self.connect(srv.url))
+            for srv in orgs.vscode_servers() if not srv.is_managed(sets.Get("orgsUrl", None) or "")
+        ] + [
             ("Local orgs server...", _server().url, lambda: w.run_command("orgs_server_menu"))
             if _server().installed() else
             ("Set up a local orgs server...", "download orgs and run it on this machine",
@@ -825,6 +836,10 @@ class OrgsMenuCommand(sublime_plugin.WindowCommand):
         entries = [e for e in entries if e]
         _quick(w, [[e[0], e[1]] for e in entries], lambda i: i >= 0 and entries[i][2](),
                "orgs server: " + (cl.url if cl else sets.Get("orgsUrl", None) or "none found"))
+
+    def connect(self, url):
+        _set_user_setting("orgsUrl", url)
+        _reconnect(interactive=True)
 
 
 # ----------------------------------------------------------------------

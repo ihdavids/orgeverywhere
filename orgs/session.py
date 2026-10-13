@@ -84,6 +84,12 @@ r"""
 
     A server is recognised by its =/salt= route, the one route that answers
     without a login. Org: Set orgs server url writes =orgsUrl= for you.
+
+    A local server the vscode plugin (Org Everywhere for VS Code) set up is
+    found too: its address is tried after =orgsDiscoverUrls=, and its own
+    self-signed certificate is trusted for that address only, so neither
+    =orgsCaFile= nor =orgsNoVerify= is needed. Log in to it with a user of
+    that server (the plugin's own password stays in VS Code).
 EDOC */
 """
 
@@ -158,12 +164,30 @@ def local_server():
     return _local
 
 
+def vscode_servers():
+    """The local servers the vscode plugin set up on this machine."""
+    return localserver.vscode_servers()
+
+
 def _cafile(url):
-    """The certificate to trust for url: the local server's own for it,
-    and only for it; orgsCaFile for anything else."""
-    if url and _local.is_managed(url):
-        return _local.cafile()
+    """The certificate to trust for url: a local server's own (ours, or
+    the vscode plugin's) for it, and only for it; orgsCaFile for anything
+    else."""
+    if url:
+        for srv in [_local] + vscode_servers():
+            if srv.is_managed(url):
+                return srv.cafile()
     return _setting("orgsCaFile", None) or None
+
+
+def discover_urls():
+    """The urls tried when orgsUrl is not set: orgsDiscoverUrls, then the
+    vscode plugin's local servers."""
+    urls = list(_setting("orgsDiscoverUrls", None) or discovery.DEFAULT_CANDIDATES)
+    for srv in vscode_servers():
+        if not any(srv.is_managed(u) for u in urls):
+            urls.append(srv.url)
+    return urls
 
 
 def local_login(cl):
@@ -612,7 +636,7 @@ def connect(interactive=True, on_done=None):
             results = [r]
             url = r.url if r.ok else None
         else:
-            url, results = discovery.discover(_setting("orgsDiscoverUrls", None), verify, cafile)
+            url, results = discovery.discover(discover_urls(), verify, _cafile)
         if not url:
             why = "; ".join("{0}: {1}".format(r.url, r.msg) for r in results)
             _set_state(UNAVAILABLE, why)

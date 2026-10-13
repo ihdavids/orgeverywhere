@@ -56,6 +56,8 @@
     //"orgsUrl": "http://localhost:8010",
     "orgsDiscoverUrls": ["http://localhost:8010", "https://localhost:443"],
 
+    // A local server set up by Org Everywhere for VS Code is found and its
+    // certificate trusted on its own; nothing to set for it.
     // https with a self signed certificate: either trust the certificate
     // (orgsCaFile: path to the server.crt) or turn verification off.
     "orgsNoVerify": false,

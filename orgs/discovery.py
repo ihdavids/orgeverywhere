@@ -60,10 +60,11 @@ def probe(url, verify=True, cafile=None, timeout=2.0):
 
 
 def discover(candidates=None, verify=True, cafile=None, timeout=2.0):
-    """Probe candidates in order. Returns (first good url or None, [results])."""
+    """Probe candidates in order. Returns (first good url or None, [results]).
+    cafile is a path, or a function of the url giving the one to trust for it."""
     results = []
     for url in candidates or DEFAULT_CANDIDATES:
-        r = probe(url, verify, cafile, timeout)
+        r = probe(url, verify, cafile(url) if callable(cafile) else cafile, timeout)
         results.append(r)
         if r.ok:
             return r.url, results

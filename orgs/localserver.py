@@ -300,6 +300,28 @@ def data_dir():
     return os.path.join(base, "OrgEverywhere", "orgs")
 
 
+VSCODE_EXTENSION = "iorg.vscode-org-everywhere"
+VSCODE_APPS = ("Code", "Code - Insiders", "VSCodium", "Cursor")
+
+
+def vscode_dirs():
+    """Where the vscode plugin (vscode-org-everywhere) keeps the local server
+    it sets up: its globalStorage, in each VS Code that might have it."""
+    home = os.path.expanduser("~")
+    if sys.platform == "darwin":
+        base = os.path.join(home, "Library", "Application Support")
+    elif sys.platform == "win32":
+        base = os.environ.get("APPDATA") or os.path.join(home, "AppData", "Roaming")
+    else:
+        base = os.environ.get("XDG_CONFIG_HOME") or os.path.join(home, ".config")
+    return [os.path.join(base, app, "User", "globalStorage", VSCODE_EXTENSION, "orgs") for app in VSCODE_APPS]
+
+
+def vscode_servers(dirs=None):
+    """The local servers the vscode plugin has set up on this machine."""
+    return [s for s in (VSCodeServer(d) for d in (dirs or vscode_dirs())) if s.installed()]
+
+
 # ----------------------------------------------------------------------
 # Downloads
 
@@ -778,6 +800,25 @@ class LocalServer:
         except Exception as e:
             log.info("orgs: user ls: %s", e)
             return []
+
+
+class VSCodeServer(LocalServer):
+    """A local server the vscode plugin set up and runs. Sublime only
+    connects to it: it trusts that server's certificate for that server's
+    address, and logs in like any server (the plugin's password stays in
+    VS Code)."""
+
+    def installed(self):
+        return os.path.exists(self.config)
+
+    def cafile(self):
+        try:
+            with open(self.config, "r", encoding="utf-8") as f:
+                crt = server_value(f.read(), "servercrt")
+        except OSError:
+            crt = None
+        crt = crt or self.crt
+        return crt if self.https and os.path.exists(crt) else None
 
 
 def add_user_body(name, password, admin=False):

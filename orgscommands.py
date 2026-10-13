@@ -10,7 +10,6 @@ import sublime_plugin
 import OrgEverywhere.asettings as sets
 import OrgEverywhere.orgdb as db
 import OrgEverywhere.orgs.session as orgs
-from OrgEverywhere.orgs import discovery
 
 
 r"""
@@ -161,7 +160,7 @@ class OrgsStatusCommand(sublime_plugin.WindowCommand):
             lines.append("Live updates: " + ("connected" if lst and lst.connected else "not connected"))
             lines.append("Files tracked: " + str(len(db.Get().ServerFiles())))
         else:
-            cands = sets.Get("orgsUrl", None) or ", ".join(sets.Get("orgsDiscoverUrls", None) or discovery.DEFAULT_CANDIDATES)
+            cands = sets.Get("orgsUrl", None) or ", ".join(orgs.discover_urls())
             lines.append("Looking at: " + cands)
         sublime.message_dialog("\n".join(lines))
 
